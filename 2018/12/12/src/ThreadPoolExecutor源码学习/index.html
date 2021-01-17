@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  
+  <title itemprop="name">ThreadPoolExecutor源码学习 | vicety</title>
+  
+    <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji-ico.ico">
+  
+  <meta http-equiv="x-dns-prefetch-control" content="on">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+SerifMerriweather|Merriweather+Sans|Source+Code+Pro|Ubuntu:400,700|Noto+Serif+SC" media="all">
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="stylesheet" id="saukra_css-css" href="/css/style.css" type="text/css" media="all">
+  <link rel="stylesheet" href="/css/lib.min.css" media="all">
+  <link rel="stylesheet" href="/css/font.css" media="all">
+  <link rel="stylesheet" href="/css/insight.css" media="all">
+  <link rel="stylesheet" href="/css/jquery.fancybox.min.css" media="all">
+  <link rel="stylesheet" href="/css/zoom.css" media="all">
+  <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<!--   <link rel="stylesheet" id="saukra_css-css" href="https://2heng.xin/wp-content/cache/autoptimize/css/autoptimize_ad42a61f4c7d4bdd9f91afcff6b5dda5.css
+" type="text/css" media="all"> -->
+  <script>
+  /*Initial Variables*/
+  var mashiro_option = new Object();
+  var mashiro_global = new Object();
+  mashiro_option.NProgressON = true;
+  /* 
+   * 邮箱信息之类的东西可以填在这里，这些js变量基本都作用于sakura-app.js
+   * 这样的设置仅是为了方便在基于PHP开发的主题中设置js变量，既然移植到了Node上，我想或许可以精简这一逻辑吧
+   */
+  mashiro_option.email_domain = "";
+  mashiro_option.email_name = "";
+  mashiro_option.cookie_version_control = "";
+  mashiro_option.qzone_autocomplete = false;
+  mashiro_option.site_name = "さくら荘そのvicety";
+  mashiro_option.author_name = "vicety";
+  mashiro_option.site_url = "https://vicety.github.io/";
+  mashiro_option.v_appId = "GyC3NzMvd0hT9Yyd2hYIC0MN-gzGzoHsz";
+  mashiro_option.v_appKey = "mgOpfzbkHYqU92CV4IDlAUHQ";
+  mashiro_option.mathjax = "0";
+  mashiro_option.qq_api_url = "https://api.mashiro.top/qqinfo/"; 
+  mashiro_option.qq_avatar_api_url = "https://api.mashiro.top/qqinfo/";
+
+  // mashiro_option.jsdelivr_css_src = "https://cdn.jsdelivr.net/gh/moezx/cdn@3.4.5/css/lib.min.css";
+  // mashiro_option.float_player_on = true;
+
+  /*End of Initial Variables*/
+  </script>
+  <script type="text/javascript">
+  var bg = "https://cdn.jsdelivr.net/gh/vicety/Images@master/images/Hotaru_64495434.jpg".split(",");
+  var bgindex = Math.floor(Math.random()*bg.length);
+  if (!!window.ActiveXObject || "ActiveXObject" in window) { //is IE?
+    alert('朋友，IE浏览器未适配哦~');
+  }
+  </script>
+  <style type="text/css">
+  .hljs-ln{border-collapse:collapse}.hljs-ln td{padding:0}.hljs-ln-n:before{content:attr(data-line-number)}
+  </style>
+  <style type="text/css">.site-top .lower nav{display:block !important;}.author-profile i,.post-like a,.post-share .show-share,.sub-text,.we-info a,span.sitename,.post-more i:hover,#pagination a:hover,.post-content a:hover,.float-content i:hover{color:#FE9600}.feature i,.download,.navigator i:hover,.links ul li:before,.ar-time i,span.ar-circle,.object,.comment .comment-reply-link,.siren-checkbox-radio:checked + .siren-checkbox-radioInput:after{background:#FE9600}::-webkit-scrollbar-thumb{background:#FE9600}.download,.navigator i:hover,.link-title,.links ul li:hover,#pagination a:hover,.comment-respond input[type='submit']:hover{border-color:#FE9600}.entry-content a:hover,.site-info a:hover,.comment h4 a,#comments-navi a.prev,#comments-navi a.next,.comment h4 a:hover,.site-top ul li a:hover,.entry-title a:hover,#archives-temp h3,span.page-numbers.current,.sorry li a:hover,.site-title a:hover,i.iconfont.js-toggle-search.iconsearch:hover,.comment-respond input[type='submit']:hover{color:#FE9600}.comments .comments-main{display:block !important;}.comments .comments-hidden{display:none !important;}background-position:center center;background-attachment:inherit;}
+  </style>
+</head>
+</html>
+<body class="page-template page-template-user page-template-page-analytics page-template-userpage-analytics-php page page-id-1297 chinese-font serif isWebKit">
+  <div class="scrollbar" id="bar">
+  </div>
+  <a href="#" class="cd-top faa-float animated"></a>
+  <section id="main-container">
+    <div class="headertop filter-dot">
+  <div id="banner_wave_1"></div>
+  <div id="banner_wave_2"></div>
+  <figure id="centerbg" class="centerbg">
+    <div class="focusinfo no-select">
+      <div class="header-tou">
+        <a href="https://vicety.github.io/">
+          <img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji.jpg">
+        </a>
+      </div>
+      <div class="header-info">
+        <p>Stay Hungry, Stay Foolish</p>
+        <div class="top-social_v2">
+          <li id="bg-pre">
+            <img class="flipx" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/next-b.svg">
+          </li>
+          
+            
+              
+                <li>
+                  <a href="http://github.com/vicety" target="_blank" class="social-github" title="github">
+                    <img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/github.png">
+                  </a>
+                </li>
+              
+            
+          
+          <li id="bg-next">
+            <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/next-b.svg">
+          </li>
+        </div>
+      </div>
+    </div>
+  </figure>
+  <div id="video-container" style="">
+    <video style="object-fit: fill" id="bgvideo" class="video" video-name="" src="" width="auto" preload="auto">
+    </video>
+    <div id="video-btn" class="loadvideo videolive">
+    </div>
+    <div id="video-add">
+    </div>
+    <div class="video-stu">
+    </div>
+  </div>
+  <div class="headertop-down faa-float animated" onclick="headertop_down()">
+    <span>
+      <i class="fa fa-chevron-down" aria-hidden="true">
+      </i>
+    </span>
+  </div>
+</div>
+    <div id="page" class="site wrapper">
+      <header class="site-header no-select gizle sabit" role="banner">
+  <div class="site-top">
+    <div class="site-branding">
+      <span class="site-title">
+        <span class="logolink moe-mashiro">
+          <a href="/">
+            <span class="sakurasono">さくら荘その</span>
+            <span class="shironeko">vicety</span>
+          </a>
+        </span>
+      </span>
+    </div>
+    <div class="searchbox search-form-submit">
+      <i class="iconfont js-toggle-search iconsearch icon-search">
+      </i>
+    </div>
+    <div id="show-nav" class="showNav mobile-fit">
+      <div class="line line1">
+      </div>
+      <div class="line line2">
+      </div>
+      <div class="line line3">
+      </div>
+    </div>
+    <div class="lower-cantiner">
+      <div class="lower">
+        <nav class="mobile-fit-control hide">
+          <ul id="menu-new" class="menu">
+            
+              <li>
+                <a href="/">
+                  <span class="faa-parent animated-hover">
+                    <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+                    首页
+                  </span>
+                </a>
+                
+              </li>
+            
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
+<div class="pattern-center-blank"></div>
+
+  <div class="pattern-center single-center">
+    <!-- 有配图默认渲染第一张 -->
+    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/vicety/Images@master/images/72354736_p0.jpg);" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/72354736_p0.jpg">
+    </div>
+    <header class="pattern-header single-header">
+      <h1 class="entry-title">
+      ThreadPoolExecutor源码学习</h1>
+      <p class="entry-census">
+        <span>
+          <a href="vicety.github.io">
+            <img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji.jpg">
+          </a>
+        </span>
+        <span>
+          <a href="vicety.github.io">vicety</a>
+        </span>
+        <span class="bull">
+        ·</span>
+        2018-12-12<span class="bull">
+        ·</span>
+      <span id="busuanzi_value_page_pv"></span>次阅读</p>
+    </header>
+  </div>
+
+<div id="content" class="site-content">
+  <div id="primary" class="content-area">
+    <main id="main" class="site-main" role="main">
+      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
+        <div class="toc"></div>
+        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
+        
+        <div class="entry-content">
+          <p>pid=72354736</p>
+<h3 id="基本用法"><a href="#基本用法" class="headerlink" title="基本用法"></a>基本用法</h3><p>先学习一下ThreadPool的基本使用</p>
+<pre><code class="java">public static void main(String[] args) throws InterruptedException, ExecutionException {
+    long l = System.currentTimeMillis();
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    Future&lt;Integer&gt; future = executorService.submit(() -&gt; {
+        System.out.println(&quot;执行耗时操作&quot;);
+        try {
+            Thread.sleep(2500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println(&quot;执行结果就绪&quot;);
+        return 100;
+    });
+
+    mainThreadTasks();
+    System.out.println(&quot;到达阻塞点&quot;);
+    System.out.println(String.format(&quot;future执行结果为：%d&quot;, future.get()));
+    System.out.println(String.format(&quot;执行时间：%d&quot;, System.currentTimeMillis() - l));
+}
+</code></pre>
+<p>对于上述代码提出两个问题：</p>
+<ol>
+<li>异步调用是如何实现的？</li>
+<li>线程池如何管理线程？</li>
+</ol>
+<h3 id="异步调用实现"><a href="#异步调用实现" class="headerlink" title="异步调用实现"></a>异步调用实现</h3><p>上面的代码涉及了几个类/接口：ThreadPoolExecutor、ExecutorService、Executors、Future，下面列一下这些类的作用以及继承结构</p>
+<ul>
+<li>ThreadPoolExecutor：线程池的实现类，ThreadPoolExecutor -&gt; AbstractExecutorService -&gt; ExecutorService -&gt; Executor</li>
+<li>ExecutorService：定义了一个可执行服务应有的功能，如shutDown、submit、invokeAll等</li>
+<li>Executor：只定义了一个execute(Runnable)方法</li>
+<li>Executors：内部提供静态方法以及静态类，用于创建预定义的ExecutorService</li>
+<li>Future：定义了一个异步计算应该实现的功能，包括get、cancel、isCancelled、done</li>
+</ul>
+<p>然后分析代码执行<br>submit函数传入Runnable，</p>
+<pre><code class="java">// AbstractExecutorService.java
+public &lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task) {
+    if (task == null) throw new NullPointerException();
+    RunnableFuture&lt;T&gt; ftask = newTaskFor(task);
+    execute(ftask);
+    return ftask;
+}
+</code></pre>
+<ul>
+<li>RunnableFuture：同时继承Future与Runnable的接口</li>
+<li>FutureTask：在其中存储异步操作的当前阶段、计算得到的结果、等待结果的线程</li>
+</ul>
+<p>newTaskFor返回一个FutureTask对象，然后交由实现类实现的execute方法执行</p>
+<p>FutureTask中定义了一个异步计算的生命周期如下：</p>
+<pre><code class="java">/*
+ * Possible state transitions:
+ * NEW -&gt; COMPLETING -&gt; NORMAL
+ * NEW -&gt; COMPLETING -&gt; EXCEPTIONAL
+ * NEW -&gt; CANCELLED
+ * NEW -&gt; INTERRUPTING -&gt; INTERRUPTED
+ */
+private volatile int state;
+private static final int NEW          = 0;
+private static final int COMPLETING   = 1;
+private static final int NORMAL       = 2;
+private static final int EXCEPTIONAL  = 3;
+private static final int CANCELLED    = 4;
+private static final int INTERRUPTING = 5;
+private static final int INTERRUPTED  = 6;
+</code></pre>
+<p>从状态名就可以看出状态代表的含义，NORMAL指普通的执行结束</p>
+<p>使用get函数获得异步计算的结果，如果结果还没出来，那么调用awaitDone函数，这里考虑没有超时机制的简单情况，就是将线程挂载到等待链表的头结点，成功后使当前线程休眠（可能有多个线程都阻塞在这个future的get方法上）</p>
+<pre><code class="java">public V get() throws InterruptedException, ExecutionException {
+    int s = state;
+    if (s &lt;= COMPLETING) // 还没出结果
+        s = awaitDone(false, 0L);
+    return report(s);
+}
+
+private V report(int s) throws ExecutionException {
+    Object x = outcome; // x可能是返回值或异常
+    // 如果调用正常返回
+    if (s == NORMAL)
+        return (V)x;
+    // 如果是cancelled/interrupting/interrupted
+    if (s &gt;= CANCELLED)
+        throw new CancellationException();
+    // 如果调用过程产生异常
+    throw new ExecutionException((Throwable)x);
+}
+</code></pre>
+<pre><code class="java">private int awaitDone(boolean timed, long nanos)
+    throws InterruptedException {
+    final long deadline = timed ? System.nanoTime() + nanos : 0L;
+    WaitNode q = null;
+    boolean queued = false;
+    for (;;) {
+        if (Thread.interrupted()) {
+            removeWaiter(q);
+            throw new InterruptedException();
+        }
+
+        int s = state;
+        // 运行完毕，返回FutureTask状态用于对运算结果的转型（为Throwable或FutureTask本身的泛型）
+        if (s &gt; COMPLETING) {
+            if (q != null)
+                q.thread = null;
+            return s;
+        }
+        else if (s == COMPLETING) // 仍在计算，让出CPU
+            Thread.yield();
+        // 否则运算还没开始，插入Wait链表，最终park挂起线程
+        else if (q == null)
+            q = new WaitNode();
+        else if (!queued)
+            queued = UNSAFE.compareAndSwapObject(this, waitersOffset,
+                                                    q.next = waiters, q);
+        else if (timed) {
+            nanos = deadline - System.nanoTime();
+            if (nanos &lt;= 0L) {
+                removeWaiter(q);
+                return state;
+            }
+            LockSupport.parkNanos(this, nanos);
+        }
+        else
+            LockSupport.park(this);
+    }
+}
+</code></pre>
+<p>有休眠必然有唤醒，看一下unpark在哪里，Ctrl+f发现在finishCompletion方法中从链表表头遍历，对每个线程进行unpark操作，最后调用子类重写的done回调（done默认为空）</p>
+<pre><code class="java">private void finishCompletion() {
+    // assert state &gt; COMPLETING;
+    for (WaitNode q; (q = waiters) != null;) {
+        if (UNSAFE.compareAndSwapObject(this, waitersOffset, q, null)) {
+            for (;;) {
+                Thread t = q.thread;
+                if (t != null) {
+                    q.thread = null;
+                    LockSupport.unpark(t);
+                }
+                WaitNode next = q.next;
+                if (next == null)
+                    break;
+                q.next = null; // unlink to help gc
+                q = next;
+            }
+            break;
+        }
+    }
+
+    done();
+
+    callable = null;        // to reduce footprint
+}
+</code></pre>
+<p>finishCompletion有三处出现，分别是set、cancel、setException，对应三种退出方式，其中set函数的唯一调用在run方法（run方法又是在ThreadPoolExecutor的Worker线程中被调用的），提交的任务在这里被调用，运行计算得到结果后调用set方法将运算结果写入Object类型成员变量，随后将所有等待执行结果的、阻塞在awaitDone方法的线程unpark。</p>
+<p>值得注意的是任务在运行时若产生异常，setException方法将状态转换为EXCEPTION，异常本身存储到outcome中，若未发生异常，set方法设置状态为NORMAL，方法返回值存储到这个变量。get方法调用时根据FutureTask的状态返回Future泛型类型的outcome或者将outcome转型为Throwable后抛出异常。</p>
+<pre><code class="java">protected void set(V v) {
+    if (UNSAFE.compareAndSwapInt(this, stateOffset, NEW, COMPLETING)) {
+        outcome = v;
+        UNSAFE.putOrderedInt(this, stateOffset, NORMAL); // final state
+        finishCompletion();
+    }
+}
+
+public void run() {
+    if (state != NEW ||
+        !UNSAFE.compareAndSwapObject(this, runnerOffset,
+                                        null, Thread.currentThread()))
+        return;
+    try {
+        Callable&lt;V&gt; c = callable;
+        if (c != null &amp;&amp; state == NEW) {
+            V result;
+            boolean ran;
+            try {
+                result = c.call();
+                ran = true;
+            } catch (Throwable ex) {
+                result = null;
+                ran = false;
+                setException(ex);
+            }
+            if (ran)
+                set(result);
+        }
+    } finally {
+        // runner must be non-null until state is settled to
+        // prevent concurrent calls to run()
+        runner = null;
+        // state must be re-read after nulling runner to prevent
+        // leaked interrupts
+        int s = state;
+        if (s &gt;= INTERRUPTING)
+            handlePossibleCancellationInterrupt(s);
+    }
+}
+</code></pre>
+<p>总结一下：​ThreadPoolEexecutor接收callable，包装为FutureTask，插入ThreadPoolEexecutor的阻塞队列等待执行，ThreadPoolEexecutor的Worker（对应一个线程）从阻塞队列取出FutureTask，调用其run方法，run方法内部调用之前传入的callable，计算获得结果后存储在FutureTask的Object类型成员变量中等待需要的线程来取，当然也有可能已经有线程正在等待，此时FutureTask通过Unsafe.unpark唤醒内部维护的等待线程链表中的所有线程，这些线程从awaitDone方法中解除阻塞，根据任务执行的状态码返回执行结果或是抛出执行过程中的异常或是抛出执行取消异常。</p>
+<p>以上大致解答了异步调用如何被实现，接下来看线程池如何管理线程</p>
+<h3 id="线程管理"><a href="#线程管理" class="headerlink" title="线程管理"></a>线程管理</h3><p>线程池中定义了如下的状态：</p>
+<ul>
+<li>RUNNING：普通的运行中状态</li>
+<li>SHUTDOWN：不再接受新任务</li>
+<li>STOP：不再接受新任务，放弃等待队列中的任务，interrupt正在执行任务的线程</li>
+<li>TIDYING：所有的任务都已经终止，workerCount=0，运行回调方法terminated</li>
+<li>TERNIMATED：回调方法terminated运行完毕后的状态</li>
+</ul>
+<p>线程池的构造方法可以指定一些参数，Executors中预定义的线程池给出了默认参数</p>
+<pre><code class="java">public ThreadPoolExecutor(int corePoolSize,
+                          int maximumPoolSize,
+                          long keepAliveTime,
+                          TimeUnit unit,
+                          BlockingQueue&lt;Runnable&gt; workQueue,
+                          ThreadFactory threadFactory,
+                          RejectedExecutionHandler handler) {
+    if (corePoolSize &lt; 0 ||
+        maximumPoolSize &lt;= 0 ||
+        maximumPoolSize &lt; corePoolSize ||
+        keepAliveTime &lt; 0)
+        throw new IllegalArgumentException();
+    if (workQueue == null || threadFactory == null || handler == null)
+        throw new NullPointerException();
+    this.corePoolSize = corePoolSize;
+    this.maximumPoolSize = maximumPoolSize;
+    this.workQueue = workQueue;
+    this.keepAliveTime = unit.toNanos(keepAliveTime);
+    this.threadFactory = threadFactory;
+    this.handler = handler;
+}
+</code></pre>
+<p>著作权归作者所有。<br>商业转载请联系作者获得授权，非商业转载请注明出处。<br>vicety<br>链接：<a href="https://vicety.github.io/2020/03/01/ThreadPoolExecutor%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" target="_blank" rel="noopener">https://vicety.github.io/2020/03/01/ThreadPoolExecutor%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/</a><br>来源：さくら荘そのvicety</p>
+<p>构造方法参数说明：</p>
+<ul>
+<li>corePoolSize：核心线程数，默认情况下核心线程会一直存活，即使处于闲置状态也不会受存keepAliveTime限制。除非将- allowCoreThreadTimeOut设置为true。</li>
+<li>maximumPoolSize：线程池所能容纳的最大线程数。超过这个数的线程将被阻塞。当任务队列为没有设置大小的LinkedBlockingDeque时，这个值无效。</li>
+<li>keepAliveTime：非核心线程的闲置超时时间，超过这个时间就会被回收。</li>
+<li>unit：指定keepAliveTime的单位，如TimeUnit.SECONDS。当将allowCoreThreadTimeOut设置为true时对corePoolSize生效。</li>
+<li>workQueue：线程池中的任务队列.常用的有三种队列</li>
+<li>a.SynchronousQueue：是一种无缓冲的等待队列，在某次添加元素后必须等待其他线程取走后才能继续添加；</li>
+<li>b.LinkedBlockingDeque：是一个无界缓存的等待队列，不指定容量则为Integer最大值，锁是分离的；</li>
+<li>c.ArrayBlockingQueue：是一个有界缓存的等待队列，必须指定大小，锁是没有分离的；</li>
+<li>threadFactory：线程工厂，提供创建新线程的功能，通过线程工厂可以对线程的一些属性进行定制。</li>
+<li>RejectedExecutionHandler：当线程池达到maximumPoolSize且阻塞队列已满，会调用RejectedExecutionHandler的rejectedExecution方法，也就是某种拒绝策略，默认有以下四种。<ul>
+<li>AbortPolicy：当任务添加到线程池中被拒绝时，它将抛出RejectedExecutionException 异常。</li>
+<li>CallerRunsPolicy：当任务添加到线程池中被拒绝时，会使用提交此任务的线程处理被拒绝的任务。</li>
+<li>DiscardOldestPolicy：当任务添加到线程池中被拒绝时，线程池会放弃等待队列中最旧的未处理任务，然后将被拒绝的任务添加到等待队列中。</li>
+<li>DiscardPolicy：当任务添加到线程池中被拒绝时，线程池将丢弃被拒绝的任务。</li>
+</ul>
+</li>
+</ul>
+<p>从线程池为空的状态开始，到来的任务首先与一个新线程一起包装为Worker加入workers集合，如果workers.size达到corePoolSize则加入阻塞队列，如果队长有限，那么队满后加入的任务继续包装为Worker加入workers集合，直到达到maximumPoolSize，此后加入的任务全部采用拒绝策略拒绝</p>
+<p>线程状态与线程数量使用一个int存放，高三位存状态，其余位存worker数量</p>
+<p>可以看出Worker是内部重要的执行单元，Worker继承了AQS，重写tryAcquire、tryRelease、lock、unlock等方法实现为一个不可重入的排它锁；Worker内部存储一个Thread和一个Task作为任务执行的环境；创建Worker时会利用ThreadFactory创建一个对应此Worker的线程</p>
+<p>从构造函数大致就可以看出线程池内部维护的数据结构，下面从submit方法进入看一下内部实现。submit方法调用的是execute方法：</p>
+<pre><code class="java">public void execute(Runnable command) {
+        if (command == null)
+            throw new NullPointerException();
+
+        int c = ctl.get();
+        // 小于corePoolSize，为任务创建新线程
+        if (workerCountOf(c) &lt; corePoolSize) {
+            if (addWorker(command, true)) //以corePoolSize为bound添加worker
+                return;
+            c = ctl.get();
+        }
+        // 线程池RUNNING，那么入队
+        if (isRunning(c) &amp;&amp; workQueue.offer(command)) {
+            int recheck = ctl.get();
+            // workers 的数量达到了 corePoolSize，任务入队成功，下一瞬间线程池被关闭了，并且没有被阻塞的空闲线程能够立即取出这一任务，那么执行拒绝策略。
+            // 是一个非常边界的情况，入队和关闭线程池并发执行
+            if (! isRunning(recheck) &amp;&amp; remove(command))
+                reject(command);
+            // 防止线程池中没有线程了
+            else if (workerCountOf(recheck) == 0)
+                addWorker(null, false);
+            // 否则就仅仅只是入队，不为这个task分配新线程
+        }
+        // offer是非阻塞操作，这里代表队列已满，以maximumPoolSize为bound添加worker，失败则执行拒绝策略
+        else if (!addWorker(command, false))
+            reject(command);
+    }
+</code></pre>
+<p>然后看addWorker中的逻辑</p>
+<pre><code class="java">// firstTask：是否为worker分配第一个任务
+// core: 是否已corePoolSize作为bound，否则使用maximumPoolSize作为bound
+private boolean addWorker(Runnable firstTask, boolean core) {
+    retry:
+    for (;;) {
+        int c = ctl.get();
+        int rs = runStateOf(c);
+        // Check if queue empty only if necessary.
+        // 如果线程池已关闭，并满足以下条件之一，那么不创建新的 worker：
+        // 1. 线程池状态大于 SHUTDOWN，其实也就是 STOP, TIDYING, 或 TERMINATED
+        // 2. firstTask != null
+        // 3. workQueue.isEmpty()
+        if (rs &gt;= SHUTDOWN &amp;&amp;
+            ! (rs == SHUTDOWN &amp;&amp;
+               firstTask == null &amp;&amp;
+               ! workQueue.isEmpty()))
+            return false;
+        for (;;) {
+            int wc = workerCountOf(c);
+            if (wc &gt;= CAPACITY ||
+                wc &gt;= (core ? corePoolSize : maximumPoolSize))
+                return false;
+            if (compareAndIncrementWorkerCount(c)) // 原子修改worker数量
+                break retry;
+            c = ctl.get();  // CAS失败，检查状态是否被修改，是-&gt;跳转到外部循环，否-&gt;重复当前循环
+            if (runStateOf(c) != rs)
+                continue retry;
+            // else CAS failed due to workerCount change; retry inner loop
+        }
+    }
+    boolean workerStarted = false;
+    boolean workerAdded = false;
+    Worker w = null;
+    try {
+        w = new Worker(firstTask);
+        final Thread t = w.thread;
+        if (t != null) {
+            final ReentrantLock mainLock = this.mainLock;
+            // 此类的全局锁，防止与tryTerminate
+            mainLock.lock();
+            try {
+                // Recheck while holding lock.
+                // Back out on ThreadFactory failure or if
+                // shut down before lock acquired.
+                int rs = runStateOf(ctl.get());
+                if (rs &lt; SHUTDOWN ||
+                    (rs == SHUTDOWN &amp;&amp; firstTask == null)) {
+                    if (t.isAlive()) // precheck that t is startable
+                        throw new IllegalThreadStateException();
+                    workers.add(w);
+                    int s = workers.size();
+                    if (s &gt; largestPoolSize)
+                        largestPoolSize = s; // largestPoolSize是线程池维护的一个统计值
+                    workerAdded = true;
+                }
+            } finally {
+                mainLock.unlock();
+            }
+            if (workerAdded) {
+                t.start(); // 执行Worker的run方法
+                workerStarted = true;
+            }
+        }
+    } finally {
+        if (! workerStarted)
+            addWorkerFailed(w); // 失败后的清理工作
+    }
+    return workerStarted;
+}
+</code></pre>
+<p>接着走下去看Worker的run方法，调用了外部ThreadPoolExecutor的runWorker方法</p>
+<pre><code class="java">final void runWorker(Worker w) {
+    Thread wt = Thread.currentThread();
+    Runnable task = w.firstTask;
+    w.firstTask = null;
+    w.unlock(); // allow interrupts
+    boolean completedAbruptly = true;
+    try {
+        // 这里不断地通过getTask从阻塞队列中获得任务执行
+        while (task != null || (task = getTask()) != null) {
+            w.lock();
+            // If pool is stopping, ensure thread is interrupted;
+            // if not, ensure thread is not interrupted.  This
+            // requires a recheck in second case to deal with
+            // shutdownNow race while clearing interrupt
+            if ((runStateAtLeast(ctl.get(), STOP) ||
+                 (Thread.interrupted() &amp;&amp;
+                  runStateAtLeast(ctl.get(), STOP))) &amp;&amp;
+                !wt.isInterrupted())
+                wt.interrupt();
+            try {
+                beforeExecute(wt, task);
+                Throwable thrown = null;
+                // 注意到Runnable.run方法不允许抛出异常，这里接收unchecked异常后重新抛出
+                // 异常在Thread没有UncaughtExceptionHandler处理的情况下会导致线程的死亡
+                // afterExecute回调可以重新利用抛出的异常
+                // Question：不明白什么情况下会接收到Throwable
+                // Answer: 我认为有可能子类重写了AbstractExecutorService的newTaskFor方法，
+                // 返回了一个自定义的RunnableFuture，其中有可能没有对所有的异常进行收集，
+                // 此时这里的catch Throwable就起一个兜底的作用
+                try {
+                    task.run();
+                } catch (RuntimeException x) {
+                    thrown = x; throw x;
+                } catch (Error x) {
+                    thrown = x; throw x;
+                } catch (Throwable x) {
+                    thrown = x; throw new Error(x);
+                } finally {
+                    afterExecute(task, thrown);
+                }
+            } finally {
+                // 准备迎接下一个任务
+                task = null;
+                w.completedTasks++;
+                w.unlock();
+            }
+        }
+        completedAbruptly = false;
+    } finally {
+        // 根据是否abruptly结束（也就是说run方法抛异常导致线程退出还是getTask方法返回null导致退出）
+        // 以及当前线程池的状态，completedAbruptly会判断在当前线程死亡后是否还需要重新补充线程
+        // 代码就不展开了
+        processWorkerExit(w, completedAbruptly);
+    }
+}
+</code></pre>
+<p>为了解决getTask何时返回null的疑问，看一下getTask()方法的实现</p>
+<pre><code class="java">// 注意这里返回null意味着runWorker中线程的退出
+private Runnable getTask() {
+    boolean timedOut = false; // Did the last poll() time out?
+
+    for (;;) {
+        int c = ctl.get();
+        int rs = runStateOf(c);
+
+        // 如果等于SHUTDOWN且队列为空 或 大于SHUTDOWN状态，CAS循环减少workerCount，随后线程退出
+        if (rs &gt;= SHUTDOWN &amp;&amp; (rs &gt;= STOP || workQueue.isEmpty())) {
+            decrementWorkerCount();
+            return null;
+        }
+
+        int wc = workerCountOf(c);
+
+        // Are workers subject to culling?
+        boolean timed = allowCoreThreadTimeOut || wc &gt; corePoolSize;
+
+        // 如果线程数量过多（调用setMaximumPoolSize重新设置maximumPoolSize导致）
+        // 或者需要计时且超时 &amp;&amp; 这不是最后一个线程或队列为空
+        // 那么尝试一次CAS，失败则重新刷新状态，成功则线程退出
+        // 注意这里可能导致线程池中没有worker且队列空，
+        // 如果线程状态合适（不是RUNNING）的话，可能就通过
+        // processWorkerExit中的tryTerminate函数终止线程池了
+        if ((wc &gt; maximumPoolSize || (timed &amp;&amp; timedOut))
+            &amp;&amp; (wc &gt; 1 || workQueue.isEmpty())) {
+            if (compareAndDecrementWorkerCount(c))
+                return null;
+            continue;
+        }
+
+        try {
+            // 队列为空时，getTask方法在此阻塞
+            Runnable r = timed ?
+                workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS) :
+                workQueue.take();
+            if (r != null)
+                return r;
+            timedOut = true;
+        } catch (InterruptedException retry) {
+            timedOut = false;
+        }
+    }
+}
+</code></pre>
+<p>最后看一下线程池退出的部分，线程池退出一般涉及三个方法</p>
+<pre><code class="java">public void shutdown() {
+    final ReentrantLock mainLock = this.mainLock;
+    mainLock.lock();
+    try {
+        checkShutdownAccess();
+        advanceRunState(SHUTDOWN); // 设置状态
+        interruptIdleWorkers(); // 主要逻辑在这里，就是对每一个空闲线程（通过tryLock判断）调用interrupt方法
+        onShutdown(); // hook for ScheduledThreadPoolExecutor
+    } finally {
+        mainLock.unlock();
+    }
+    tryTerminate(); // 所有可能导致线程终止的操作都需要执行一次tryTerminate方法
+}
+
+public List&lt;Runnable&gt; shutdownNow() {
+    List&lt;Runnable&gt; tasks;
+    final ReentrantLock mainLock = this.mainLock;
+    mainLock.lock();
+    try {
+        checkShutdownAccess();
+        advanceRunState(STOP); // 设置状态，getTask不再返回任务
+        interruptWorkers();  // interrupt所有还在运行的线程
+        tasks = drainQueue(); // 导出所有队列中的任务
+    } finally {
+        mainLock.unlock();
+    }
+    tryTerminate();
+    return tasks;
+}
+
+public boolean awaitTermination(long timeout, TimeUnit unit)
+    throws InterruptedException {
+    long nanos = unit.toNanos(timeout);
+    final ReentrantLock mainLock = this.mainLock;
+    mainLock.lock();
+    try {
+        for (;;) {
+            if (runStateAtLeast(ctl.get(), TERMINATED))
+                return true;
+            if (nanos &lt;= 0)
+                return false;
+            nanos = termination.awaitNanos(nanos); // termination是一个Condition
+        }
+    } finally {
+        mainLock.unlock();
+    }
+}
+</code></pre>
+<h3 id="线程池配置"><a href="#线程池配置" class="headerlink" title="线程池配置"></a>线程池配置</h3><p>最后来看一下Executors中提供了哪些默认的线程池配置，实现了怎样的功能</p>
+<pre><code class="java">// 无界队列
+public static ExecutorService newFixedThreadPool(int nThreads) {
+    return new ThreadPoolExecutor(nThreads, nThreads,
+                                  0L, TimeUnit.MILLISECONDS,
+                                  new LinkedBlockingQueue&lt;Runnable&gt;());
+}
+
+// 单线程+无界队列
+public static ExecutorService newSingleThreadExecutor() {
+    return new FinalizableDelegatedExecutorService
+        (new ThreadPoolExecutor(1, 1,
+                                0L, TimeUnit.MILLISECONDS,
+                                new LinkedBlockingQueue&lt;Runnable&gt;()));
+}
+
+// coreSize = 0，60s空闲线程超时，首次进入的任务会创建Worker，后续任务如果有空闲线程被take阻塞那么正好可以获得，否则创建新线程（建议回头看一下execute函数）
+public static ExecutorService newCachedThreadPool() {
+    return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                  60L, TimeUnit.SECONDS,
+                                  new SynchronousQueue&lt;Runnable&gt;());
+}
+</code></pre>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>也可以直接参考第一篇参考文章文末的总结和第二篇参考文章，这里借鉴了第二篇参考文章中线程池参数配置的总结，其余部分均为原创</p>
+<ul>
+<li><p>为什么Worker本身也要继承AQS设计为不可重入的排它锁？</p>
+<ul>
+<li>一种原因是用于在interruptIdleWorkers函数中判断一个Worker是否空闲，因为在运行时是需要加锁的。</li>
+<li>至于为什么不继承ReentrantLock，见StackOverflow上的讨论 （我觉得这个面试肯定不问……）</li>
+</ul>
+</li>
+<li>线程池参数如何设置：简单地讨论需要的线程个数的话，对于CPU密集型任务设为CPU核心数+1，对于IO密集型设为CPU核心数*N，IO耗时越久，这个N可以越大</li>
+</ul>
+<p>另外，对于文章开头提出的问题，（终于）我们可以在文末作出解答：</p>
+<ol>
+<li><p><strong>异步调用是如何实现的？</strong><br>首先创建线程池，执行submit(Callable)方法。那么执行submit(Callalbe)操作发生了什么？</p>
+<ol>
+<li>创建一个RunnableFuture类的FutureTask，交由线程池执行</li>
+<li>线程池根据线程状态<ol>
+<li>创建新线程执行</li>
+<li>入队响应空闲线程对阻塞队列的take操作或者等待线程空闲</li>
+<li>根据拒绝策略拒绝执行这一任务，默认的拒绝策略有：<ol>
+<li>抛异常</li>
+<li>什么也不做，将任务丢弃</li>
+<li>交给调用submit的线程执行</li>
+<li>将队头元素poll抛弃，对此任务执行execute函数</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>在异步任务计算的同时，调用线程可以做一些别的事情，需要计算结果时调用get方法获得结果。那么调用get获得执行结果时发生了什么？</p>
+<ul>
+<li>FutureTask.run会调用内部的Callable，将正常调用返回的结果或是异常存储在一个Object对象中，随后通过unpark唤醒所有内部维护的、在等待这个计算结果的线程。</li>
+<li>FutureTask的run方法会根据结果是否已经产生修改FutureTask的状态，如果状态不合适（比如说结果还没计算出来或者计算还没开始），调用方会让出CPU（yield或者park），同时加入等待队列</li>
+</ul>
+<ol start="2">
+<li><strong>线程池如何管理线程？</strong></li>
+</ol>
+<ul>
+<li><p>线程池中的每个Worker都对应一个线程，当任务到来时</p>
+<ul>
+<li>if(workers.size &lt; corePoolsize) 创建新的worker</li>
+<li>else if(worker.size == corePoolsize &amp;&amp; queue.notFull) 任务入队</li>
+<li>else if(worker.size &lt;= maximumPoolSize &amp;&amp; queue.full) 创建新的worker</li>
+<li>else 根据拒绝策略拒绝执行这一任务</li>
+</ul>
+</li>
+<li><p>对于任务的执行过程无论是否发生异常都不影响方法返回</p>
+</li>
+<li>每个worker都执行一个死循环，不停地调用getTask方法从阻塞队列中获得任务然后执行，worker有两种退出情况<ul>
+<li>执行过程中抛出异常（在默认情况下FutureTask会接住所有异常从而不会在这一层收到异常）导致线程死亡，另外线程死循环外finally中的processWorkerExit回考虑是否需要在线程死亡后补上一个新线程</li>
+<li>getTask方法返回null，原因有<ul>
+<li>线程池状态改变</li>
+<li>超过maximumPoolSize</li>
+<li>超过corePoolSize但不超过maximumPoolSize的线程空闲太久导致timeout</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a href="https://juejin.im/entry/59aeaafd51882538cb1ec2f8" target="_blank" rel="noopener">深度解读 java 线程池设计思想及源码实现</a><br><a href="https://juejin.im/post/5e435ac3f265da57537ea7ba" target="_blank" rel="noopener">聊聊线程池原理，这一顿操作说懵阿里面试官…</a><br><a href="https://zhuanlan.zhihu.com/p/52821352" target="_blank" rel="noopener">深入理解 ThreadPoolExecutor</a></p>
+
+        </div>
+        <!-- .entry-content -->
+        <div class="single-reward">
+          <div class="reward-open">赏
+            <div class="reward-main">
+              <ul class="reward-row">
+                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/alipayQR.jpg"></li>
+                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/WechatQR.png"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
+        <footer class="post-footer">
+          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
+          <div class="post-tags">
+          </div>
+          <div class="post-share">
+            <div class="social-share sharehidden share-component"></div>
+            <i class="iconfont show-share icon-forward"></i>
+          </div>
+        </footer><!-- .entry-footer -->
+      </article>
+      <!-- #post-## -->
+      <div class="toc" style="background: none;"></div>
+      <section class="post-squares nextprev">
+        
+          
+            <div class="post-nepre half previous">
+          
+            <a href="/2018/12/12/src/Luogu 3372. 线段树/" rel="prev">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
+              </div>
+              <span class="label">
+              Previous Post</span>
+              <div class="info">
+                <h3>
+                Luogu 3372. 线段树</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+        
+          
+            <div class="post-nepre half next">
+          
+            <a href="/2018/12/12/src/『转载』从卖萌到精通——『和式汉语』简要入门指南/" rel="next">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/illust_72029313_20200506_183554_scaled.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/illust_72029313_20200506_183554_scaled.png">
+              </div>
+              <span class="label">
+              Next Post</span>
+              <div class="info">
+                <h3>
+                『转载』从卖萌到精通——『和式汉语』简要入门指南</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
+      </section>
+      
+      <section class="author-profile">
+        <div class="info" itemprop="author" itemscope="" itemtype="https://schema.org/Person">
+          <a href="vicety.github.io" class="profile gravatar"><img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji.jpg" itemprop="image" alt="vicety" height="70" width="70"></a>
+          <div class="meta">
+            <span class="title">Author</span>
+            <h3 itemprop="name">
+            <a href="vicety.github.io" itemprop="url" rel="author">vicety</a>
+            </h3>
+          </div>
+        </div>
+        <hr>
+        <p><i class="iconfont icon-write"></i></p>
+      </section>
+    </main><!-- #main -->
+  </div><!-- #primary -->
+</div>
+
+
+
+    </div>    
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="请输入关键词..."/>
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            // PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+    <!-- <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 vicety<br>
+      powered_by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer> -->
+<footer id="colophon" class="site-footer" role="contentinfo">
+  <div class="site-info">
+    <div class="footertext">
+      <div class="img-preload">
+        <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/wordpress-rotating-ball-o.svg">
+        <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/other/disqus-preloader.svg">
+      </div>
+      <p style="color: #666666;">&copy 2018</p>
+    </div>
+    <div class="footer-device">
+    <p style="font-family: 'Ubuntu', sans-serif;">
+        <span style="color: #b9b9b9;">Theme <a href="https://github.com/honjun/hexo-theme-sakura" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Sakura</a> <i class="iconfont icon-sakura rotating" style="color: #ffc0cb;display:inline-block"></i> by <a href="https://2heng.xin/" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Mashiro</a>&<a href="https://www.hojun.cn/" target="_blank" style="color: #b9b9b9;;text-decoration: underline dotted rgba(0, 0, 0, .1);">Hojun</a>, Powered by Hexo, Hosted by Coding Pages</a>
+        </span>
+      </p>
+    </div>
+  </div><!-- .site-info -->
+</footer>
+
+
+
+<!-- <script src="/js/tocbot.js"></script> -->
+<script type="text/javascript" src="/js/lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script type="text/javascript" src="/js/InsightSearch.js"></script>
+<script type="text/javascript" src="/js/jquery.fancybox.min.js"></script>
+<script type="text/javascript" src="/js/zoom.min.js"></script>
+<script type="text/javascript" src="/js/sakura-app.js"></script>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='//unpkg.com/valine@1.3.4/dist/Valine.min.js'></script>
+<script src="/js/botui.js"></script>
+<!-- 不蒜子 网页计数器 -->
+<script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script> -->
+<script type="text/javascript">
+/* <![CDATA[ */
+if (/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  var Poi = {"pjax":"1","movies":{"url": "https://cdn.jsdelivr.net/gh/honjun/hojun@1.2","name":"Unbroken.mp4","live":"close"},"windowheight":"fixed","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+} else {
+  var Poi = {"pjax":"1","movies":{"url": "https://cdn.jsdelivr.net/gh/honjun/hojun@1.2","name":"Unbroken.mp4","live":"open"},"windowheight":"auto","codelamp":"close","ajaxurl":"","order":"asc","formpostion":"bottom"};
+}
+/* ]]> */
+
+</script>
+<script>
+$(document).ready(function() {
+  if ($(".toc").length > 0 && document.body.clientWidth > 1200) {
+    if ($(".pattern-center").length > 0) { //有图的情况
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -400,
+          scrollSmoothOffset: -85
+      });
+    } else {
+      tocbot.init({
+          // Where to render the table of contents.
+          tocSelector: '.toc', // 放置目录的容器
+          // Where to grab the headings to build the table of contents.
+          contentSelector: '.entry-content', // 正文内容所在
+          // Which headings to grab inside of the contentSelector element.
+          scrollSmooth: true,
+          headingSelector: 'h1, h2, h3, h4, h5', // 需要索引的标题级别
+          headingsOffset: -85,
+          scrollSmoothOffset: -85
+      });
+    }
+    var offsetTop = $('.toc').offset().top - 95;
+    window.onscroll = function() {
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+      if (scrollTop >= offsetTop) {
+        $('.toc').addClass('toc-fixed');
+      } else {
+        $('.toc').removeClass('toc-fixed');
+      }
+    }
+  }
+});
+</script>
+
+    <div class="openNav no-select" style="height: 50px;">
+      <div class="iconflat no-select" style="width: 50px; height: 50px;">
+        <div class="icon"></div>
+      </div>
+      <div class="site-branding search-form-submit">
+        <i class="iconfont js-toggle-search iconsearch icon-search"></i>
+      </div>
+    </div>
+  </section>
+  <div id="mo-nav" class="">
+  <div class="m-avatar">
+    <img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji.jpg">
+  </div>
+  <p style="text-align: center; color: #333; font-weight: 900; font-family: 'Ubuntu', sans-serif; letter-spacing: 1.5px">さくら荘そのvicety</p>
+  <p style="text-align: center; word-spacing: 20px;">
+    
+      
+        <a href="http://github.com/vicety" class="fa fa-github" target="_blank" style="color: #333; margin-left:20px"></a>
+      
+    
+  </p>
+  <ul id="menu-new-1" class="menu">
+    
+      <li>
+        <a href="/">
+          <span class="faa-parent animated-hover">
+            <i class="fa  fa-fort-awesome faa-shake" aria-hidden="true"></i>
+            首页
+          </span>
+        </a>
+        
+      </li>
+    
+  </ul>
+  <p style="text-align: center; font-size: 13px; color: #b9b9b9;">&copy 2019 hexo-sakura</p>
+</div>
+<button onclick="topFunction()" class="mobile-cd-top" id="moblieGoTop" title="Go to top" style="display: none;"><i class="fa fa-chevron-up" aria-hidden="true"></i></button>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
+<script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
+<!-- require MetingJS -->
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+<style>
+  .aplayer .aplayer-lrc {
+    height: 35px;
+  }
+  .aplayer .aplayer-lrc p{
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 18px !important;
+  }
+  .aplayer .aplayer-lrc p.aplayer-lrc-current{
+    color: #FF1493;
+  }
+  .aplayer.aplayer-narrow .aplayer-body{
+    left: -66px !important;
+  }
+  .aplayer.aplayer-fixed .aplayer-lrc {
+    display: none;
+  }
+  .aplayer .aplayer-lrc.aplayer-lrc-hide {
+      display:none !important;
+  }
+  .aplayer.aplayer-fixed .lrc-show {
+    display: block;
+    background: rgba(255, 255, 255, 0.8);
+  }
+</style>
+<meting-js
+
+    id="2660651585"
+
+    server="netease"
+
+    type="playlist"
+
+    fixed="true"
+
+    autoplay="false"
+
+    loop="all"
+
+    order="random"
+
+    preload="auto"
+
+    volume="0.7"
+
+    mutex="true"
+
+</meting-js>
+<script>
+  $(function(){
+    $('body').on('click', '.aplayer', function(){
+      if($('.aplayer-button').hasClass('aplayer-play')) {
+        $('.aplayer-lrc').removeClass('lrc-show');
+      } else {
+        $('.aplayer-lrc').addClass('lrc-show');
+      }
+    })
+  });
+</script>
+</body>
+</html>
