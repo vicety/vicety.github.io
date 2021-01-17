@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="/"/>
-  <updated>2021-01-17T21:12:06.059Z</updated>
+  <updated>2021-01-17T21:12:31.859Z</updated>
   <id>/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="/2020/11/16/src/%E6%96%BD%E5%B7%A5%E4%B8%AD-Golang%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
     <id>/2020/11/16/src/施工中-Golang线程同步/</id>
     <published>2020-11-16T03:50:46.000Z</published>
-    <updated>2021-01-17T21:12:06.059Z</updated>
+    <updated>2021-01-17T21:12:31.859Z</updated>
     
     <summary type="html">
     
@@ -47,7 +47,7 @@
     <link href="/2020/11/08/src/%E6%9D%82%E8%B0%88-2020%E5%B9%B411%E6%9C%88/"/>
     <id>/2020/11/08/src/杂谈-2020年11月/</id>
     <published>2020-11-08T14:26:08.000Z</published>
-    <updated>2021-01-17T21:12:06.071Z</updated>
+    <updated>2021-01-17T21:12:31.866Z</updated>
     
     <summary type="html">
     
@@ -68,33 +68,11 @@
   </entry>
   
   <entry>
-    <title>LeetCode 1143 Longest Common Subsequence</title>
-    <link href="/2018/12/12/src/LeetCode%201143%20Longest%20Common%20Subsequence/"/>
-    <id>/2018/12/12/src/LeetCode 1143 Longest Common Subsequence/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T21:12:06.053Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;h3 id=&quot;题目&quot;&gt;&lt;a href=&quot;#题目&quot; class=&quot;headerlink&quot; title=&quot;题目&quot;&gt;&lt;/a&gt;题目&lt;/h3&gt;&lt;p&gt;求两个字符串的最长公共子序列长度&lt;br&gt;eg1: s = “abcde”, p = “abd” -&amp;gt; ans = 3&lt;br&gt;eg2:
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
     <title>LeetCode 121|122|123|188|309. Best-Time-to-Buy-and-Sell-Stock-买卖股票系列</title>
     <link href="/2018/12/12/src/LeetCode%20121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%B3%BB%E5%88%97/"/>
     <id>/2018/12/12/src/LeetCode 121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-买卖股票系列/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T21:12:06.069Z</updated>
+    <updated>2021-01-17T21:12:31.864Z</updated>
     
     <summary type="html">
     
@@ -112,11 +90,33 @@
   </entry>
   
   <entry>
+    <title>LeetCode 1143 Longest Common Subsequence</title>
+    <link href="/2018/12/12/src/LeetCode%201143%20Longest%20Common%20Subsequence/"/>
+    <id>/2018/12/12/src/LeetCode 1143 Longest Common Subsequence/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-01-17T21:12:31.855Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;题目&quot;&gt;&lt;a href=&quot;#题目&quot; class=&quot;headerlink&quot; title=&quot;题目&quot;&gt;&lt;/a&gt;题目&lt;/h3&gt;&lt;p&gt;求两个字符串的最长公共子序列长度&lt;br&gt;eg1: s = “abcde”, p = “abd” -&amp;gt; ans = 3&lt;br&gt;eg2:
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>LeetCode 1235. Maximum Profit in Job Scheduling</title>
     <link href="/2018/12/12/src/LeetCode%201235.%20Maximum%20Profit%20in%20Job%20Scheduling/"/>
     <id>/2018/12/12/src/LeetCode 1235. Maximum Profit in Job Scheduling/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T21:12:06.053Z</updated>
+    <updated>2021-01-17T21:12:31.854Z</updated>
     
     <summary type="html">
     
@@ -140,7 +140,7 @@
     <link href="/2018/12/12/src/LeetCode%20136-137-260%20Single%20Number%20I,%20II,%20III/"/>
     <id>/2018/12/12/src/LeetCode 136-137-260 Single Number I, II, III/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T21:12:06.065Z</updated>
+    <updated>2021-01-17T21:12:31.863Z</updated>
     
     <summary type="html">
     
@@ -162,7 +162,7 @@
     <link href="/2018/12/12/src/LeetCode%20128.%20Longest%20Consecutive%20Sequence/"/>
     <id>/2018/12/12/src/LeetCode 128. Longest Consecutive Sequence/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T21:12:06.073Z</updated>
+    <updated>2021-01-17T21:12:31.867Z</updated>
     
     <summary type="html">
     
@@ -180,11 +180,57 @@
   </entry>
   
   <entry>
+    <title>LeetCode 179. Largest Number</title>
+    <link href="/2018/12/12/src/LeetCode%20179.%20Largest%20Number/"/>
+    <id>/2018/12/12/src/LeetCode 179. Largest Number/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-01-17T21:12:31.861Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;很容易想到的方法是转化为数组排序，使用此方法首先需要证明数组中元素集是一个偏序集，另外还需要证明最终按降序排列将字符串组合起来得到的答案一定是最优答案。&lt;/p&gt;
+&lt;p&gt;(这个主题不支持Latex，TAT，改贴图吧)&lt;/p&gt;
+&lt;p&gt;&lt;img
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>LeetCode 218. The Skyline Problem</title>
+    <link href="/2018/12/12/src/LeetCode%20218.%20The%20Skyline%20Problem/"/>
+    <id>/2018/12/12/src/LeetCode 218. The Skyline Problem/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-01-17T21:12:31.863Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;一种做法是使用优先队列维护当前区间内的最大值，初始状态插入一个0，如果最大值变动，那么更新答案，缺点是优先队列非堆顶元素出队的复杂度为O(N)，导致这种方法在Runtime
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>LeetCode 149. Max Points In a line</title>
     <link href="/2018/12/12/src/LeetCode%20149.%20Max%20Points%20In%20a%20line/"/>
     <id>/2018/12/12/src/LeetCode 149. Max Points In a line/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T21:12:06.070Z</updated>
+    <updated>2021-01-17T21:12:31.865Z</updated>
     
     <summary type="html">
     
@@ -205,11 +251,11 @@
   </entry>
   
   <entry>
-    <title>LeetCode 218. The Skyline Problem</title>
-    <link href="/2018/12/12/src/LeetCode%20218.%20The%20Skyline%20Problem/"/>
-    <id>/2018/12/12/src/LeetCode 218. The Skyline Problem/</id>
+    <title>LeetCode 287. Find the Duplicate Number</title>
+    <link href="/2018/12/12/src/LeetCode%20287.%20Find%20the%20Duplicate%20Number/"/>
+    <id>/2018/12/12/src/LeetCode 287. Find the Duplicate Number/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T21:12:06.066Z</updated>
+    <updated>2021-01-17T21:12:31.855Z</updated>
     
     <summary type="html">
     
@@ -217,31 +263,7 @@
       
         
         
-          &lt;p&gt;一种做法是使用优先队列维护当前区间内的最大值，初始状态插入一个0，如果最大值变动，那么更新答案，缺点是优先队列非堆顶元素出队的复杂度为O(N)，导致这种方法在Runtime
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>LeetCode 179. Largest Number</title>
-    <link href="/2018/12/12/src/LeetCode%20179.%20Largest%20Number/"/>
-    <id>/2018/12/12/src/LeetCode 179. Largest Number/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T21:12:06.062Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;很容易想到的方法是转化为数组排序，使用此方法首先需要证明数组中元素集是一个偏序集，另外还需要证明最终按降序排列将字符串组合起来得到的答案一定是最优答案。&lt;/p&gt;
-&lt;p&gt;(这个主题不支持Latex，TAT，改贴图吧)&lt;/p&gt;
-&lt;p&gt;&lt;img
+          &lt;p&gt;主要解释一下&lt;a href=&quot;https://leetcode.com/problems/find-the-duplicate-number/discuss/72845/Java-O(n&quot; target=&quot;_blank&quot;
         
       
     
@@ -255,7 +277,7 @@
     <link href="/2018/12/12/src/LeetCode%20264.%20Ugly%20Number%20II/"/>
     <id>/2018/12/12/src/LeetCode 264. Ugly Number II/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T21:12:06.054Z</updated>
+    <updated>2021-01-17T21:12:31.855Z</updated>
     
     <summary type="html">
     
@@ -275,79 +297,11 @@
   </entry>
   
   <entry>
-    <title>LeetCode 336. Palindrome Pairs</title>
-    <link href="/2018/12/12/src/LeetCode%20336.%20Palindrome%20Pairs/"/>
-    <id>/2018/12/12/src/LeetCode 336. Palindrome Pairs/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T21:12:06.053Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;给出n个unique字符串，求所有两两拼接能够得到回文串的组合&lt;/p&gt;
-&lt;h4 id=&quot;暴力&quot;&gt;&lt;a href=&quot;#暴力&quot; class=&quot;headerlink&quot; title=&quot;暴力&quot;&gt;&lt;/a&gt;暴力&lt;/h4&gt;&lt;p&gt;枚举字符串对拼接判回文串，O(n^2k)&lt;/p&gt;
-&lt;h4
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>LeetCode 287. Find the Duplicate Number</title>
-    <link href="/2018/12/12/src/LeetCode%20287.%20Find%20the%20Duplicate%20Number/"/>
-    <id>/2018/12/12/src/LeetCode 287. Find the Duplicate Number/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T21:12:06.054Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;主要解释一下&lt;a href=&quot;https://leetcode.com/problems/find-the-duplicate-number/discuss/72845/Java-O(n&quot; target=&quot;_blank&quot;
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>LeetCode 327. Count of Range Sum 区间过滤</title>
-    <link href="/2018/12/12/src/LeetCode%20327.%20Count%20of%20Range%20Sum%20%E5%8C%BA%E9%97%B4%E8%BF%87%E6%BB%A4/"/>
-    <id>/2018/12/12/src/LeetCode 327. Count of Range Sum 区间过滤/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T21:12:06.056Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;求数组中所有这样的区间[l,r]的个数，使&lt;code&gt;upper &amp;gt;= sum(l, r) &amp;gt;= lower&lt;/code&gt;，转化为前缀和&lt;code&gt;upper &amp;gt;= prefix[r] - prefix[l] &amp;gt;=
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
     <title>LeetCode 315. Count of Smaller Numbers After Self</title>
     <link href="/2018/12/12/src/LeetCode%20315.%20Count%20of%20Smaller%20Numbers%20After%20Self/"/>
     <id>/2018/12/12/src/LeetCode 315. Count of Smaller Numbers After Self/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T21:12:06.066Z</updated>
+    <updated>2021-01-17T21:12:31.863Z</updated>
     
     <summary type="html">
     
@@ -367,11 +321,57 @@
   </entry>
   
   <entry>
+    <title>LeetCode 327. Count of Range Sum 区间过滤</title>
+    <link href="/2018/12/12/src/LeetCode%20327.%20Count%20of%20Range%20Sum%20%E5%8C%BA%E9%97%B4%E8%BF%87%E6%BB%A4/"/>
+    <id>/2018/12/12/src/LeetCode 327. Count of Range Sum 区间过滤/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-01-17T21:12:31.858Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;求数组中所有这样的区间[l,r]的个数，使&lt;code&gt;upper &amp;gt;= sum(l, r) &amp;gt;= lower&lt;/code&gt;，转化为前缀和&lt;code&gt;upper &amp;gt;= prefix[r] - prefix[l] &amp;gt;=
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>LeetCode 336. Palindrome Pairs</title>
+    <link href="/2018/12/12/src/LeetCode%20336.%20Palindrome%20Pairs/"/>
+    <id>/2018/12/12/src/LeetCode 336. Palindrome Pairs/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-01-17T21:12:31.854Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;给出n个unique字符串，求所有两两拼接能够得到回文串的组合&lt;/p&gt;
+&lt;h4 id=&quot;暴力&quot;&gt;&lt;a href=&quot;#暴力&quot; class=&quot;headerlink&quot; title=&quot;暴力&quot;&gt;&lt;/a&gt;暴力&lt;/h4&gt;&lt;p&gt;枚举字符串对拼接判回文串，O(n^2k)&lt;/p&gt;
+&lt;h4
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>LeetCode 341. Flatten Nested List Iterator</title>
     <link href="/2018/12/12/src/LeetCode%20341.%20Flatten%20Nested%20List%20Iterator/"/>
     <id>/2018/12/12/src/LeetCode 341. Flatten Nested List Iterator/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T21:12:06.049Z</updated>
+    <updated>2021-01-17T21:12:31.852Z</updated>
     
     <summary type="html">
     
@@ -393,7 +393,7 @@
     <link href="/2018/12/12/src/LeetCode%20354.%20Russian%20Doll%20Envelopes/"/>
     <id>/2018/12/12/src/LeetCode 354. Russian Doll Envelopes/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T21:12:06.072Z</updated>
+    <updated>2021-01-17T21:12:31.866Z</updated>
     
     <summary type="html">
     
@@ -417,7 +417,7 @@
     <link href="/2018/12/12/src/LeetCode%20395.%20Longest%20Substring%20with%20At%20Least%20K%20Repeating%20Characters/"/>
     <id>/2018/12/12/src/LeetCode 395. Longest Substring with At Least K Repeating Characters/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T21:12:06.068Z</updated>
+    <updated>2021-01-17T21:12:31.864Z</updated>
     
     <summary type="html">
     
@@ -440,7 +440,7 @@
     <link href="/2018/12/12/src/LeetCode%20397.%20Integer%20Replacement/"/>
     <id>/2018/12/12/src/LeetCode 397. Integer Replacement/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T21:12:06.072Z</updated>
+    <updated>2021-01-17T21:12:31.867Z</updated>
     
     <summary type="html">
     
@@ -463,7 +463,7 @@
     <link href="/2018/12/12/src/LeetCode%20437.%20Path%20Sum%20II/"/>
     <id>/2018/12/12/src/LeetCode 437. Path Sum II/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T21:12:06.074Z</updated>
+    <updated>2021-01-17T21:12:31.868Z</updated>
     
     <summary type="html">
     
