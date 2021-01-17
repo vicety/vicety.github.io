@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="/"/>
-  <updated>2021-01-17T20:34:52.189Z</updated>
+  <updated>2021-01-17T20:34:52.185Z</updated>
   <id>/</id>
   
   <author>
@@ -15,30 +15,6 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
-  
-  <entry>
-    <title></title>
-    <link href="/2021/01/18/LeetCode%20149%20Max%20Points%20on%20a%20Line/"/>
-    <id>/2021/01/18/LeetCode 149 Max Points on a Line/</id>
-    <published>2021-01-17T20:34:52.189Z</published>
-    <updated>2021-01-17T20:34:52.189Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;给出订单类，包括开始时间、结束时间和利润，假设同时只能参与一个订单，求最大利润。&lt;/p&gt;
-&lt;p&gt;（解法二和解法三来自leetcode）&lt;/p&gt;
-&lt;h3 id=&quot;解法一：离散化DP&quot;&gt;&lt;a href=&quot;#解法一：离散化DP&quot; class=&quot;headerlink&quot;
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
   
   <entry>
     <title></title>
@@ -162,28 +138,6 @@
   </entry>
   
   <entry>
-    <title>LeetCode 121|122|123|188|309. Best-Time-to-Buy-and-Sell-Stock-买卖股票系列</title>
-    <link href="/2018/12/12/LeetCode%20121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%B3%BB%E5%88%97/"/>
-    <id>/2018/12/12/LeetCode 121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-买卖股票系列/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:34:52.187Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;h3 id=&quot;题目&quot;&gt;&lt;a href=&quot;#题目&quot; class=&quot;headerlink&quot; title=&quot;题目&quot;&gt;&lt;/a&gt;题目&lt;/h3&gt;&lt;p&gt;假设你知道股价序列，初始状态不持有股票，每次只能买入一股且在持有股票的同时不能继续买入，可以在同一时间点买入卖出。一次买入+卖出称作一个
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
     <title>LeetCode 128. Longest Consecutive Sequence</title>
     <link href="/2018/12/12/LeetCode%20128.%20Longest%20Consecutive%20Sequence/"/>
     <id>/2018/12/12/LeetCode 128. Longest Consecutive Sequence/</id>
@@ -221,6 +175,28 @@
           &lt;p&gt;给出订单类，包括开始时间、结束时间和利润，假设同时只能参与一个订单，求最大利润。&lt;/p&gt;
 &lt;p&gt;（解法二和解法三来自leetcode）&lt;/p&gt;
 &lt;h3 id=&quot;解法一：离散化DP&quot;&gt;&lt;a href=&quot;#解法一：离散化DP&quot; class=&quot;headerlink&quot;
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>LeetCode 121|122|123|188|309. Best-Time-to-Buy-and-Sell-Stock-买卖股票系列</title>
+    <link href="/2018/12/12/LeetCode%20121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%B3%BB%E5%88%97/"/>
+    <id>/2018/12/12/LeetCode 121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-买卖股票系列/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-01-17T20:34:52.187Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;题目&quot;&gt;&lt;a href=&quot;#题目&quot; class=&quot;headerlink&quot; title=&quot;题目&quot;&gt;&lt;/a&gt;题目&lt;/h3&gt;&lt;p&gt;假设你知道股价序列，初始状态不持有股票，每次只能买入一股且在持有股票的同时不能继续买入，可以在同一时间点买入卖出。一次买入+卖出称作一个
         
       
     
@@ -277,30 +253,6 @@
   </entry>
   
   <entry>
-    <title>LeetCode 179. Largest Number</title>
-    <link href="/2018/12/12/LeetCode%20179.%20Largest%20Number/"/>
-    <id>/2018/12/12/LeetCode 179. Largest Number/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:34:52.190Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;很容易想到的方法是转化为数组排序，使用此方法首先需要证明数组中元素集是一个偏序集，另外还需要证明最终按降序排列将字符串组合起来得到的答案一定是最优答案。&lt;/p&gt;
-&lt;p&gt;(这个主题不支持Latex，TAT，改贴图吧)&lt;/p&gt;
-&lt;p&gt;&lt;img
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
     <title>LeetCode 218. The Skyline Problem</title>
     <link href="/2018/12/12/LeetCode%20218.%20The%20Skyline%20Problem/"/>
     <id>/2018/12/12/LeetCode 218. The Skyline Problem/</id>
@@ -323,11 +275,11 @@
   </entry>
   
   <entry>
-    <title>LeetCode 264. Ugly Number II</title>
-    <link href="/2018/12/12/LeetCode%20264.%20Ugly%20Number%20II/"/>
-    <id>/2018/12/12/LeetCode 264. Ugly Number II/</id>
+    <title>LeetCode 179. Largest Number</title>
+    <link href="/2018/12/12/LeetCode%20179.%20Largest%20Number/"/>
+    <id>/2018/12/12/LeetCode 179. Largest Number/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:34:52.191Z</updated>
+    <updated>2021-01-17T20:34:52.190Z</updated>
     
     <summary type="html">
     
@@ -335,77 +287,9 @@
       
         
         
-          &lt;p&gt;此题解法同LC313，解法二放的是这一题的代码。&lt;/p&gt;
-&lt;p&gt;最简单的想法是打表排序，先打2的表，然后对表中每个元素乘3直到溢出记为表3，最后使用同样的操作处理表2+表3，确保不重复，但是有很多额外计算。&lt;/p&gt;
-&lt;p&gt;第二种方法为每个质数维护一个指向dp数组（存储所有丑
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>LeetCode 287. Find the Duplicate Number</title>
-    <link href="/2018/12/12/LeetCode%20287.%20Find%20the%20Duplicate%20Number/"/>
-    <id>/2018/12/12/LeetCode 287. Find the Duplicate Number/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:34:52.191Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;主要解释一下&lt;a href=&quot;https://leetcode.com/problems/find-the-duplicate-number/discuss/72845/Java-O(n&quot; target=&quot;_blank&quot;
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>LeetCode 327. Count of Range Sum 区间过滤</title>
-    <link href="/2018/12/12/LeetCode%20327.%20Count%20of%20Range%20Sum%20%E5%8C%BA%E9%97%B4%E8%BF%87%E6%BB%A4/"/>
-    <id>/2018/12/12/LeetCode 327. Count of Range Sum 区间过滤/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:34:52.192Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;求数组中所有这样的区间[l,r]的个数，使&lt;code&gt;upper &amp;gt;= sum(l, r) &amp;gt;= lower&lt;/code&gt;，转化为前缀和&lt;code&gt;upper &amp;gt;= prefix[r] - prefix[l] &amp;gt;=
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>LeetCode 315. Count of Smaller Numbers After Self</title>
-    <link href="/2018/12/12/LeetCode%20315.%20Count%20of%20Smaller%20Numbers%20After%20Self/"/>
-    <id>/2018/12/12/LeetCode 315. Count of Smaller Numbers After Self/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:34:52.191Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;稍微加深了一些对BST的认识……&lt;/p&gt;
-&lt;p&gt;维护一个BST，节点中保存当前节点与其子节点的权重和，新节点权重为一，插入时整条查询路径上权重加一。查询时将查询路径上确保比查询值小的节点的权重加入统计。&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;java&quot;&gt;class
+          &lt;p&gt;很容易想到的方法是转化为数组排序，使用此方法首先需要证明数组中元素集是一个偏序集，另外还需要证明最终按降序排列将字符串组合起来得到的答案一定是最优答案。&lt;/p&gt;
+&lt;p&gt;(这个主题不支持Latex，TAT，改贴图吧)&lt;/p&gt;
+&lt;p&gt;&lt;img
         
       
     
@@ -439,11 +323,11 @@
   </entry>
   
   <entry>
-    <title>LeetCode 341. Flatten Nested List Iterator</title>
-    <link href="/2018/12/12/LeetCode%20341.%20Flatten%20Nested%20List%20Iterator/"/>
-    <id>/2018/12/12/LeetCode 341. Flatten Nested List Iterator/</id>
+    <title>LeetCode 264. Ugly Number II</title>
+    <link href="/2018/12/12/LeetCode%20264.%20Ugly%20Number%20II/"/>
+    <id>/2018/12/12/LeetCode 264. Ugly Number II/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:34:52.193Z</updated>
+    <updated>2021-01-17T20:34:52.191Z</updated>
     
     <summary type="html">
     
@@ -451,7 +335,33 @@
       
         
         
-          &lt;p&gt;编写flattern函数，将可能存在多层嵌套的列表转换为一维列表。题目不难，但是有几点需要注意。由于hasNext中只有取出元素后才能知道是Integer还是List，因此在hasNext中一定会调用next方法导致cursor提前偏移，因此需要将这个值缓存起来或是使用支持
+          &lt;p&gt;此题解法同LC313，解法二放的是这一题的代码。&lt;/p&gt;
+&lt;p&gt;最简单的想法是打表排序，先打2的表，然后对表中每个元素乘3直到溢出记为表3，最后使用同样的操作处理表2+表3，确保不重复，但是有很多额外计算。&lt;/p&gt;
+&lt;p&gt;第二种方法为每个质数维护一个指向dp数组（存储所有丑
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>LeetCode 315. Count of Smaller Numbers After Self</title>
+    <link href="/2018/12/12/LeetCode%20315.%20Count%20of%20Smaller%20Numbers%20After%20Self/"/>
+    <id>/2018/12/12/LeetCode 315. Count of Smaller Numbers After Self/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-01-17T20:34:52.191Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;稍微加深了一些对BST的认识……&lt;/p&gt;
+&lt;p&gt;维护一个BST，节点中保存当前节点与其子节点的权重和，新节点权重为一，插入时整条查询路径上权重加一。查询时将查询路径上确保比查询值小的节点的权重加入统计。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;java&quot;&gt;class
         
       
     
@@ -476,6 +386,94 @@
           &lt;p&gt;&lt;del&gt;禁止套娃&lt;/del&gt;&lt;/p&gt;
 &lt;p&gt;给出int[len][2]的信封序列代表每个信封的大小，找到最长的信封套娃序列（长宽均大于才可），信封不可旋转（长作为宽宽作为长）。&lt;/p&gt;
 &lt;h3 id=&quot;解法一&quot;&gt;&lt;a href=&quot;#解法一&quot;
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>LeetCode 287. Find the Duplicate Number</title>
+    <link href="/2018/12/12/LeetCode%20287.%20Find%20the%20Duplicate%20Number/"/>
+    <id>/2018/12/12/LeetCode 287. Find the Duplicate Number/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-01-17T20:34:52.191Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;主要解释一下&lt;a href=&quot;https://leetcode.com/problems/find-the-duplicate-number/discuss/72845/Java-O(n&quot; target=&quot;_blank&quot;
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>LeetCode 341. Flatten Nested List Iterator</title>
+    <link href="/2018/12/12/LeetCode%20341.%20Flatten%20Nested%20List%20Iterator/"/>
+    <id>/2018/12/12/LeetCode 341. Flatten Nested List Iterator/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-01-17T20:34:52.193Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;编写flattern函数，将可能存在多层嵌套的列表转换为一维列表。题目不难，但是有几点需要注意。由于hasNext中只有取出元素后才能知道是Integer还是List，因此在hasNext中一定会调用next方法导致cursor提前偏移，因此需要将这个值缓存起来或是使用支持
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>LeetCode 327. Count of Range Sum 区间过滤</title>
+    <link href="/2018/12/12/LeetCode%20327.%20Count%20of%20Range%20Sum%20%E5%8C%BA%E9%97%B4%E8%BF%87%E6%BB%A4/"/>
+    <id>/2018/12/12/LeetCode 327. Count of Range Sum 区间过滤/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-01-17T20:34:52.192Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;求数组中所有这样的区间[l,r]的个数，使&lt;code&gt;upper &amp;gt;= sum(l, r) &amp;gt;= lower&lt;/code&gt;，转化为前缀和&lt;code&gt;upper &amp;gt;= prefix[r] - prefix[l] &amp;gt;=
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>LeetCode 464. Can I Win</title>
+    <link href="/2018/12/12/LeetCode%20464.%20Can%20I%20Win/"/>
+    <id>/2018/12/12/LeetCode 464. Can I Win/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-01-17T20:34:52.197Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;从类似于本题的LC292 Nim
         
       
     
