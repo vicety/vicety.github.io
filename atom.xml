@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="/"/>
-  <updated>2021-01-17T20:41:18.527Z</updated>
+  <updated>2021-01-17T20:48:24.331Z</updated>
   <id>/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="/2020/11/16/%E6%96%BD%E5%B7%A5%E4%B8%AD-Golang%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
     <id>/2020/11/16/施工中-Golang线程同步/</id>
     <published>2020-11-16T03:50:46.000Z</published>
-    <updated>2021-01-17T20:41:18.527Z</updated>
+    <updated>2021-01-17T20:48:24.331Z</updated>
     
     <summary type="html">
     
@@ -47,7 +47,7 @@
     <link href="/2020/11/08/%E6%9D%82%E8%B0%88-2020%E5%B9%B411%E6%9C%88/"/>
     <id>/2020/11/08/杂谈-2020年11月/</id>
     <published>2020-11-08T14:26:08.000Z</published>
-    <updated>2021-01-17T20:41:18.526Z</updated>
+    <updated>2021-01-17T20:48:24.329Z</updated>
     
     <summary type="html">
     
@@ -72,7 +72,7 @@
     <link href="/2018/12/12/LeetCode%201143%20Longest%20Common%20Subsequence/"/>
     <id>/2018/12/12/LeetCode 1143 Longest Common Subsequence/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:41:18.512Z</updated>
+    <updated>2021-01-17T20:48:24.313Z</updated>
     
     <summary type="html">
     
@@ -94,7 +94,7 @@
     <link href="/2018/12/12/LeetCode%20121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%B3%BB%E5%88%97/"/>
     <id>/2018/12/12/LeetCode 121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-买卖股票系列/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:41:18.512Z</updated>
+    <updated>2021-01-17T20:48:24.314Z</updated>
     
     <summary type="html">
     
@@ -116,7 +116,7 @@
     <link href="/2018/12/12/LeetCode%201235.%20Maximum%20Profit%20in%20Job%20Scheduling/"/>
     <id>/2018/12/12/LeetCode 1235. Maximum Profit in Job Scheduling/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:41:18.512Z</updated>
+    <updated>2021-01-17T20:48:24.315Z</updated>
     
     <summary type="html">
     
@@ -140,7 +140,7 @@
     <link href="/2018/12/12/LeetCode%20128.%20Longest%20Consecutive%20Sequence/"/>
     <id>/2018/12/12/LeetCode 128. Longest Consecutive Sequence/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:41:18.513Z</updated>
+    <updated>2021-01-17T20:48:24.315Z</updated>
     
     <summary type="html">
     
@@ -162,7 +162,7 @@
     <link href="/2018/12/12/LeetCode%20136-137-260%20Single%20Number%20I,%20II,%20III/"/>
     <id>/2018/12/12/LeetCode 136-137-260 Single Number I, II, III/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:41:18.513Z</updated>
+    <updated>2021-01-17T20:48:24.316Z</updated>
     
     <summary type="html">
     
@@ -184,7 +184,7 @@
     <link href="/2018/12/12/LeetCode%20179.%20Largest%20Number/"/>
     <id>/2018/12/12/LeetCode 179. Largest Number/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:41:18.514Z</updated>
+    <updated>2021-01-17T20:48:24.316Z</updated>
     
     <summary type="html">
     
@@ -208,7 +208,7 @@
     <link href="/2018/12/12/LeetCode%20149.%20Max%20Points%20In%20a%20line/"/>
     <id>/2018/12/12/LeetCode 149. Max Points In a line/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:41:18.514Z</updated>
+    <updated>2021-01-17T20:48:24.316Z</updated>
     
     <summary type="html">
     
@@ -229,35 +229,11 @@
   </entry>
   
   <entry>
-    <title>LeetCode 264. Ugly Number II</title>
-    <link href="/2018/12/12/LeetCode%20264.%20Ugly%20Number%20II/"/>
-    <id>/2018/12/12/LeetCode 264. Ugly Number II/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:41:18.515Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;此题解法同LC313，解法二放的是这一题的代码。&lt;/p&gt;
-&lt;p&gt;最简单的想法是打表排序，先打2的表，然后对表中每个元素乘3直到溢出记为表3，最后使用同样的操作处理表2+表3，确保不重复，但是有很多额外计算。&lt;/p&gt;
-&lt;p&gt;第二种方法为每个质数维护一个指向dp数组（存储所有丑
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
     <title>LeetCode 218. The Skyline Problem</title>
     <link href="/2018/12/12/LeetCode%20218.%20The%20Skyline%20Problem/"/>
     <id>/2018/12/12/LeetCode 218. The Skyline Problem/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:41:18.514Z</updated>
+    <updated>2021-01-17T20:48:24.317Z</updated>
     
     <summary type="html">
     
@@ -279,7 +255,7 @@
     <link href="/2018/12/12/LeetCode%20287.%20Find%20the%20Duplicate%20Number/"/>
     <id>/2018/12/12/LeetCode 287. Find the Duplicate Number/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:41:18.515Z</updated>
+    <updated>2021-01-17T20:48:24.317Z</updated>
     
     <summary type="html">
     
@@ -297,11 +273,35 @@
   </entry>
   
   <entry>
+    <title>LeetCode 264. Ugly Number II</title>
+    <link href="/2018/12/12/LeetCode%20264.%20Ugly%20Number%20II/"/>
+    <id>/2018/12/12/LeetCode 264. Ugly Number II/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-01-17T20:48:24.317Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;此题解法同LC313，解法二放的是这一题的代码。&lt;/p&gt;
+&lt;p&gt;最简单的想法是打表排序，先打2的表，然后对表中每个元素乘3直到溢出记为表3，最后使用同样的操作处理表2+表3，确保不重复，但是有很多额外计算。&lt;/p&gt;
+&lt;p&gt;第二种方法为每个质数维护一个指向dp数组（存储所有丑
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>LeetCode 315. Count of Smaller Numbers After Self</title>
     <link href="/2018/12/12/LeetCode%20315.%20Count%20of%20Smaller%20Numbers%20After%20Self/"/>
     <id>/2018/12/12/LeetCode 315. Count of Smaller Numbers After Self/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:41:18.516Z</updated>
+    <updated>2021-01-17T20:48:24.318Z</updated>
     
     <summary type="html">
     
@@ -325,7 +325,7 @@
     <link href="/2018/12/12/LeetCode%20336.%20Palindrome%20Pairs/"/>
     <id>/2018/12/12/LeetCode 336. Palindrome Pairs/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:41:18.517Z</updated>
+    <updated>2021-01-17T20:48:24.319Z</updated>
     
     <summary type="html">
     
@@ -349,7 +349,7 @@
     <link href="/2018/12/12/LeetCode%20327.%20Count%20of%20Range%20Sum%20%E5%8C%BA%E9%97%B4%E8%BF%87%E6%BB%A4/"/>
     <id>/2018/12/12/LeetCode 327. Count of Range Sum 区间过滤/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:41:18.516Z</updated>
+    <updated>2021-01-17T20:48:24.318Z</updated>
     
     <summary type="html">
     
@@ -367,33 +367,11 @@
   </entry>
   
   <entry>
-    <title>LeetCode 341. Flatten Nested List Iterator</title>
-    <link href="/2018/12/12/LeetCode%20341.%20Flatten%20Nested%20List%20Iterator/"/>
-    <id>/2018/12/12/LeetCode 341. Flatten Nested List Iterator/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:41:18.517Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;编写flattern函数，将可能存在多层嵌套的列表转换为一维列表。题目不难，但是有几点需要注意。由于hasNext中只有取出元素后才能知道是Integer还是List，因此在hasNext中一定会调用next方法导致cursor提前偏移，因此需要将这个值缓存起来或是使用支持
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
     <title>LeetCode 354. Russian Doll Envelopes</title>
     <link href="/2018/12/12/LeetCode%20354.%20Russian%20Doll%20Envelopes/"/>
     <id>/2018/12/12/LeetCode 354. Russian Doll Envelopes/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:41:18.519Z</updated>
+    <updated>2021-01-17T20:48:24.320Z</updated>
     
     <summary type="html">
     
@@ -413,11 +391,33 @@
   </entry>
   
   <entry>
+    <title>LeetCode 341. Flatten Nested List Iterator</title>
+    <link href="/2018/12/12/LeetCode%20341.%20Flatten%20Nested%20List%20Iterator/"/>
+    <id>/2018/12/12/LeetCode 341. Flatten Nested List Iterator/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-01-17T20:48:24.320Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;编写flattern函数，将可能存在多层嵌套的列表转换为一维列表。题目不难，但是有几点需要注意。由于hasNext中只有取出元素后才能知道是Integer还是List，因此在hasNext中一定会调用next方法导致cursor提前偏移，因此需要将这个值缓存起来或是使用支持
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>LeetCode 395. Longest Substring with At Least K Repeating Characters</title>
     <link href="/2018/12/12/LeetCode%20395.%20Longest%20Substring%20with%20At%20Least%20K%20Repeating%20Characters/"/>
     <id>/2018/12/12/LeetCode 395. Longest Substring with At Least K Repeating Characters/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:41:18.520Z</updated>
+    <updated>2021-01-17T20:48:24.321Z</updated>
     
     <summary type="html">
     
@@ -440,7 +440,7 @@
     <link href="/2018/12/12/LeetCode%20397.%20Integer%20Replacement/"/>
     <id>/2018/12/12/LeetCode 397. Integer Replacement/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:41:18.520Z</updated>
+    <updated>2021-01-17T20:48:24.321Z</updated>
     
     <summary type="html">
     
@@ -463,7 +463,7 @@
     <link href="/2018/12/12/LeetCode%20437.%20Path%20Sum%20II/"/>
     <id>/2018/12/12/LeetCode 437. Path Sum II/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-17T20:41:18.521Z</updated>
+    <updated>2021-01-17T20:48:24.322Z</updated>
     
     <summary type="html">
     
