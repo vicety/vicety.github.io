@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">LeetCode 72. Edit Distance | vicety</title>
+  <title itemprop="name">有感而发 | vicety</title>
   
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji-ico.ico">
   
@@ -189,30 +189,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
 <div class="pattern-center-blank"></div>
 
-  <div class="pattern-center single-center">
-    <!-- 有配图默认渲染第一张 -->
-    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg);" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-    </div>
-    <header class="pattern-header single-header">
-      <h1 class="entry-title">
-      LeetCode 72. Edit Distance</h1>
-      <p class="entry-census">
-        <span>
-          <a href="vicety.github.io">
-            <img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji.jpg">
-          </a>
-        </span>
-        <span>
-          <a href="vicety.github.io">vicety</a>
-        </span>
-        <span class="bull">
-        ·</span>
-        2018-12-12<span class="bull">
-        ·</span>
-      <span id="busuanzi_value_page_pv"></span>次阅读</p>
-    </header>
-  </div>
-
 <div id="content" class="site-content">
   <div id="primary" class="content-area">
     <main id="main" class="site-main" role="main">
@@ -220,28 +196,27 @@
         <div class="toc"></div>
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
+          <header class="entry-header">
+            <h1 class="entry-title">有感而发</h1>
+            <p class="entry-census">vicety&nbsp;·&nbsp;2021-1-22&nbsp;·&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读</p></p>
+
+            <hr>
+          </header>
+        
         <div class="entry-content">
-          <p>网上关于这道题的讲解很多，这里不放代码，只是记录一下自己的理解方式。我认为按递归的方式更好理解一些。</p>
-<p>对于最终解dp(i, j)，同时对s1[i]和s2[j]进行讨论，为了使s1变成s2，s1[i]需要通过各种方式变为s2中的一员（被删除也算），或者，s2[j]通过各种方式成为s1中的一员。以下讨论这些变换的所有情况：</p>
-<ul>
-<li>在s1中删除字符i，跳转到dp(i - 1, j)状态（等价于此后不再讨论字符i），跳转费用为1</li>
-<li>在s2中删除字符j（等价于在s1中添加字符以匹配s2[j]），跳转到dp(i, j - 1)状态（不再讨论字符j），跳转费用为1<br>替换s1[i]为s2[j]，跳转到dp(i - 1, j - 1)（不再讨论字符i和j），对于s1[i]匹配s2其他index下字符的情况，如果添加了(i,j) -&gt; (i - 1, j - 1)的跳转，那么在dp(i, j)的子状态中必然将会被讨论，因此不需要在这一层进行讨论（换一种说法，如果在这一层进行了讨论，很难表示跳转到的状态，即如何表示0-j中的某个字符不再参与讨论），跳转费用根据是否匹配为0或1。</li>
-</ul>
-<p>以上考虑了s1中字符匹配s2字符的所有可能性（删除字符、新建字符、匹配s2中某个字符），确保了每个字符都会被转换且跳转费用纳入统计，因此确保覆盖了所有状态。</p>
-<p>递归结束状态以及如何用dp做都相对简单，可以参考其他博文。此外，本题还有一个支持交换相邻字符操作的follow up，状态转移方程如下</p>
-<pre><code class="java">if(i &gt; 1 &amp;&amp; j &gt; 1 &amp;&amp; s1[i] == s2[j-1] &amp;&amp; s1[i-1] == s2[j]) dp[i][j] = Math.min(dp[i][j], dp[i-2][j-2] + 1);
-</code></pre>
-<ul>
-<li>如果两个字符都匹配，显然比增、删、改要更快，可以应用上面的状态转移</li>
-<li>如果两个字符都不匹配，显然没有交换的必要</li>
-<li>如果交换后只完成了一个字符的匹配<ul>
-<li>如果匹配的是左侧字符，如果右侧字符不再参与与更右侧字符的交换，那么这次交换等价于dp[i-1][j-1] = Math.min(dp[i-1][j-1], dp[i-2][j-2]+1)，可以发现这一操作在先前的迭代中已经做过一次</li>
-<li>同理，如果匹配的是右侧字符，考虑左侧字符不再与更左侧字符交换的情况下，左侧字符等价于没有变化，右侧字符完成匹配，这次交换等价于dp[i][j] = Math.min(dp[i][j], dp[i-1][j-1]+1)等价于交换一个字符</li>
-<li>可以发现上面两种情况都没有任何增益，接下来讨论交换后的字符还参与更多交换的情况。以三个字符的abc为例，列出abc自身以外能够组成的全部3!-1个状态，可以发现只有acb、bac这两种情况比增、删、改更快，可以进一步发现这两种情况其实只涉及了两个字符的交换。可以得出结论，涉及相邻三个字符移动位置，交换一定不会优于增、删改。没有严格的证明，直观来说涉及更多字符的位置交换情况只会比增、删、改更差，因此可以不用考虑已经交换的字符再次参与交换的情况</li>
-</ul>
-</li>
-<li>综上，新增的操作只在交换能够使得两个字符均匹配时使得操作数更少</li>
-</ul>
+          <p>2020/01/22<br>墨茶Official事件有感而发——自我感动与刻奇</p>
+<p>在写文字之前不免要考虑一些其他人如何评价这一篇文字，本文发在自己的博客上，我的博客阅读量应该为0，因此不存在所谓“吃人血馒头”、“蹭热度”的说法，我给我的解释是“有感而发”。</p>
+<p>事件发生后可以说大家都在自我感动，说到自我感动，如果这段话放出来一定有人认为自我感动不合适，那么为什么自我感动是贬义词呢？</p>
+<p>首先，什么样的感动不是自我感动，我认为，自我感动是主观希望自己被感动，从而引导自己被感动，而非自我感动的感动，是无意识的。而非天然的东西似乎天生就比天然的东西低贱一些，或者说大家不喜欢这种有点假的东西，因此自我感动不合适。</p>
+<p>回到问题，大家是不是在自我感动，这种感动是不是无意识的，我认为是无意识的，因此说“大家在自我感动”是不合适的。</p>
+<p>再打个岔，自我感动是否是一种刻奇？<br>引用自<a href="https://baike.baidu.com/item/%E5%88%BB%E5%A5%87/2141910?fr=aladdin" target="_blank" rel="noopener">百度百科</a></p>
+<blockquote>
+<p>Kitsch这个词80年代末中国读者在昆德拉那本《生命中不能承受之轻》中已经遇到过。但是这本书中文译者将它的意思译反了，译成了“媚俗”，即讨好别人的意思，而这个词更准确的意思是“自媚”，即讨好自己、迎合自己。一般学界译为“刻奇”，这个音译出于无奈，但是总比译反掉了好一些。</p>
+</blockquote>
+<p>这么看来自我感动确乎是一种刻奇，其目的是“迎合自己”，迎合自己是必要条件，但是否是充分条件？我认为不是的，刻奇的典型例子，知乎上的<a href="https://www.zhihu.com/question/27039705/answer/35532237" target="_blank" rel="noopener">这个回答</a>我认为说得比较好，从<a href="https://www.zhihu.com/question/27039705/answer/60927620" target="_blank" rel="noopener">这个回答</a>中，我认为受他人价值判断影响做出的行为就是刻奇。仔细想了想，受他人价值判断影响作出的行为在广泛而言处于舆论下风的，因为通常这种行为缺乏思考。</p>
+<p>回到最初的话题，大家的行为是否是刻奇，是否是自我感动，如果保留教育背景的话，我认为被这位up主身世触动，真心有感而发的人占相当比例，而将教育背景也视为一种价值偏移的话，这个问题实际上转化为了人本善还是人本恶的问题，当然善恶通常也包含人为定义的概念，问题可以这样说，人在剥离一切价值偏移的情况下，是否会被他人悲惨身世触动，这是决定这一现象是否属于刻奇的关键判断依据。</p>
+<p>写到这里，不禁要问，我就是刻奇了，就是被感动了，这有任何问题吗？没有问题，在正常的价值观下，甚至会潜在影响人们未来的行为偏向与帮助这样的人，在正常的价值判断下，会导致好的结果。写到这里，其实就是讨论人基于刻板印象产生的行为是否一定会导致不好的结果，但是由于“不好”这个概念也是刻板印象，或者说是相对的，这个问题本身就不成立。那么这篇文章到底得到了什么？这篇文章分析了针对这一事件大家产生的反应是否是一种自我迎合，以及刻奇是否是不好的，而最终的结论是：</p>
+<p>大家的反应属于刻奇，刻奇本身没有好与不好，只能说刻奇是缺乏思考，跟随环境做出价值判断的产物。</p>
 
         </div>
         <!-- .entry-content -->
@@ -270,28 +245,11 @@
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
-          
-            <div class="post-nepre half previous">
-          
-            <a href="/2018/12/12/src/LeetCode 772-LintCode 849 Basic Calculator III/" rel="prev">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-              </div>
-              <span class="label">
-              Previous Post</span>
-              <div class="info">
-                <h3>
-                LeetCode 772-LintCode 849 Basic Calculator III</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
         
           
-            <div class="post-nepre half next">
+            <div class="post-nepre full next">
           
-            <a href="/2018/12/12/src/LeetCode 84、85 求直方图与二维矩阵中的最大矩形面积/" rel="next">
+            <a href="/2021/01/21/src/Go依赖管理/" rel="next">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
               </div>
@@ -299,7 +257,7 @@
               Next Post</span>
               <div class="info">
                 <h3>
-                LeetCode 84、85 求直方图与二维矩阵中的最大矩形面积</h3>
+                Go依赖管理</h3>
                 <hr>
               </div>
             </a>

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">LeetCode 72. Edit Distance | vicety</title>
+  <title itemprop="name">博客部署过程记录 | vicety</title>
   
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji-ico.ico">
   
@@ -195,7 +195,7 @@
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      LeetCode 72. Edit Distance</h1>
+      博客部署过程记录</h1>
       <p class="entry-census">
         <span>
           <a href="vicety.github.io">
@@ -207,7 +207,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2018-12-12<span class="bull">
+        2021-1-19<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -221,27 +221,12 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <p>网上关于这道题的讲解很多，这里不放代码，只是记录一下自己的理解方式。我认为按递归的方式更好理解一些。</p>
-<p>对于最终解dp(i, j)，同时对s1[i]和s2[j]进行讨论，为了使s1变成s2，s1[i]需要通过各种方式变为s2中的一员（被删除也算），或者，s2[j]通过各种方式成为s1中的一员。以下讨论这些变换的所有情况：</p>
-<ul>
-<li>在s1中删除字符i，跳转到dp(i - 1, j)状态（等价于此后不再讨论字符i），跳转费用为1</li>
-<li>在s2中删除字符j（等价于在s1中添加字符以匹配s2[j]），跳转到dp(i, j - 1)状态（不再讨论字符j），跳转费用为1<br>替换s1[i]为s2[j]，跳转到dp(i - 1, j - 1)（不再讨论字符i和j），对于s1[i]匹配s2其他index下字符的情况，如果添加了(i,j) -&gt; (i - 1, j - 1)的跳转，那么在dp(i, j)的子状态中必然将会被讨论，因此不需要在这一层进行讨论（换一种说法，如果在这一层进行了讨论，很难表示跳转到的状态，即如何表示0-j中的某个字符不再参与讨论），跳转费用根据是否匹配为0或1。</li>
-</ul>
-<p>以上考虑了s1中字符匹配s2字符的所有可能性（删除字符、新建字符、匹配s2中某个字符），确保了每个字符都会被转换且跳转费用纳入统计，因此确保覆盖了所有状态。</p>
-<p>递归结束状态以及如何用dp做都相对简单，可以参考其他博文。此外，本题还有一个支持交换相邻字符操作的follow up，状态转移方程如下</p>
-<pre><code class="java">if(i &gt; 1 &amp;&amp; j &gt; 1 &amp;&amp; s1[i] == s2[j-1] &amp;&amp; s1[i-1] == s2[j]) dp[i][j] = Math.min(dp[i][j], dp[i-2][j-2] + 1);
-</code></pre>
-<ul>
-<li>如果两个字符都匹配，显然比增、删、改要更快，可以应用上面的状态转移</li>
-<li>如果两个字符都不匹配，显然没有交换的必要</li>
-<li>如果交换后只完成了一个字符的匹配<ul>
-<li>如果匹配的是左侧字符，如果右侧字符不再参与与更右侧字符的交换，那么这次交换等价于dp[i-1][j-1] = Math.min(dp[i-1][j-1], dp[i-2][j-2]+1)，可以发现这一操作在先前的迭代中已经做过一次</li>
-<li>同理，如果匹配的是右侧字符，考虑左侧字符不再与更左侧字符交换的情况下，左侧字符等价于没有变化，右侧字符完成匹配，这次交换等价于dp[i][j] = Math.min(dp[i][j], dp[i-1][j-1]+1)等价于交换一个字符</li>
-<li>可以发现上面两种情况都没有任何增益，接下来讨论交换后的字符还参与更多交换的情况。以三个字符的abc为例，列出abc自身以外能够组成的全部3!-1个状态，可以发现只有acb、bac这两种情况比增、删、改更快，可以进一步发现这两种情况其实只涉及了两个字符的交换。可以得出结论，涉及相邻三个字符移动位置，交换一定不会优于增、删改。没有严格的证明，直观来说涉及更多字符的位置交换情况只会比增、删、改更差，因此可以不用考虑已经交换的字符再次参与交换的情况</li>
-</ul>
-</li>
-<li>综上，新增的操作只在交换能够使得两个字符均匹配时使得操作数更少</li>
-</ul>
+          <ol>
+<li>hexo安装，见hexo官网</li>
+<li>Sakura主题安装，<a href="https://github.com/honjun/hexo-theme-sakura" target="_blank" rel="noopener">github repo</a>，下载下来覆盖hexo init的项目即可</li>
+<li>配置ci脚本所需的环境变量，包括markdown源文件目录、博客根目录</li>
+</ol>
+<p>4.</p>
 
         </div>
         <!-- .entry-content -->
@@ -273,7 +258,7 @@
           
             <div class="post-nepre half previous">
           
-            <a href="/2018/12/12/src/LeetCode 772-LintCode 849 Basic Calculator III/" rel="prev">
+            <a href="/2021/01/21/src/Go依赖管理/" rel="prev">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
               </div>
@@ -281,7 +266,7 @@
               Previous Post</span>
               <div class="info">
                 <h3>
-                LeetCode 772-LintCode 849 Basic Calculator III</h3>
+                Go依赖管理</h3>
                 <hr>
               </div>
             </a>
@@ -291,15 +276,15 @@
           
             <div class="post-nepre half next">
           
-            <a href="/2018/12/12/src/LeetCode 84、85 求直方图与二维矩阵中的最大矩形面积/" rel="next">
+            <a href="/2021/01/18/src/杂谈-2021年1月/" rel="next">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/81283068_p0.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/81283068_p0.jpg">
               </div>
               <span class="label">
               Next Post</span>
               <div class="info">
                 <h3>
-                LeetCode 84、85 求直方图与二维矩阵中的最大矩形面积</h3>
+                杂谈-2021年1月</h3>
                 <hr>
               </div>
             </a>
