@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">LeetCode 397. Integer Replacement | vicety</title>
+  <title itemprop="name">Tag: 加密 | vicety</title>
   
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji-ico.ico">
   
@@ -185,186 +185,64 @@
   </div>
 </header>
 
-      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
+      
 <div class="pattern-center-blank"></div>
-
-  <div class="pattern-center single-center">
-    <!-- 有配图默认渲染第一张 -->
-    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg);" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-    </div>
-    <header class="pattern-header single-header">
-      <h1 class="entry-title">
-      LeetCode 397. Integer Replacement</h1>
-      <p class="entry-census">
-        <span>
-          <a href="vicety.github.io">
-            <img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji.jpg">
-          </a>
-        </span>
-        <span>
-          <a href="vicety.github.io">vicety</a>
-        </span>
-        <span class="bull">
-        ·</span>
-        2018-12-12<span class="bull">
-        ·</span>
-      <span id="busuanzi_value_page_pv"></span>次阅读</p>
-    </header>
+<div class="pattern-center ">
+  <div class="pattern-attachment-img">
+    <img src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="加密.img" class="lazyload" onerror="imgError(this,3)" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;">
   </div>
-
+  <header class="pattern-header ">
+    <h1 class="cat-title">加密</h1>
+  </header>
+</div>
 <div id="content" class="site-content">
   <div id="primary" class="content-area">
     <main id="main" class="site-main" role="main">
-      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
-        <div class="toc"></div>
-        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
-        
-        <div class="entry-content">
-          <p>对任意一个正整数，偶数的下一步只能除二，奇数的下一步只能加减一，求得到1的最少步骤</p>
-<h3 id="方法一：记忆化递归"><a href="#方法一：记忆化递归" class="headerlink" title="方法一：记忆化递归"></a>方法一：记忆化递归</h3><p>这里写的方法是先dfs得到所有可能经过的路径，然后从1开始向上bfs，和记忆化递归是一个道理</p>
-<pre><code class="java">public int integerReplacement(int n) {
-    Set&lt;Integer&gt; possiblePaths = new HashSet&lt;&gt;();
-    generatePossiblePaths(possiblePaths, n);
-    Set&lt;Integer&gt; vis = new HashSet&lt;&gt;();
-    Queue&lt;Integer&gt; queue = new LinkedList&lt;&gt;();
-    queue.offer(1);
-    vis.add(1);
-    int batch = 0;
-    while (!queue.isEmpty()) {
-        List&lt;Integer&gt; nextBatch = new ArrayList&lt;&gt;();
-        while (!queue.isEmpty()) {
-            int now = queue.poll();
-            if (now == n) return batch;
-            if (now % 2 == 0) {
-                if(possiblePaths.contains(now + 1) &amp;&amp; !vis.contains(now + 1)) {
-                    nextBatch.add(now + 1);
-                    vis.add(now + 1);
-                }
-                if(possiblePaths.contains(now - 1) &amp;&amp; !vis.contains(now - 1)) {
-                    nextBatch.add(now - 1);
-                    vis.add(now - 1);
-                }
-            }
-            if(possiblePaths.contains(now * 2) &amp;&amp; !vis.contains(now * 2)) {
-                nextBatch.add(now * 2);
-                vis.add(now * 2);
-            }
-        }
-        queue.addAll(nextBatch);
-        batch++;
-    }
-    return -1;
-}
-
-private void generatePossiblePaths(Set&lt;Integer&gt; paths, int n) {
-    if (paths.contains(n)) return;
-    paths.add(n);
-    if (n == 1) return;
-    if (n % 2 == 1) {
-        generatePossiblePaths(paths, n - 1);
-        generatePossiblePaths(paths, n + 1);
-    } else generatePossiblePaths(paths, n / 2);
-}
-</code></pre>
-<h3 id="方法二：贪心"><a href="#方法二：贪心" class="headerlink" title="方法二：贪心"></a>方法二：贪心</h3><p>对于偶数的情况，显然除二在任何条件下都不会劣于对其加减一。</p>
-<pre><code class="sh">证明：
-对于奇数只支持加减一操作，偶数加一后减一没有任何意义，所以偶数支持加减一实际上是支持加减二，设偶数为2X，加减二后除二得到X+1和X-1，花费三步操作，而直接除二后加减一，同样得到X+1与X-1，但只需要两步操作，于是证明了对偶数加减操作的支持不影响最终答案
-</code></pre>
-<p>因此不妨允许偶数的加减一操作。对于偶数的情况除二最优，那么考虑奇数的情况</p>
-<pre><code class="sh">X为不为零的二进制高位
-X01 -&gt; X00 -&gt; X0 -&gt; X -&gt; X+1/X-1/(X/2 if X is even)
-X01 -&gt; X10 -&gt; X1 -&gt; (X+1)0/X0 -&gt; X+1/X
-
-X11 -&gt; (X+1)00 -&gt; (X+1)0 -&gt; X+1
-X11 -&gt; X10 -&gt; X1 -&gt; (X+1)0/X0 -&gt; X+1/X
-</code></pre>
-<p>可以发现，考虑X不为0的情况，使当前数转化为4的倍数的操作一定能得到比转化为2的倍数非4的倍数的操作更多的可能性，X为0的情况特判即可。</p>
-<p>这种方法的难想到的地方在于需要同时考虑后数字两位</p>
-
-        </div>
-        <!-- .entry-content -->
-        <div class="single-reward">
-          <div class="reward-open">赏
-            <div class="reward-main">
-              <ul class="reward-row">
-                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/alipayQR.jpg"></li>
-                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/WechatQR.png"></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
-        <footer class="post-footer">
-          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
-          <div class="post-tags">
-          </div>
-          <div class="post-share">
-            <div class="social-share sharehidden share-component"></div>
-            <i class="iconfont show-share icon-forward"></i>
-          </div>
-        </footer><!-- .entry-footer -->
-      </article>
-      <!-- #post-## -->
-      <div class="toc" style="background: none;"></div>
-      <section class="post-squares nextprev">
-        
-          
-            <div class="post-nepre half previous">
-          
-            <a href="/2018/12/12/src/LeetCode 395. Longest Substring with At Least K Repeating Characters/" rel="prev">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-              </div>
-              <span class="label">
-              Previous Post</span>
-              <div class="info">
-                <h3>
-                LeetCode 395. Longest Substring with At Least K Repeating Characters</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
-        
-          
-            <div class="post-nepre half next">
-          
-            <a href="/2018/12/12/src/LeetCode 437. Path Sum II/" rel="next">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-              </div>
-              <span class="label">
-              Next Post</span>
-              <div class="info">
-                <h3>
-                LeetCode 437. Path Sum II</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
-      </section>
       
-      <section class="author-profile">
-        <div class="info" itemprop="author" itemscope="" itemtype="https://schema.org/Person">
-          <a href="vicety.github.io" class="profile gravatar"><img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji.jpg" itemprop="image" alt="vicety" height="70" width="70"></a>
-          <div class="meta">
-            <span class="title">Author</span>
-            <h3 itemprop="name">
-            <a href="vicety.github.io" itemprop="url" rel="author">vicety</a>
-            </h3>
-          </div>
+  <!-- 首页默认取最最新文章集 -->
+  
+    <article class="post post-list" itemscope="" itemtype="https://schema.org/BlogPosting">
+  <div class="post-entry">
+    <div class="feature">
+      <a href="/2021/01/18/src/杂谈-2021年1月/">
+        <div class="overlay">
+          <i class="iconfont icon-text">
+          </i>
         </div>
-        <hr>
-        <p><i class="iconfont icon-write"></i></p>
-      </section>
-    </main><!-- #main -->
-  </div><!-- #primary -->
+        <img width="150" height="150" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/81283068_p0.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" >
+      </a>
+    </div>
+    <h1 class="entry-title">
+    <a href="/2021/01/18/src/杂谈-2021年1月/">
+    杂谈-2021年1月</a>
+    </h1>
+    <div class="p-time">
+      <i class="iconfont icon-time">
+      </i>
+    2021-1-18</div>
+    <p>
+    </p>
+    <footer class="entry-footer">
+      <div class="post-more">
+        <a href="/2021/01/18/src/杂谈-2021年1月/">
+          <i class="iconfont icon-caidan">
+          </i>
+        </a>
+      </div>
+    </footer>
+  </div>
+  <hr>
+</article>
+  
+
+
+      <div class="clearer">
+      </div>
+    </main>
+    <!--  -->
+    
+  </div>
 </div>
-
-
-
     </div>    
     <div class="ins-search">
     <div class="ins-search-mask"></div>

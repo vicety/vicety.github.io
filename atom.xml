@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="/"/>
-  <updated>2021-01-22T16:34:37.134Z</updated>
+  <updated>2021-01-22T16:48:12.869Z</updated>
   <id>/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="/2021/01/22/src/%E6%9C%89%E6%84%9F%E8%80%8C%E5%8F%91/"/>
     <id>/2021/01/22/src/有感而发/</id>
     <published>2021-01-22T02:39:22.000Z</published>
-    <updated>2021-01-22T16:34:37.134Z</updated>
+    <updated>2021-01-22T16:48:12.869Z</updated>
     
     <summary type="html">
     
@@ -46,7 +46,7 @@
     <link href="/2021/01/21/src/Go%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86/"/>
     <id>/2021/01/21/src/Go依赖管理/</id>
     <published>2021-01-21T09:23:36.000Z</published>
-    <updated>2021-01-22T16:34:37.142Z</updated>
+    <updated>2021-01-22T16:48:12.875Z</updated>
     
     <summary type="html">
     
@@ -71,7 +71,7 @@
     <link href="/2021/01/19/src/%E5%8D%9A%E5%AE%A2%E9%83%A8%E7%BD%B2%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/"/>
     <id>/2021/01/19/src/博客部署过程记录/</id>
     <published>2021-01-18T17:50:34.000Z</published>
-    <updated>2021-01-22T16:34:37.130Z</updated>
+    <updated>2021-01-22T16:48:12.867Z</updated>
     
     <summary type="html">
     
@@ -97,7 +97,7 @@
     <link href="/2021/01/18/src/%E6%9D%82%E8%B0%88-2021%E5%B9%B41%E6%9C%88/"/>
     <id>/2021/01/18/src/杂谈-2021年1月/</id>
     <published>2021-01-18T01:41:24.000Z</published>
-    <updated>2021-01-22T16:34:37.136Z</updated>
+    <updated>2021-01-22T16:48:12.871Z</updated>
     
     <summary type="html">
     
@@ -108,7 +108,7 @@
       <category term="杂谈" scheme="/categories/%E6%9D%82%E8%B0%88/"/>
     
     
-      <category term="杂谈" scheme="/tags/%E6%9D%82%E8%B0%88/"/>
+      <category term="加密" scheme="/tags/%E5%8A%A0%E5%AF%86/"/>
     
   </entry>
   
@@ -117,7 +117,7 @@
     <link href="/2020/11/16/src/%E6%96%BD%E5%B7%A5%E4%B8%AD-Golang%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
     <id>/2020/11/16/src/施工中-Golang线程同步/</id>
     <published>2020-11-16T03:50:46.000Z</published>
-    <updated>2021-01-22T16:34:37.126Z</updated>
+    <updated>2021-01-22T16:48:12.863Z</updated>
     
     <summary type="html">
     
@@ -143,11 +143,18 @@
     <link href="/2020/11/08/src/%E6%9D%82%E8%B0%88-2020%E5%B9%B411%E6%9C%88/"/>
     <id>/2020/11/08/src/杂谈-2020年11月/</id>
     <published>2020-11-08T14:26:08.000Z</published>
-    <updated>2021-01-22T16:34:37.140Z</updated>
+    <updated>2021-01-22T16:48:12.873Z</updated>
     
     <summary type="html">
     
-      Here&#39;s something encrypted, password is required to continue reading.
+      
+      
+        
+        
+          &lt;p&gt;公司的事情告一段落，想起本科时代还有写博客的习惯，于是通过ctrl+c/v的方式恢复了下md文件，重新把博客搭了一下，借这篇文章的机会重新走通一遍写博客的workflow&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;sh&quot;&gt;npm install -g
+        
+      
     
     </summary>
     
@@ -159,33 +166,11 @@
   </entry>
   
   <entry>
-    <title>LeetCode 121|122|123|188|309. Best-Time-to-Buy-and-Sell-Stock-买卖股票系列</title>
-    <link href="/2018/12/12/src/LeetCode%20121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%B3%BB%E5%88%97/"/>
-    <id>/2018/12/12/src/LeetCode 121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-买卖股票系列/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-22T16:34:37.137Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;h3 id=&quot;题目&quot;&gt;&lt;a href=&quot;#题目&quot; class=&quot;headerlink&quot; title=&quot;题目&quot;&gt;&lt;/a&gt;题目&lt;/h3&gt;&lt;p&gt;假设你知道股价序列，初始状态不持有股票，每次只能买入一股且在持有股票的同时不能继续买入，可以在同一时间点买入卖出。一次买入+卖出称作一个
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
     <title>LeetCode 1143 Longest Common Subsequence</title>
     <link href="/2018/12/12/src/LeetCode%201143%20Longest%20Common%20Subsequence/"/>
     <id>/2018/12/12/src/LeetCode 1143 Longest Common Subsequence/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-22T16:34:37.120Z</updated>
+    <updated>2021-01-22T16:48:12.858Z</updated>
     
     <summary type="html">
     
@@ -207,7 +192,7 @@
     <link href="/2018/12/12/src/LeetCode%201235.%20Maximum%20Profit%20in%20Job%20Scheduling/"/>
     <id>/2018/12/12/src/LeetCode 1235. Maximum Profit in Job Scheduling/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-22T16:34:37.118Z</updated>
+    <updated>2021-01-22T16:48:12.857Z</updated>
     
     <summary type="html">
     
@@ -231,7 +216,7 @@
     <link href="/2018/12/12/src/LeetCode%20128.%20Longest%20Consecutive%20Sequence/"/>
     <id>/2018/12/12/src/LeetCode 128. Longest Consecutive Sequence/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-22T16:34:37.143Z</updated>
+    <updated>2021-01-22T16:48:12.875Z</updated>
     
     <summary type="html">
     
@@ -253,7 +238,7 @@
     <link href="/2018/12/12/src/LeetCode%20136-137-260%20Single%20Number%20I,%20II,%20III/"/>
     <id>/2018/12/12/src/LeetCode 136-137-260 Single Number I, II, III/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-22T16:34:37.132Z</updated>
+    <updated>2021-01-22T16:48:12.868Z</updated>
     
     <summary type="html">
     
@@ -271,11 +256,33 @@
   </entry>
   
   <entry>
+    <title>LeetCode 121|122|123|188|309. Best-Time-to-Buy-and-Sell-Stock-买卖股票系列</title>
+    <link href="/2018/12/12/src/LeetCode%20121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%B3%BB%E5%88%97/"/>
+    <id>/2018/12/12/src/LeetCode 121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-买卖股票系列/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-01-22T16:48:12.872Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;题目&quot;&gt;&lt;a href=&quot;#题目&quot; class=&quot;headerlink&quot; title=&quot;题目&quot;&gt;&lt;/a&gt;题目&lt;/h3&gt;&lt;p&gt;假设你知道股价序列，初始状态不持有股票，每次只能买入一股且在持有股票的同时不能继续买入，可以在同一时间点买入卖出。一次买入+卖出称作一个
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>LeetCode 149. Max Points In a line</title>
     <link href="/2018/12/12/src/LeetCode%20149.%20Max%20Points%20In%20a%20line/"/>
     <id>/2018/12/12/src/LeetCode 149. Max Points In a line/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-22T16:34:37.138Z</updated>
+    <updated>2021-01-22T16:48:12.872Z</updated>
     
     <summary type="html">
     
@@ -300,7 +307,7 @@
     <link href="/2018/12/12/src/LeetCode%20179.%20Largest%20Number/"/>
     <id>/2018/12/12/src/LeetCode 179. Largest Number/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-22T16:34:37.128Z</updated>
+    <updated>2021-01-22T16:48:12.865Z</updated>
     
     <summary type="html">
     
@@ -324,7 +331,7 @@
     <link href="/2018/12/12/src/LeetCode%20264.%20Ugly%20Number%20II/"/>
     <id>/2018/12/12/src/LeetCode 264. Ugly Number II/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-22T16:34:37.120Z</updated>
+    <updated>2021-01-22T16:48:12.859Z</updated>
     
     <summary type="html">
     
@@ -348,7 +355,7 @@
     <link href="/2018/12/12/src/LeetCode%20218.%20The%20Skyline%20Problem/"/>
     <id>/2018/12/12/src/LeetCode 218. The Skyline Problem/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-22T16:34:37.134Z</updated>
+    <updated>2021-01-22T16:48:12.869Z</updated>
     
     <summary type="html">
     
@@ -370,7 +377,7 @@
     <link href="/2018/12/12/src/LeetCode%20287.%20Find%20the%20Duplicate%20Number/"/>
     <id>/2018/12/12/src/LeetCode 287. Find the Duplicate Number/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-22T16:34:37.121Z</updated>
+    <updated>2021-01-22T16:48:12.860Z</updated>
     
     <summary type="html">
     
@@ -388,33 +395,11 @@
   </entry>
   
   <entry>
-    <title>LeetCode 327. Count of Range Sum 区间过滤</title>
-    <link href="/2018/12/12/src/LeetCode%20327.%20Count%20of%20Range%20Sum%20%E5%8C%BA%E9%97%B4%E8%BF%87%E6%BB%A4/"/>
-    <id>/2018/12/12/src/LeetCode 327. Count of Range Sum 区间过滤/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-22T16:34:37.124Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;求数组中所有这样的区间[l,r]的个数，使&lt;code&gt;upper &amp;gt;= sum(l, r) &amp;gt;= lower&lt;/code&gt;，转化为前缀和&lt;code&gt;upper &amp;gt;= prefix[r] - prefix[l] &amp;gt;=
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
     <title>LeetCode 315. Count of Smaller Numbers After Self</title>
     <link href="/2018/12/12/src/LeetCode%20315.%20Count%20of%20Smaller%20Numbers%20After%20Self/"/>
     <id>/2018/12/12/src/LeetCode 315. Count of Smaller Numbers After Self/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-22T16:34:37.133Z</updated>
+    <updated>2021-01-22T16:48:12.868Z</updated>
     
     <summary type="html">
     
@@ -434,11 +419,11 @@
   </entry>
   
   <entry>
-    <title>LeetCode 341. Flatten Nested List Iterator</title>
-    <link href="/2018/12/12/src/LeetCode%20341.%20Flatten%20Nested%20List%20Iterator/"/>
-    <id>/2018/12/12/src/LeetCode 341. Flatten Nested List Iterator/</id>
+    <title>LeetCode 327. Count of Range Sum 区间过滤</title>
+    <link href="/2018/12/12/src/LeetCode%20327.%20Count%20of%20Range%20Sum%20%E5%8C%BA%E9%97%B4%E8%BF%87%E6%BB%A4/"/>
+    <id>/2018/12/12/src/LeetCode 327. Count of Range Sum 区间过滤/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-22T16:34:37.116Z</updated>
+    <updated>2021-01-22T16:48:12.862Z</updated>
     
     <summary type="html">
     
@@ -446,7 +431,7 @@
       
         
         
-          &lt;p&gt;编写flattern函数，将可能存在多层嵌套的列表转换为一维列表。题目不难，但是有几点需要注意。由于hasNext中只有取出元素后才能知道是Integer还是List，因此在hasNext中一定会调用next方法导致cursor提前偏移，因此需要将这个值缓存起来或是使用支持
+          &lt;p&gt;求数组中所有这样的区间[l,r]的个数，使&lt;code&gt;upper &amp;gt;= sum(l, r) &amp;gt;= lower&lt;/code&gt;，转化为前缀和&lt;code&gt;upper &amp;gt;= prefix[r] - prefix[l] &amp;gt;=
         
       
     
@@ -460,7 +445,7 @@
     <link href="/2018/12/12/src/LeetCode%20336.%20Palindrome%20Pairs/"/>
     <id>/2018/12/12/src/LeetCode 336. Palindrome Pairs/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-01-22T16:34:37.119Z</updated>
+    <updated>2021-01-22T16:48:12.858Z</updated>
     
     <summary type="html">
     
@@ -471,6 +456,28 @@
           &lt;p&gt;给出n个unique字符串，求所有两两拼接能够得到回文串的组合&lt;/p&gt;
 &lt;h4 id=&quot;暴力&quot;&gt;&lt;a href=&quot;#暴力&quot; class=&quot;headerlink&quot; title=&quot;暴力&quot;&gt;&lt;/a&gt;暴力&lt;/h4&gt;&lt;p&gt;枚举字符串对拼接判回文串，O(n^2k)&lt;/p&gt;
 &lt;h4
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>LeetCode 341. Flatten Nested List Iterator</title>
+    <link href="/2018/12/12/src/LeetCode%20341.%20Flatten%20Nested%20List%20Iterator/"/>
+    <id>/2018/12/12/src/LeetCode 341. Flatten Nested List Iterator/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-01-22T16:48:12.855Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;编写flattern函数，将可能存在多层嵌套的列表转换为一维列表。题目不难，但是有几点需要注意。由于hasNext中只有取出元素后才能知道是Integer还是List，因此在hasNext中一定会调用next方法导致cursor提前偏移，因此需要将这个值缓存起来或是使用支持
         
       
     
