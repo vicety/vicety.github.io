@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="/"/>
-  <updated>2021-02-01T10:37:18.858Z</updated>
+  <updated>2021-02-01T10:48:36.094Z</updated>
   <id>/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="/2021/01/28/src/%E6%9D%82%E8%B0%88/last-words/"/>
     <id>/2021/01/28/src/杂谈/last-words/</id>
     <published>2021-01-27T18:02:19.000Z</published>
-    <updated>2021-02-01T10:37:18.858Z</updated>
+    <updated>2021-02-01T10:48:36.094Z</updated>
     
     <summary type="html">
     
@@ -41,7 +41,7 @@
     <link href="/2021/01/28/src/%E6%9D%82%E8%B0%88/%E6%B0%B8%E4%B8%8D%E8%BF%87%E6%97%B6%E7%9A%84%E8%8B%8F%E8%81%94%E7%AC%91%E8%AF%9D/"/>
     <id>/2021/01/28/src/杂谈/永不过时的苏联笑话/</id>
     <published>2021-01-27T18:00:46.000Z</published>
-    <updated>2021-02-01T10:37:18.859Z</updated>
+    <updated>2021-02-01T10:48:36.095Z</updated>
     
     <summary type="html">
     
@@ -73,7 +73,7 @@
     <link href="/2021/01/22/src/%E6%9D%82%E8%B0%88/%E6%9C%89%E6%84%9F%E8%80%8C%E5%8F%91/"/>
     <id>/2021/01/22/src/杂谈/有感而发/</id>
     <published>2021-01-22T02:39:22.000Z</published>
-    <updated>2021-02-01T10:37:18.858Z</updated>
+    <updated>2021-02-01T10:48:36.094Z</updated>
     
     <summary type="html">
     
@@ -93,7 +93,7 @@
     <link href="/2021/01/21/src/%E6%8A%80%E6%9C%AF/Go%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86/"/>
     <id>/2021/01/21/src/技术/Go依赖管理/</id>
     <published>2021-01-21T09:23:36.000Z</published>
-    <updated>2021-02-01T10:37:18.862Z</updated>
+    <updated>2021-02-01T10:48:36.099Z</updated>
     
     <summary type="html">
     
@@ -118,7 +118,7 @@
     <link href="/2021/01/19/src/%E6%8A%80%E6%9C%AF/%E5%8D%9A%E5%AE%A2%E9%83%A8%E7%BD%B2%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/"/>
     <id>/2021/01/19/src/技术/博客部署过程记录/</id>
     <published>2021-01-18T17:50:34.000Z</published>
-    <updated>2021-02-01T10:37:18.861Z</updated>
+    <updated>2021-02-01T10:48:36.098Z</updated>
     
     <summary type="html">
     
@@ -144,7 +144,7 @@
     <link href="/2021/01/18/src/%E6%9D%82%E8%B0%88/%E6%9D%82%E8%B0%88-2021%E5%B9%B41%E6%9C%88/"/>
     <id>/2021/01/18/src/杂谈/杂谈-2021年1月/</id>
     <published>2021-01-18T01:41:24.000Z</published>
-    <updated>2021-02-01T10:37:18.859Z</updated>
+    <updated>2021-02-01T10:48:36.095Z</updated>
     
     <summary type="html">
     
@@ -164,7 +164,7 @@
     <link href="/2020/11/16/src/%E6%8A%80%E6%9C%AF/%E6%96%BD%E5%B7%A5%E4%B8%AD-Golang%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
     <id>/2020/11/16/src/技术/施工中-Golang线程同步/</id>
     <published>2020-11-16T03:50:46.000Z</published>
-    <updated>2021-02-01T10:37:18.861Z</updated>
+    <updated>2021-02-01T10:48:36.097Z</updated>
     
     <summary type="html">
     
@@ -190,7 +190,7 @@
     <link href="/2020/11/08/src/%E6%9D%82%E8%B0%88/%E6%9D%82%E8%B0%88-2020%E5%B9%B411%E6%9C%88/"/>
     <id>/2020/11/08/src/杂谈/杂谈-2020年11月/</id>
     <published>2020-11-08T14:26:08.000Z</published>
-    <updated>2021-02-01T10:37:18.860Z</updated>
+    <updated>2021-02-01T10:48:36.096Z</updated>
     
     <summary type="html">
     
@@ -217,7 +217,7 @@
     <link href="/2018/12/12/src/LeetCode%201143%20Longest%20Common%20Subsequence/"/>
     <id>/2018/12/12/src/LeetCode 1143 Longest Common Subsequence/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:37:18.862Z</updated>
+    <updated>2021-02-01T10:48:36.100Z</updated>
     
     <summary type="html">
     
@@ -235,11 +235,11 @@
   </entry>
   
   <entry>
-    <title>LeetCode 128. Longest Consecutive Sequence</title>
-    <link href="/2018/12/12/src/LeetCode%20128.%20Longest%20Consecutive%20Sequence/"/>
-    <id>/2018/12/12/src/LeetCode 128. Longest Consecutive Sequence/</id>
+    <title>LeetCode 121|122|123|188|309. Best-Time-to-Buy-and-Sell-Stock-买卖股票系列</title>
+    <link href="/2018/12/12/src/LeetCode%20121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%B3%BB%E5%88%97/"/>
+    <id>/2018/12/12/src/LeetCode 121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-买卖股票系列/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:37:18.873Z</updated>
+    <updated>2021-02-01T10:48:36.108Z</updated>
     
     <summary type="html">
     
@@ -247,7 +247,7 @@
       
         
         
-          &lt;p&gt;求出数组中连续数字的最长长度，如[100, 200, 3, 400, 1, 4, 2]，的最长连续数字为[1, 2, 3,
+          &lt;h3 id=&quot;题目&quot;&gt;&lt;a href=&quot;#题目&quot; class=&quot;headerlink&quot; title=&quot;题目&quot;&gt;&lt;/a&gt;题目&lt;/h3&gt;&lt;p&gt;假设你知道股价序列，初始状态不持有股票，每次只能买入一股且在持有股票的同时不能继续买入，可以在同一时间点买入卖出。一次买入+卖出称作一个
         
       
     
@@ -261,7 +261,7 @@
     <link href="/2018/12/12/src/LeetCode%201235.%20Maximum%20Profit%20in%20Job%20Scheduling/"/>
     <id>/2018/12/12/src/LeetCode 1235. Maximum Profit in Job Scheduling/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:37:18.860Z</updated>
+    <updated>2021-02-01T10:48:36.096Z</updated>
     
     <summary type="html">
     
@@ -281,11 +281,33 @@
   </entry>
   
   <entry>
+    <title>LeetCode 128. Longest Consecutive Sequence</title>
+    <link href="/2018/12/12/src/LeetCode%20128.%20Longest%20Consecutive%20Sequence/"/>
+    <id>/2018/12/12/src/LeetCode 128. Longest Consecutive Sequence/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-02-01T10:48:36.110Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;求出数组中连续数字的最长长度，如[100, 200, 3, 400, 1, 4, 2]，的最长连续数字为[1, 2, 3,
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>LeetCode 136-137-260 Single Number I, II, III</title>
     <link href="/2018/12/12/src/LeetCode%20136-137-260%20Single%20Number%20I,%20II,%20III/"/>
     <id>/2018/12/12/src/LeetCode 136-137-260 Single Number I, II, III/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:37:18.868Z</updated>
+    <updated>2021-02-01T10:48:36.106Z</updated>
     
     <summary type="html">
     
@@ -307,7 +329,7 @@
     <link href="/2018/12/12/src/LeetCode%20149.%20Max%20Points%20In%20a%20line/"/>
     <id>/2018/12/12/src/LeetCode 149. Max Points In a line/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:37:18.872Z</updated>
+    <updated>2021-02-01T10:48:36.109Z</updated>
     
     <summary type="html">
     
@@ -332,7 +354,7 @@
     <link href="/2018/12/12/src/LeetCode%20179.%20Largest%20Number/"/>
     <id>/2018/12/12/src/LeetCode 179. Largest Number/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:37:18.866Z</updated>
+    <updated>2021-02-01T10:48:36.104Z</updated>
     
     <summary type="html">
     
@@ -352,11 +374,33 @@
   </entry>
   
   <entry>
+    <title>LeetCode 218. The Skyline Problem</title>
+    <link href="/2018/12/12/src/LeetCode%20218.%20The%20Skyline%20Problem/"/>
+    <id>/2018/12/12/src/LeetCode 218. The Skyline Problem/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-02-01T10:48:36.106Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;一种做法是使用优先队列维护当前区间内的最大值，初始状态插入一个0，如果最大值变动，那么更新答案，缺点是优先队列非堆顶元素出队的复杂度为O(N)，导致这种方法在Runtime
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>LeetCode 264. Ugly Number II</title>
     <link href="/2018/12/12/src/LeetCode%20264.%20Ugly%20Number%20II/"/>
     <id>/2018/12/12/src/LeetCode 264. Ugly Number II/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:37:18.863Z</updated>
+    <updated>2021-02-01T10:48:36.100Z</updated>
     
     <summary type="html">
     
@@ -380,7 +424,7 @@
     <link href="/2018/12/12/src/LeetCode%20287.%20Find%20the%20Duplicate%20Number/"/>
     <id>/2018/12/12/src/LeetCode 287. Find the Duplicate Number/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:37:18.863Z</updated>
+    <updated>2021-02-01T10:48:36.101Z</updated>
     
     <summary type="html">
     
@@ -398,55 +442,11 @@
   </entry>
   
   <entry>
-    <title>LeetCode 121|122|123|188|309. Best-Time-to-Buy-and-Sell-Stock-买卖股票系列</title>
-    <link href="/2018/12/12/src/LeetCode%20121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%B3%BB%E5%88%97/"/>
-    <id>/2018/12/12/src/LeetCode 121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-买卖股票系列/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:37:18.871Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;h3 id=&quot;题目&quot;&gt;&lt;a href=&quot;#题目&quot; class=&quot;headerlink&quot; title=&quot;题目&quot;&gt;&lt;/a&gt;题目&lt;/h3&gt;&lt;p&gt;假设你知道股价序列，初始状态不持有股票，每次只能买入一股且在持有股票的同时不能继续买入，可以在同一时间点买入卖出。一次买入+卖出称作一个
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>LeetCode 218. The Skyline Problem</title>
-    <link href="/2018/12/12/src/LeetCode%20218.%20The%20Skyline%20Problem/"/>
-    <id>/2018/12/12/src/LeetCode 218. The Skyline Problem/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:37:18.869Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;一种做法是使用优先队列维护当前区间内的最大值，初始状态插入一个0，如果最大值变动，那么更新答案，缺点是优先队列非堆顶元素出队的复杂度为O(N)，导致这种方法在Runtime
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
     <title>LeetCode 315. Count of Smaller Numbers After Self</title>
     <link href="/2018/12/12/src/LeetCode%20315.%20Count%20of%20Smaller%20Numbers%20After%20Self/"/>
     <id>/2018/12/12/src/LeetCode 315. Count of Smaller Numbers After Self/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:37:18.869Z</updated>
+    <updated>2021-02-01T10:48:36.106Z</updated>
     
     <summary type="html">
     
@@ -466,11 +466,11 @@
   </entry>
   
   <entry>
-    <title>LeetCode 336. Palindrome Pairs</title>
-    <link href="/2018/12/12/src/LeetCode%20336.%20Palindrome%20Pairs/"/>
-    <id>/2018/12/12/src/LeetCode 336. Palindrome Pairs/</id>
+    <title>LeetCode 327. Count of Range Sum 区间过滤</title>
+    <link href="/2018/12/12/src/LeetCode%20327.%20Count%20of%20Range%20Sum%20%E5%8C%BA%E9%97%B4%E8%BF%87%E6%BB%A4/"/>
+    <id>/2018/12/12/src/LeetCode 327. Count of Range Sum 区间过滤/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:37:18.862Z</updated>
+    <updated>2021-02-01T10:48:36.102Z</updated>
     
     <summary type="html">
     
@@ -478,9 +478,7 @@
       
         
         
-          &lt;p&gt;给出n个unique字符串，求所有两两拼接能够得到回文串的组合&lt;/p&gt;
-&lt;h4 id=&quot;暴力&quot;&gt;&lt;a href=&quot;#暴力&quot; class=&quot;headerlink&quot; title=&quot;暴力&quot;&gt;&lt;/a&gt;暴力&lt;/h4&gt;&lt;p&gt;枚举字符串对拼接判回文串，O(n^2k)&lt;/p&gt;
-&lt;h4
+          &lt;p&gt;求数组中所有这样的区间[l,r]的个数，使&lt;code&gt;upper &amp;gt;= sum(l, r) &amp;gt;= lower&lt;/code&gt;，转化为前缀和&lt;code&gt;upper &amp;gt;= prefix[r] - prefix[l] &amp;gt;=
         
       
     
