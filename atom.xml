@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="/"/>
-  <updated>2021-02-01T10:54:34.151Z</updated>
+  <updated>2021-02-05T03:34:20.230Z</updated>
   <id>/</id>
   
   <author>
@@ -17,11 +17,40 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>从实战学习linux命令与shell脚本.md</title>
+    <link href="/2021/02/05/src/%E6%8A%80%E6%9C%AF/%E4%BB%8E%E5%AE%9E%E6%88%98%E5%AD%A6%E4%B9%A0linux%E5%91%BD%E4%BB%A4%E4%B8%8Eshell%E8%84%9A%E6%9C%AC/"/>
+    <id>/2021/02/05/src/技术/从实战学习linux命令与shell脚本/</id>
+    <published>2021-02-05T03:24:44.000Z</published>
+    <updated>2021-02-05T03:34:20.230Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;两文件夹下所有文件diff&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;sh&quot;&gt;diff -r pymodel-serving xxx/pymodel-serving
+
+# &amp;lt; 对应arg1目录 &amp;gt; 对应arg2目录
+
+diff -r
+        
+      
+    
+    </summary>
+    
+      <category term="技术" scheme="/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>last-words</title>
     <link href="/2021/01/28/src/%E6%9D%82%E8%B0%88/last-words/"/>
     <id>/2021/01/28/src/杂谈/last-words/</id>
     <published>2021-01-27T18:02:19.000Z</published>
-    <updated>2021-02-01T10:54:34.151Z</updated>
+    <updated>2021-02-05T03:34:20.227Z</updated>
     
     <summary type="html">
     
@@ -41,7 +70,7 @@
     <link href="/2021/01/28/src/%E6%9D%82%E8%B0%88/%E6%B0%B8%E4%B8%8D%E8%BF%87%E6%97%B6%E7%9A%84%E8%8B%8F%E8%81%94%E7%AC%91%E8%AF%9D/"/>
     <id>/2021/01/28/src/杂谈/永不过时的苏联笑话/</id>
     <published>2021-01-27T18:00:46.000Z</published>
-    <updated>2021-02-01T10:54:34.151Z</updated>
+    <updated>2021-02-05T03:34:20.227Z</updated>
     
     <summary type="html">
     
@@ -73,7 +102,7 @@
     <link href="/2021/01/22/src/%E6%9D%82%E8%B0%88/%E6%9C%89%E6%84%9F%E8%80%8C%E5%8F%91/"/>
     <id>/2021/01/22/src/杂谈/有感而发/</id>
     <published>2021-01-22T02:39:22.000Z</published>
-    <updated>2021-02-01T10:54:34.151Z</updated>
+    <updated>2021-02-05T03:34:20.227Z</updated>
     
     <summary type="html">
     
@@ -93,7 +122,7 @@
     <link href="/2021/01/21/src/%E6%8A%80%E6%9C%AF/Go%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86/"/>
     <id>/2021/01/21/src/技术/Go依赖管理/</id>
     <published>2021-01-21T09:23:36.000Z</published>
-    <updated>2021-02-01T10:54:34.154Z</updated>
+    <updated>2021-02-05T03:34:20.230Z</updated>
     
     <summary type="html">
     
@@ -118,7 +147,7 @@
     <link href="/2021/01/19/src/%E6%8A%80%E6%9C%AF/%E5%8D%9A%E5%AE%A2%E9%83%A8%E7%BD%B2%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/"/>
     <id>/2021/01/19/src/技术/博客部署过程记录/</id>
     <published>2021-01-18T17:50:34.000Z</published>
-    <updated>2021-02-01T10:54:34.154Z</updated>
+    <updated>2021-02-05T03:34:20.229Z</updated>
     
     <summary type="html">
     
@@ -144,7 +173,7 @@
     <link href="/2021/01/18/src/%E6%9D%82%E8%B0%88/%E6%9D%82%E8%B0%88-2021%E5%B9%B41%E6%9C%88/"/>
     <id>/2021/01/18/src/杂谈/杂谈-2021年1月/</id>
     <published>2021-01-18T01:41:24.000Z</published>
-    <updated>2021-02-01T10:54:34.152Z</updated>
+    <updated>2021-02-05T03:34:20.227Z</updated>
     
     <summary type="html">
     
@@ -164,7 +193,7 @@
     <link href="/2020/11/16/src/%E6%8A%80%E6%9C%AF/%E6%96%BD%E5%B7%A5%E4%B8%AD-Golang%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
     <id>/2020/11/16/src/技术/施工中-Golang线程同步/</id>
     <published>2020-11-16T03:50:46.000Z</published>
-    <updated>2021-02-01T10:54:34.153Z</updated>
+    <updated>2021-02-05T03:34:20.229Z</updated>
     
     <summary type="html">
     
@@ -190,7 +219,7 @@
     <link href="/2020/11/08/src/%E6%9D%82%E8%B0%88/%E6%9D%82%E8%B0%88-2020%E5%B9%B411%E6%9C%88/"/>
     <id>/2020/11/08/src/杂谈/杂谈-2020年11月/</id>
     <published>2020-11-08T14:26:08.000Z</published>
-    <updated>2021-02-01T10:54:34.152Z</updated>
+    <updated>2021-02-05T03:34:20.228Z</updated>
     
     <summary type="html">
     
@@ -213,55 +242,11 @@
   </entry>
   
   <entry>
-    <title>LeetCode 1143 Longest Common Subsequence</title>
-    <link href="/2018/12/12/src/LeetCode%201143%20Longest%20Common%20Subsequence/"/>
-    <id>/2018/12/12/src/LeetCode 1143 Longest Common Subsequence/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:54:34.155Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;h3 id=&quot;题目&quot;&gt;&lt;a href=&quot;#题目&quot; class=&quot;headerlink&quot; title=&quot;题目&quot;&gt;&lt;/a&gt;题目&lt;/h3&gt;&lt;p&gt;求两个字符串的最长公共子序列长度&lt;br&gt;eg1: s = “abcde”, p = “abd” -&amp;gt; ans = 3&lt;br&gt;eg2:
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>LeetCode 128. Longest Consecutive Sequence</title>
-    <link href="/2018/12/12/src/LeetCode%20128.%20Longest%20Consecutive%20Sequence/"/>
-    <id>/2018/12/12/src/LeetCode 128. Longest Consecutive Sequence/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:54:34.163Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;求出数组中连续数字的最长长度，如[100, 200, 3, 400, 1, 4, 2]，的最长连续数字为[1, 2, 3,
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
     <title>LeetCode 121|122|123|188|309. Best-Time-to-Buy-and-Sell-Stock-买卖股票系列</title>
     <link href="/2018/12/12/src/LeetCode%20121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%B3%BB%E5%88%97/"/>
     <id>/2018/12/12/src/LeetCode 121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-买卖股票系列/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:54:34.161Z</updated>
+    <updated>2021-02-05T03:34:20.235Z</updated>
     
     <summary type="html">
     
@@ -279,11 +264,33 @@
   </entry>
   
   <entry>
+    <title>LeetCode 1143 Longest Common Subsequence</title>
+    <link href="/2018/12/12/src/LeetCode%201143%20Longest%20Common%20Subsequence/"/>
+    <id>/2018/12/12/src/LeetCode 1143 Longest Common Subsequence/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-02-05T03:34:20.230Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h3 id=&quot;题目&quot;&gt;&lt;a href=&quot;#题目&quot; class=&quot;headerlink&quot; title=&quot;题目&quot;&gt;&lt;/a&gt;题目&lt;/h3&gt;&lt;p&gt;求两个字符串的最长公共子序列长度&lt;br&gt;eg1: s = “abcde”, p = “abd” -&amp;gt; ans = 3&lt;br&gt;eg2:
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>LeetCode 1235. Maximum Profit in Job Scheduling</title>
     <link href="/2018/12/12/src/LeetCode%201235.%20Maximum%20Profit%20in%20Job%20Scheduling/"/>
     <id>/2018/12/12/src/LeetCode 1235. Maximum Profit in Job Scheduling/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:54:34.152Z</updated>
+    <updated>2021-02-05T03:34:20.228Z</updated>
     
     <summary type="html">
     
@@ -303,11 +310,33 @@
   </entry>
   
   <entry>
+    <title>LeetCode 128. Longest Consecutive Sequence</title>
+    <link href="/2018/12/12/src/LeetCode%20128.%20Longest%20Consecutive%20Sequence/"/>
+    <id>/2018/12/12/src/LeetCode 128. Longest Consecutive Sequence/</id>
+    <published>2018-12-12T14:16:01.000Z</published>
+    <updated>2021-02-05T03:34:20.236Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;求出数组中连续数字的最长长度，如[100, 200, 3, 400, 1, 4, 2]，的最长连续数字为[1, 2, 3,
+        
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>LeetCode 136-137-260 Single Number I, II, III</title>
     <link href="/2018/12/12/src/LeetCode%20136-137-260%20Single%20Number%20I,%20II,%20III/"/>
     <id>/2018/12/12/src/LeetCode 136-137-260 Single Number I, II, III/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:54:34.159Z</updated>
+    <updated>2021-02-05T03:34:20.234Z</updated>
     
     <summary type="html">
     
@@ -329,7 +358,7 @@
     <link href="/2018/12/12/src/LeetCode%20149.%20Max%20Points%20In%20a%20line/"/>
     <id>/2018/12/12/src/LeetCode 149. Max Points In a line/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:54:34.161Z</updated>
+    <updated>2021-02-05T03:34:20.235Z</updated>
     
     <summary type="html">
     
@@ -354,7 +383,7 @@
     <link href="/2018/12/12/src/LeetCode%20179.%20Largest%20Number/"/>
     <id>/2018/12/12/src/LeetCode 179. Largest Number/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:54:34.157Z</updated>
+    <updated>2021-02-05T03:34:20.232Z</updated>
     
     <summary type="html">
     
@@ -378,7 +407,7 @@
     <link href="/2018/12/12/src/LeetCode%20218.%20The%20Skyline%20Problem/"/>
     <id>/2018/12/12/src/LeetCode 218. The Skyline Problem/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:54:34.159Z</updated>
+    <updated>2021-02-05T03:34:20.234Z</updated>
     
     <summary type="html">
     
@@ -396,35 +425,11 @@
   </entry>
   
   <entry>
-    <title>LeetCode 315. Count of Smaller Numbers After Self</title>
-    <link href="/2018/12/12/src/LeetCode%20315.%20Count%20of%20Smaller%20Numbers%20After%20Self/"/>
-    <id>/2018/12/12/src/LeetCode 315. Count of Smaller Numbers After Self/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:54:34.159Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;稍微加深了一些对BST的认识……&lt;/p&gt;
-&lt;p&gt;维护一个BST，节点中保存当前节点与其子节点的权重和，新节点权重为一，插入时整条查询路径上权重加一。查询时将查询路径上确保比查询值小的节点的权重加入统计。&lt;/p&gt;
-&lt;pre&gt;&lt;code class=&quot;java&quot;&gt;class
-        
-      
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
     <title>LeetCode 264. Ugly Number II</title>
     <link href="/2018/12/12/src/LeetCode%20264.%20Ugly%20Number%20II/"/>
     <id>/2018/12/12/src/LeetCode 264. Ugly Number II/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:54:34.155Z</updated>
+    <updated>2021-02-05T03:34:20.231Z</updated>
     
     <summary type="html">
     
@@ -448,7 +453,7 @@
     <link href="/2018/12/12/src/LeetCode%20287.%20Find%20the%20Duplicate%20Number/"/>
     <id>/2018/12/12/src/LeetCode 287. Find the Duplicate Number/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:54:34.155Z</updated>
+    <updated>2021-02-05T03:34:20.231Z</updated>
     
     <summary type="html">
     
@@ -466,11 +471,11 @@
   </entry>
   
   <entry>
-    <title>LeetCode 341. Flatten Nested List Iterator</title>
-    <link href="/2018/12/12/src/LeetCode%20341.%20Flatten%20Nested%20List%20Iterator/"/>
-    <id>/2018/12/12/src/LeetCode 341. Flatten Nested List Iterator/</id>
+    <title>LeetCode 315. Count of Smaller Numbers After Self</title>
+    <link href="/2018/12/12/src/LeetCode%20315.%20Count%20of%20Smaller%20Numbers%20After%20Self/"/>
+    <id>/2018/12/12/src/LeetCode 315. Count of Smaller Numbers After Self/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-02-01T10:54:34.149Z</updated>
+    <updated>2021-02-05T03:34:20.234Z</updated>
     
     <summary type="html">
     
@@ -478,7 +483,9 @@
       
         
         
-          &lt;p&gt;编写flattern函数，将可能存在多层嵌套的列表转换为一维列表。题目不难，但是有几点需要注意。由于hasNext中只有取出元素后才能知道是Integer还是List，因此在hasNext中一定会调用next方法导致cursor提前偏移，因此需要将这个值缓存起来或是使用支持
+          &lt;p&gt;稍微加深了一些对BST的认识……&lt;/p&gt;
+&lt;p&gt;维护一个BST，节点中保存当前节点与其子节点的权重和，新节点权重为一，插入时整条查询路径上权重加一。查询时将查询路径上确保比查询值小的节点的权重加入统计。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;java&quot;&gt;class
         
       
     

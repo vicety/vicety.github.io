@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">LeetCode 136-137-260 Single Number I, II, III | vicety</title>
+  <title itemprop="name">从实战学习linux命令与shell脚本.md | vicety</title>
   
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji-ico.ico">
   
@@ -195,7 +195,7 @@
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      LeetCode 136-137-260 Single Number I, II, III</h1>
+      从实战学习linux命令与shell脚本.md</h1>
       <p class="entry-census">
         <span>
           <a href="vicety.github.io">
@@ -207,7 +207,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2018-12-12<span class="bull">
+        2021-2-5<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -221,53 +221,24 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <h3 id="Problem-136"><a href="#Problem-136" class="headerlink" title="Problem 136"></a>Problem 136</h3><p>数组中的数字除了某个数只出现了一次以外都出现了两次，使用常数空间找出这个数。</p>
-<p>全部异或一遍即可</p>
-<h3 id="Problem-137"><a href="#Problem-137" class="headerlink" title="Problem 137"></a>Problem 137</h3><p>数组中的数字除了某个数只出现了一次以外都出现了三次，使用常数空间找出这个数。</p>
-<p>参照136中的做法，需要定义一种在某个比特上出现三次则归零的运算，手动模拟一下即可</p>
-<pre><code class="java">class Solution {
-    public int bit(int n, int i) {return (n &gt;&gt; i) &amp; 1;}
+          <p>两文件夹下所有文件diff</p>
+<pre><code class="sh">diff -r pymodel-serving xxx/pymodel-serving
 
-    public int singleNumber(int[] nums) {
-        int[] arr = new int[32];
-        for (int num : nums) {
-            for (int i = 0; i &lt; 32; i++) {
-                arr[i] += (bit(num, i) == 1 ? 1 : 0);
-            }
-        }
-        int ans = 0;
-        for (int i = 0; i &lt; arr.length; i++) {
-            if(arr[i] % 3 == 1) ans += 1 &lt;&lt; i;
-        }
-        return ans;
-    }
-}
+# &lt; 对应arg1目录 &gt; 对应arg2目录
+
+diff -r pymodel-serving/py_model_server.py xxx/pymodel-serving/py_model_server.py
+30c30
+&lt;     df = pd.read_json(data)
+---
+&gt;     df = pd.read_json(data, dtype=False)
+diff -r pymodel-serving/server-requirements.txt xxx/pymodel-serving/server-requirements.txt
+3,4c3
+&lt; #uwsgi
+&lt;
+---
+&gt; uwsgi
 </code></pre>
-<h3 id="Problem-260"><a href="#Problem-260" class="headerlink" title="Problem 260"></a>Problem 260</h3><p>数组中的数字除了某两个不同的数（称a, b）只出现了一次以外都出现了两次，使用常数空间找出这两个数。</p>
-<p>全部异或一遍得到a^b，显然至少有一位为1，使用这一位过滤数组中的数可以排除a或b中的一个，未被排除的数字全部异或即可得到a或b中的一个，被排除的ab以外的其他数字由于出现两次所以不影响结果。</p>
-<pre><code class="java">class Solution {
-    public int[] singleNumber(int[] nums) {
-        int allXor = 0;
-        for (int num : nums) {
-            allXor ^= num;
-        }
-        int diffBit = 0;
-        for (int i = 0; i &lt; 32; i++) {
-            if ((allXor &gt;&gt; i &amp; 1) == 1) {
-                diffBit = i;
-                break;
-            }
-        }
-        // System.out.println(diffBit);
-        int one = 0;
-        for (int num : nums) {
-            if ((num &gt;&gt; diffBit &amp; 1) != 1) one ^= num;
-        }
-        int anthor = allXor ^ one;
-        return new int[]{one, anthor};
-    }
-}
-</code></pre>
+<p>TODO<br>删除目录下除某个文件外的所有文件</p>
 
         </div>
         <!-- .entry-content -->
@@ -296,36 +267,19 @@
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
-          
-            <div class="post-nepre half previous">
-          
-            <a href="/2018/12/12/src/LeetCode 128. Longest Consecutive Sequence/" rel="prev">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-              </div>
-              <span class="label">
-              Previous Post</span>
-              <div class="info">
-                <h3>
-                LeetCode 128. Longest Consecutive Sequence</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
         
           
-            <div class="post-nepre half next">
+            <div class="post-nepre full next">
           
-            <a href="/2018/12/12/src/LeetCode 149. Max Points In a line/" rel="next">
+            <a href="/2021/01/28/src/杂谈/last-words/" rel="next">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="">
               </div>
               <span class="label">
               Next Post</span>
               <div class="info">
                 <h3>
-                LeetCode 149. Max Points In a line</h3>
+                last-words</h3>
                 <hr>
               </div>
             </a>
