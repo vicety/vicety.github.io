@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">Luogu 3372. 线段树 | vicety</title>
+  <title itemprop="name">log4go源码阅读 | vicety</title>
   
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji-ico.ico">
   
@@ -195,7 +195,7 @@
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      Luogu 3372. 线段树</h1>
+      log4go源码阅读</h1>
       <p class="entry-census">
         <span>
           <a href="vicety.github.io">
@@ -207,7 +207,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2018-12-12<span class="bull">
+        2021-2-10<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -221,119 +221,96 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <p>线段树裸题，涉及区间查询、修改、lazy标签优化，感觉面试一般也不太考察… 主要靠背板。尝试了把lazy也算作当前节点的值，但是没过，短时间内也排查不出问题，于是放弃。记录一下作为将来线段树的模板。</p>
-<ul>
-<li>up：在递归更新后使用，由于子节点值更新导致父节点值需要更新</li>
-<li>down：同时更新子节点的lazy与val，当前节点lazy置0<ul>
-<li>非完美区间覆盖时的query需要使用，因为最终得到的结果是各个区间的val相加，因此需要及时将lazy中的值传播到子节点的val中</li>
-<li>非完美区间覆盖时的update需要使用，因为update会导致up操作，又由于up操作是根据子节点值更新父节点值，因此需要保持子节点值为最新，因此需要在update前及时将父节点lazy中的值传播给子节点</li>
-</ul>
-</li>
-</ul>
-<pre><code class="java">class Main {
+          <p><a href="code.google.com/archive/p/log4go">源码地址</a></p>
+<p>日志系统需要满足哪些需求：<br>我能想到的：</p>
+<ol>
+<li>日志打印（stdout、文件）</li>
+<li>日志格式化（时间、调用位置、色彩）</li>
+<li>日志等级</li>
+<li>日志滚动、压缩、清理</li>
+</ol>
+<p>log4go的日志在调用logger.debug/info/warn/error等API后会根据等级，将结构化日志对象分发到符合等级的Filter中，调用这些Filter实现的LogWrite接口去输出日志</p>
+<p>log4go提供基础的数据结构定义、日志配置（异步队列长度、超长后的策略）、业务自定义日志处理逻辑需要实现的接口（以及example）、日志使用API（logger.warn等等），而日志格式化的DSL、日志滚动逻辑可以放到每个Filter中去实现</p>
+<p>数据结构定义如日志结构、日志等级</p>
+<pre><code class="go">// 定义一条结构化的日志数据
+type LogRecord struct {
+ Level   LevelType 
+ Created time.Time 
+ Source  string    // 消息来源，从runtime.Caller(skipNum)中获得，skipNum为忽略的调用链层数，例子见下方%S占位符对应的值
+ Message string    // string类型的日志
+ Binary  []byte    // 二进制类型的日志
+}
+</code></pre>
+<p>日志格式化DSL可以解析结构化日志的字段进行转换，如<code>[%D %T] [%L] (%S) %M</code>对应<code>[2021/02/09 12:47:10] [INFO] (vicety.github.io/test-lib/middleware.LoggerWithFormatter.func1:72) Something happens...</code></p>
+<p>日志使用接口</p>
+<pre><code class="go">// This is an interface for anything that should be able to write logs
+type LogWriter interface {
+ // This will be called to log a LogRecord message.
+ LogWrite(rec *LogRecord)
 
-    static class Tree {
-        long val;
-        int l;
-        int r;
-        long lazy;
-    }
+ // This should clean up anything lingering about the LogWriter, as it is called before
+ // the LogWriter is removed.  LogWrite should not be called after Close.
+ Close()
+}
+</code></pre>
+<p>调用log.warn时的分发</p>
+<pre><code class="go">func (log Logger) Info(arg0 interface{}, args ...interface{}) {
+ const (
+  lvl = INFO
+ )
+ switch first := arg0.(type) {
+ case string:
+  // Use the string as a format string
+  log.intLogf(lvl, first, args...)
+ case func() string:
+  // Log the closure (no other arguments used)
+  log.intLogc(lvl, first)
+ case []byte:
+  // Log the binary log message
+  log.intLogb(lvl, first)
+ default:
+  // Build a format string so that it will be similar to Sprint
+  log.intLogf(lvl, fmt.Sprint(arg0)+strings.Repeat(&quot; %v&quot;, len(args)), args...)
+ }
+}
 
-    private static long[] nums;
-    private static Tree[] arr;
+// Send a formatted log message internally
+func (log Logger) intLogf(lvl LevelType, format string, args ...interface{}) {
+ skip := true
 
-    private static int ls(int i) {
-        return i &lt;&lt; 1;
-    }
+ // Determine if any logging will be done
+ for _, filt := range log {
+  if lvl &gt;= filt.Level {
+   skip = false
+   break
+  }
+ }
+ if skip {
+  return
+ }
 
-    private static int rs(int i) {
-        return i &lt;&lt; 1 | 1;
-    }
+ // get log record
+ lr := GetLogRecord(lvl, format, args...) // 构造格式化日志对象lr
 
-    private static void up(int rt) {
-        arr[rt].val = arr[ls(rt)].val + arr[rs(rt)].val;
-    }
+ // Dispatch the logs
+ for _, filt := range log {
+  if lvl &lt; filt.Level {
+   continue
+  }
+  filt.LogWrite(&amp;lr)
+ }
+}
+</code></pre>
+<p>框架本身并不复杂，依赖上层业务去规定日志格式、日志处理，此外缓存队列的实现也是上层做的（尽管在go中很简单）</p>
+<p>LogWrite实现例</p>
+<pre><code class="go">func (w *ExampleLogWriter) LogWrite(rec *log4go.LogRecord) {
+ if !log4go.LogWithBlocking {
+  if len(w.rec) &gt;= log4go.LogBufferLength {
+   return
+  }
+ }
 
-    private static void down(int rt) {
-        arr[ls(rt)].lazy += arr[rt].lazy;
-        arr[ls(rt)].val += arr[rt].lazy * (arr[ls(rt)].r - arr[ls(rt)].l + 1);
-        arr[rs(rt)].lazy += arr[rt].lazy;
-        arr[rs(rt)].val += arr[rt].lazy * (arr[rs(rt)].r - arr[rs(rt)].l + 1);
-        arr[rt].lazy = 0;
-    }
-
-    private static void build(int rt, int l, int r) {
-        if (l == r) {
-            arr[rt].val = nums[l];
-            arr[rt].l = l;
-            arr[rt].r = r;
-            return;
-        }
-        int mid = (l + r) &gt;&gt; 1;
-        build(ls(rt), l, mid);
-        build(rs(rt), mid + 1, r);
-        up(rt);
-        arr[rt].l = l;
-        arr[rt].r = r;
-    }
-
-    private static long query(int rt, int ql, int qr) {
-        if (ql &lt;= arr[rt].l &amp;&amp; qr &gt;= arr[rt].r) return arr[rt].val;
-        down(rt);
-        long res = 0;
-        int mid = (arr[rt].l + arr[rt].r) &gt;&gt; 1;
-        if (ql &lt;= mid) res += query(ls(rt), ql, qr);
-        if (qr &gt; mid) res += query(rs(rt), ql, qr);
-        return res;
-    }
-
-    private static void update(int rt, int ul, int ur, long val) {
-        if (ul &lt;= arr[rt].l &amp;&amp; ur &gt;= arr[rt].r) {
-            arr[rt].val += (arr[rt].r - arr[rt].l + 1) * val;
-            arr[rt].lazy += val;
-            return;
-        }
-        down(rt);
-        int mid = (arr[rt].l + arr[rt].r) &gt;&gt; 1;
-        if (ul &lt;= mid) update(ls(rt), ul, ur, val);
-        if (ur &gt; mid) update(rs(rt), ul, ur, val);
-        up(rt);
-    }
-
-    public static void main(String[] args) throws IOException {
-        InputStreamReader r = new InputStreamReader(System.in);
-        BufferedReader in = new BufferedReader(r);
-        StringBuilder sb = new StringBuilder();
-        String[] line = in.readLine().split(&quot; &quot;);
-        int N = Integer.parseInt(line[0]);
-        int M = Integer.parseInt(line[1]);
-
-        int h = (int) Math.ceil(Math.log(N) / Math.log(2));
-        nums = new long[N];
-        arr = new Tree[N &lt;&lt; 2];
-        for (int i = 0; i &lt; arr.length; i++) arr[i] = new Tree();
-
-        String[] aStr = in.readLine().split(&quot; &quot;);
-        for (int i = 0; i &lt; N; i++) {
-            nums[i] = Long.parseLong(aStr[i]);
-        }
-        build(1, 0, N - 1);
-
-        for (int i = 0; i &lt; M; i++) {
-            String[] ops = in.readLine().split(&quot; &quot;);
-            int x = Integer.parseInt(ops[1]);
-            int y = Integer.parseInt(ops[2]);
-            if (ops.length == 3) {
-                long res = query(1, x - 1, y - 1);
-                sb.append(res);
-                sb.append(&quot;\n&quot;);
-            } else if (ops.length == 4) {
-                long k = Long.parseLong(ops[3]);
-                update(1, x - 1, y - 1, k);
-            }
-        }
-        System.out.println(sb);
-    }
+ w.rec &lt;- rec // 接日志处理逻辑
 }
 </code></pre>
 
@@ -364,36 +341,19 @@
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
+        
           
-            <div class="post-nepre half previous">
+            <div class="post-nepre full next">
           
-            <a href="/2018/12/12/src/LeetCode 95. Unique Binary Search Trees II/" rel="prev">
+            <a href="/2021/02/05/src/技术/从实战学习linux命令与shell脚本/" rel="next">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-              </div>
-              <span class="label">
-              Previous Post</span>
-              <div class="info">
-                <h3>
-                LeetCode 95. Unique Binary Search Trees II</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
-        
-          
-            <div class="post-nepre half next">
-          
-            <a href="/2018/12/12/src/ThreadPoolExecutor源码学习/" rel="next">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/72354736_p0.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/72354736_p0.jpg">
               </div>
               <span class="label">
               Next Post</span>
               <div class="info">
                 <h3>
-                ThreadPoolExecutor源码学习</h3>
+                从实战学习linux命令与shell脚本.md</h3>
                 <hr>
               </div>
             </a>
