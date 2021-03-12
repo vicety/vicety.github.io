@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">LeetCode 136-137-260 Single Number I, II, III | vicety</title>
+  <title itemprop="name">golang学习-Array、Slice与String | vicety</title>
   
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji-ico.ico">
   
@@ -195,7 +195,7 @@
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      LeetCode 136-137-260 Single Number I, II, III</h1>
+      golang学习-Array、Slice与String</h1>
       <p class="entry-census">
         <span>
           <a href="vicety.github.io">
@@ -207,7 +207,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2018-12-12<span class="bull">
+        2021-3-11<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -221,53 +221,74 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <h3 id="Problem-136"><a href="#Problem-136" class="headerlink" title="Problem 136"></a>Problem 136</h3><p>数组中的数字除了某个数只出现了一次以外都出现了两次，使用常数空间找出这个数。</p>
-<p>全部异或一遍即可</p>
-<h3 id="Problem-137"><a href="#Problem-137" class="headerlink" title="Problem 137"></a>Problem 137</h3><p>数组中的数字除了某个数只出现了一次以外都出现了三次，使用常数空间找出这个数。</p>
-<p>参照136中的做法，需要定义一种在某个比特上出现三次则归零的运算，手动模拟一下即可</p>
-<pre><code class="java">class Solution {
-    public int bit(int n, int i) {return (n &gt;&gt; i) &amp; 1;}
+          <p>本文是阅读The Go Blog <a href="https://blog.golang.org/slices" target="_blank" rel="noopener">Arrays, slices (and strings): The mechanics of ‘append’</a>小节后的总结笔记</p>
+<h3 id="Arrays"><a href="#Arrays" class="headerlink" title="Arrays"></a>Arrays</h3><p>如何初始化数组</p>
+<pre><code class="go">var buffer [256]byte
+array := [3]int{1, 2, 3}
+array = [...]int{1, 2, 3} // 编译器推断数组长度
 
-    public int singleNumber(int[] nums) {
-        int[] arr = new int[32];
-        for (int num : nums) {
-            for (int i = 0; i &lt; 32; i++) {
-                arr[i] += (bit(num, i) == 1 ? 1 : 0);
-            }
-        }
-        int ans = 0;
-        for (int i = 0; i &lt; arr.length; i++) {
-            if(arr[i] % 3 == 1) ans += 1 &lt;&lt; i;
-        }
-        return ans;
-    }
+// 在编译器检查越界访问行为
+fmt.Println(buffer[256])
+// # command-line-arguments
+// ./main.go:&lt;Line of the code&gt;: invalid array index 256 (out of bounds for 256-element array)
+</code></pre>
+<p>array与slice是不同的，array具有固定的长度，这个长度也是array类型的一部分:</p>
+<pre><code class="go">var array [256]byte
+// array -&gt; type [256]byte
+slice := array[255:255]
+// slice -&gt; type []byte
+</code></pre>
+<h3 id="Slices"><a href="#Slices" class="headerlink" title="Slices"></a>Slices</h3><p>slice可以看做数组指针，slice可以用如下结构体表示</p>
+<pre><code class="go">type sliceHeader struct {
+    Length        int
+    Capacity      int
+    ZerothElement *TypeOfArray // slice中第一个元素对应数组中的位置
 }
 </code></pre>
-<h3 id="Problem-260"><a href="#Problem-260" class="headerlink" title="Problem 260"></a>Problem 260</h3><p>数组中的数字除了某两个不同的数（称a, b）只出现了一次以外都出现了两次，使用常数空间找出这两个数。</p>
-<p>全部异或一遍得到a^b，显然至少有一位为1，使用这一位过滤数组中的数可以排除a或b中的一个，未被排除的数字全部异或即可得到a或b中的一个，被排除的ab以外的其他数字由于出现两次所以不影响结果。</p>
-<pre><code class="java">class Solution {
-    public int[] singleNumber(int[] nums) {
-        int allXor = 0;
-        for (int num : nums) {
-            allXor ^= num;
-        }
-        int diffBit = 0;
-        for (int i = 0; i &lt; 32; i++) {
-            if ((allXor &gt;&gt; i &amp; 1) == 1) {
-                diffBit = i;
-                break;
-            }
-        }
-        // System.out.println(diffBit);
-        int one = 0;
-        for (int num : nums) {
-            if ((num &gt;&gt; diffBit &amp; 1) != 1) one ^= num;
-        }
-        int anthor = allXor ^ one;
-        return new int[]{one, anthor};
-    }
+<p>slice的初始化方式</p>
+<pre><code class="go">slice := make([]int, 2, 4) // len, cap
+slice := make([]int, 2) // len == cap == 2
+slice := array[0:0]
+slice := []int{1, 2, 3}
+slice := []int(nil) // len = cap = 0, appendable
+
+fmt.Println(slice[114514]) // out of bound
+
+// 在运行时panic
+// panic: runtime error: index out of range
+
+// goroutine 1 [running]:
+// main.main()
+    // /Users/gaoce/Github/labenv/golang/main.go:11 +0x111
+// exit status 2
+</code></pre>
+<p>slice在函数中是pass by value的，如果需要在函数中修改入参slice的指向，需要传入slice指针，实例略</p>
+<h3 id="内置函数"><a href="#内置函数" class="headerlink" title="内置函数"></a>内置函数</h3><h4 id="len与cap"><a href="#len与cap" class="headerlink" title="len与cap"></a>len与cap</h4><p>len与cap是两个内置函数，接收array或slice作为参数，len返回array或slice或string的当前长度，cap返回array或slice的容量（slice的容量由其底层指向的array与ZerothElement决定，array总有len(arr) == cap(arr)）</p>
+<h4 id="copy"><a href="#copy" class="headerlink" title="copy"></a>copy</h4><p>看一下下面的插入函数就明白了，此外，copy会自动选择元素少的那个slice进行搬移</p>
+<pre><code class="go">// Insert inserts the value into the slice at the specified index,
+// which must be in range.
+// The slice must have room for the new element.
+func Insert(slice []int, index, value int) []int {
+    // Grow the slice by one element.
+    slice = slice[0 : len(slice)+1]
+    // Use copy to move the upper part of the slice out of the way and open a hole.
+    copy(slice[index+1:], slice[index:])
+    // Store the new value.
+    slice[index] = value
+    // Return the result.
+    return slice
 }
 </code></pre>
+<h4 id="append"><a href="#append" class="headerlink" title="append"></a>append</h4><p>capacity是不会自动增长的，除非变量指向的array，或者slice内部指向的array发生了变化，append函数会自动做扩容，类似java的ArrayList，由于传入的是slice值而非指针，而内部实现中可能会allocate新空间，因此编译器要求必须接受append函数的返回值（也就是新的slice指向）</p>
+<h3 id="String"><a href="#String" class="headerlink" title="String"></a>String</h3><p>String仅仅只是read-only的byte slice，此外在语法上提供了一些支持的类型</p>
+<pre><code class="go">slash := &quot;/usr/ken&quot;[0]
+usr := &quot;/usr/ken&quot;[0:4]
+str := string(slice) // slice -&gt; type []byte
+slice := []byte(str) // convert back to []byte
+</code></pre>
+<p>string底层的数组是隐藏的，对string来源[]byte的改动不会影响string的值。</p>
+<p>早期实现中，对string做的任何修改操作都会导致数组复制，slice的引入使得性能有所改善。</p>
+<h3 id="延伸阅读（挖坑"><a href="#延伸阅读（挖坑" class="headerlink" title="延伸阅读（挖坑"></a>延伸阅读（挖坑</h3><p><a href="https://blog.golang.org/strings" target="_blank" rel="noopener">The Go Blog - Strings, bytes, runes and characters in Go</a></p>
 
         </div>
         <!-- .entry-content -->
@@ -296,28 +317,11 @@
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
-          
-            <div class="post-nepre half previous">
-          
-            <a href="/2018/12/12/src/LeetCode 121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-买卖股票系列/" rel="prev">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-              </div>
-              <span class="label">
-              Previous Post</span>
-              <div class="info">
-                <h3>
-                LeetCode 121|122|123|188|309. Best-Time-to-Buy-and-Sell-Stock-买卖股票系列</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
         
           
-            <div class="post-nepre half next">
+            <div class="post-nepre full next">
           
-            <a href="/2018/12/12/src/LeetCode 149. Max Points In a line/" rel="next">
+            <a href="/2021/02/10/src/技术/log4go源码阅读/" rel="next">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
               </div>
@@ -325,7 +329,7 @@
               Next Post</span>
               <div class="info">
                 <h3>
-                LeetCode 149. Max Points In a line</h3>
+                log4go源码阅读</h3>
                 <hr>
               </div>
             </a>
