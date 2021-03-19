@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">LeetCode 327. Count of Range Sum 区间过滤 | vicety</title>
+  <title itemprop="name">vicety</title>
   
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji-ico.ico">
   
@@ -185,341 +185,108 @@
   </div>
 </header>
 
-      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
-<div class="pattern-center-blank"></div>
-
-  <div class="pattern-center single-center">
-    <!-- 有配图默认渲染第一张 -->
-    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg);" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-    </div>
-    <header class="pattern-header single-header">
-      <h1 class="entry-title">
-      LeetCode 327. Count of Range Sum 区间过滤</h1>
-      <p class="entry-census">
-        <span>
-          <a href="vicety.github.io">
-            <img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji.jpg">
-          </a>
-        </span>
-        <span>
-          <a href="vicety.github.io">vicety</a>
-        </span>
-        <span class="bull">
-        ·</span>
-        2018-12-12<span class="bull">
-        ·</span>
-      <span id="busuanzi_value_page_pv"></span>次阅读</p>
-    </header>
-  </div>
-
+      <div class="blank" style="padding-top: 0px;"></div>
 <div id="content" class="site-content">
+  
+  <div class="notice" style="margin-top:60px">
+    <i class="iconfont icon-notification">
+    </i>
+    <div class="notice-content">本站于2020/11进行了数据恢复，已知会导致原有文章日期异常</div>
+  </div>
+  
+  <div class="top-feature-row">
+  <h1 class="fes-title" style="font-family: 'Ubuntu', sans-serif;">
+  <i class="fa fa-anchor" aria-hidden="true">
+  </i>
+  START:DASH!!</h1>
+  
+  <div class="top-feature-v2">
+    <div class="the-feature square from_left_and_right">
+      <a href="https://vicety.github.io/2018/12/12/%E6%AC%A2%E8%BF%8E%E6%9D%A5%E5%88%B0%E6%9C%AC%E7%AB%99/" target="_blank">
+        <div class="img">
+          <img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/展望.jpg">
+        </div>
+        <div class="info">
+          <h3>关于本站</h3>
+          <p>来自一个无趣的人</p>
+        </div>
+      </a>
+    </div>
+  </div>
+  
+  <div class="top-feature-v2">
+    <div class="the-feature square from_left_and_right">
+      <a href="https://vicety.github.io/2018/12/12/LeetCode%E9%A2%98%E7%9B%AE%E7%AE%80%E7%9F%AD%E6%80%BB%E7%BB%93/" target="_blank">
+        <div class="img">
+          <img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
+        </div>
+        <div class="info">
+          <h3>LeetCode简要题解</h3>
+          <p>尽量简要，大概……</p>
+        </div>
+      </a>
+    </div>
+  </div>
+  
+</div>
   <div id="primary" class="content-area">
     <main id="main" class="site-main" role="main">
-      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
-        <div class="toc"></div>
-        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
-        
-        <div class="entry-content">
-          <p>求数组中所有这样的区间[l,r]的个数，使<code>upper &gt;= sum(l, r) &gt;= lower</code>，转化为前缀和<code>upper &gt;= prefix[r] - prefix[l] &gt;= lower</code>，转化为<code>prefix[r] - lower &gt;= prefix[l] &gt;= prefix[r] - upper</code>或<code>upper + prefix[l] &gt;= prefix[r] &gt;= lower + prefix[l]</code>。问题转化为固定l或r，满足此条件的r或l的区间长度，将所有这样的区间长度相加即为答案。</p>
-<h3 id="解法一"><a href="#解法一" class="headerlink" title="解法一"></a>解法一</h3><p>直观上来说这道题不能修改prefix数组，因为会打乱顺序。LeetCode评论区中的一种做法是归并变形，r从每次归并的右侧取，l从左侧取，r和l都排好序便于logn查找满足前文分析的lower_bound和upper_bound，同时不打乱l和r的顺序。</p>
-<p>（LC的解法在有序部分中的查找用的是线性扫描，结果比二分还快……）</p>
-<pre><code class="java">public int countRangeSum(int[] nums, int lower, int upper) {
-    long[] prefix = new long[nums.length + 1];
-    prefix[0] = 0;
-    for (int i = 1; i &lt; nums.length + 1; i++) prefix[i] = prefix[i - 1] + nums[i - 1];
-    return solve(prefix, 0, prefix.length - 1, lower, upper);
-}
-private int solve(long[] nums, int st, int ed, int lower,int upper) {
-    if (st &gt;= ed) return 0;
-    int mid = st + (ed - st) / 2; // mid to left
-    int ret = solve(nums, st, mid, lower, upper) + solve(nums, mid + 1, ed, lower, upper);
-    long[] tmp = new long[ed - st + 1];
-    int pr = mid + 1, pt = 0;
-    for (int i = st; i &lt;= mid; i++) {
-        int rightBound = findFirstGreater(nums, mid + 1, ed, upper + nums[i]);
-        int leftBound = findFirstGeq(nums, mid + 1, ed, lower + nums[i]);
-        ret += rightBound - leftBound;
-        // 归并过程
-        while (pr &lt;= ed &amp;&amp; nums[pr] &lt;= nums[i]) tmp[pt++] = nums[pr++];
-        tmp[pt++] = nums[i];
-    }
-    // 更新归并的部分，这里pt不一定指向tmp的最后，右侧大于左侧最大值的部分不需要修改
-    System.arraycopy(tmp, 0, nums, st, pt);
-    return ret;
-}
-private int findFirstGreater(long[] nums, int st, int ed,long target) {
-    while (st &lt;= ed) {
-        int mid = st + (ed - st) / 2;
-        if (nums[mid] &lt;= target) st = mid + 1;
-        else ed = mid - 1;
-    }
-    return st;
-}
-private int findFirstGeq(long[] nums, int st, int ed, longtarget) {
-    while (st &lt;= ed) {
-        int mid = st + (ed - st) / 2;
-        if (nums[mid] &gt;= target) ed = mid - 1;
-        else st = mid + 1;
-    }
-    return st;
-}
-</code></pre>
-<h3 id="解法二"><a href="#解法二" class="headerlink" title="解法二"></a>解法二</h3><p>另一种方法来自参考文章2，比方法1要容易想到很多。区间求和一般就是线段树或者树状数组，这里的解法与<a href="https://vicety.github.io/2020/02/02/LeetCode-315-Count-of-Smaller-Numbers-After-Self/" target="_blank" rel="noopener">LC315的一种解法</a>非常类似，将prefix数组在值域上离散化（由于需要查询prefix - lower/prefix - upper，因此这两个值也要加入离散化），查找值符合条件的区间转化为求计数数组的区间和问题，对于prefix[r] - lower &gt;= prefix[l] &gt;= prefix[r] - upper是固定r，也就是从左往右扫，对于upper + prefix[l] &gt;= prefix[r] &gt;= lower + prefix[l]是固定l，也就是反向扫，两种都可以。其余部分就是线段树或者树状数组模板了。</p>
-<p>树状数组</p>
-<pre><code class="java">private int lowbit(int x) {
-    return x &amp; -x;
-}
-
-private void update(int[] arr, int index, int n) {
-    while (index &lt;= n) {
-        arr[index]++;
-        index += lowbit(index);
-    }
-}
-
-private int prefix(int[] arr, int index) {
-    int ans = 0;
-    while (index &gt;= 1) {
-        ans += arr[index];
-        index -= lowbit(index);
-    }
-    return ans;
-}
-
-public int countRangeSum(int[] nums, int lower, int upper) {
-    Map&lt;Long, Integer&gt; toIndex = new HashMap&lt;&gt;();
-    long[] prefix = new long[nums.length + 1];
-    for (int i = 1; i &lt; prefix.length; i++) prefix[i] = prefix[i - 1] + nums[i - 1];
-    Set&lt;Long&gt; slots = new HashSet&lt;&gt;();
-    for (int i = 0; i &lt; prefix.length; i++) {
-        slots.add(prefix[i]);
-        slots.add(prefix[i] - lower);
-        slots.add(prefix[i] - upper);
-    }
-    Long[] slotsArr = slots.toArray(new Long[0]);
-    Arrays.sort(slotsArr);
-    for (int i = 0; i &lt; slotsArr.length; i++) toIndex.put(slotsArr[i], i + 1);
-    int[] bit = new int[slotsArr.length + 1];
-    int ans = 0;
-    for (int i = 0; i &lt; prefix.length; i++) {
-        int right = prefix(bit, toIndex.get(prefix[i] - lower));
-        int left = prefix(bit, toIndex.get(prefix[i] - upper) - 1);
-        ans += (right - left);
-        update(bit, toIndex.get(prefix[i]), slotsArr.length);
-    }
-    return ans;
-}
-</code></pre>
-<p>线段树</p>
-<pre><code class="java">class Node {
-    Node ls, rs;
-    int l, r, val;
-
-    public Node(Node ls, Node rs, int l, int r, int val) {
-        this.ls = ls;
-        this.rs = rs;
-        this.l = l;
-        this.r = r;
-        this.val = val;
-    }
-}
-
-private void pushUp(Node node) {
-    node.val = node.ls.val + node.rs.val;
-}
-
-private Node buildTree(int[] arr, int l, int r) {
-    if (l == r) {
-        return new Node(null, null, l, r, arr[l]);
-    }
-    Node ret = new Node(null, null, l, r, 0);
-    int mid = l + (r - l) / 2;
-    ret.ls = buildTree(arr, l, mid);
-    ret.rs = buildTree(arr, mid + 1, r);
-    pushUp(ret);
-    return ret;
-}
-
-private void update(int index, Node now) {
-    if (now.l == now.r) {
-        now.val++;
-        return;
-    }
-    if (now.ls.r &gt;= index) update(index, now.ls);
-    else update(index, now.rs);
-    pushUp(now);
-}
-
-private int query(int ql, int qr, Node now) {
-    if (now.l &gt;= ql &amp;&amp; now.r &lt;= qr) return now.val;
-    int mid = now.l + (now.r - now.l) / 2;
-    int ans = 0;
-    if (ql &lt;= mid) ans += query(ql, qr, now.ls);
-    if (qr &gt; mid) ans += query(ql, qr, now.rs);
-    return ans;
-}
-
-public int countRangeSum(int[] nums, int lower, int upper) {
-    long[] prefix = new long[nums.length + 1];
-    for (int i = 1; i &lt; prefix.length; i++) prefix[i] = prefix[i - 1] + nums[i - 1];
-    Set&lt;Long&gt; indexes = new HashSet&lt;&gt;();
-    for (long num : prefix) {
-        indexes.add(num);
-        indexes.add(num - lower);
-        indexes.add(num - upper);
-    }
-    Long[] indexesWithoutDuplication = indexes.toArray(new Long[0]);
-    Arrays.sort(indexesWithoutDuplication);
-    Map&lt;Long, Integer&gt; toIndex = new HashMap&lt;&gt;();
-    for (int i = 0; i &lt; indexesWithoutDuplication.length; i++) toIndex.put(indexesWithoutDuplication[i], i);
-    Node root = buildTree(new int[indexesWithoutDuplication.length],
-            0, indexesWithoutDuplication.length - 1);
-    int ans = 0;
-    for (int i = 0; i &lt; prefix.length; i++) {
-        ans += query(toIndex.get(prefix[i] - upper), toIndex.get(prefix[i] - lower), root);
-        update(toIndex.get(prefix[i]), root);
-    }
-    return ans;
-}
-</code></pre>
-<p>由于不涉及区间修改，甚至BST也可以完成这道题，在节点上记录当前值的个数即可，代码见参考文章3</p>
-<h3 id="相似问题"><a href="#相似问题" class="headerlink" title="相似问题"></a>相似问题</h3><p>LC 363. Max Sum of Rectangle No Larger Than K<br>在矩阵中找到最大的和小于等于k的矩阵，并没有什么特别的做法，只是加了两层循环，求区间数目变为求最值。此时线段树的方法不适用，因为只能在离散值域上计数。</p>
-<p>与上一道题不同，这道题求动态数组的lower/floor/ceiling/higher可以使用treeSet，上一道题不行是因为计算TreeMap的两个迭代器之间的距离是O(n)复杂度的</p>
-<pre><code class="java">public int maxSumSubmatrix(int[][] matrix, int k) {
-    int m = matrix.length;
-    int n = matrix[0].length;
-    int diff = Integer.MAX_VALUE;
-    int[][] prefix = new int[m + 1][n + 1];
-    for (int i = 1; i &lt;= m; i++) {
-        for (int j = 1; j &lt;= n; j++) {
-            prefix[i][j] = matrix[i - 1][j - 1] + prefix[i - 1][j] + prefix[i][j - 1] - prefix[i - 1][j - 1];
-        }
-    }
-    // [a, b] exclusive, [c, d]
-    for (int c = 1; c &lt;= m; c++) {
-        for (int a = 0; a &lt; c; a++) {
-            int[] localPrefix = new int[n + 1];
-            for (int i = 1; i &lt;= n; i++)
-                localPrefix[i] = localPrefix[i - 1] + prefix[c][i] - prefix[c][i - 1] - prefix[a][i] + prefix[a][i - 1];
-            diff = Math.min(diff, solve(localPrefix, 0, localPrefix.length - 1, k));
-        }
-    }
-    return k - diff;
-}
-
-private int solve(int[] prefix, int l, int r, int k) {
-    if (l == r) return Integer.MAX_VALUE;
-    int ans = Integer.MAX_VALUE;
-    int mid = l + (r - l) / 2;
-    ans = Math.min(ans, solve(prefix, l, mid, k));
-    ans = Math.min(ans, solve(prefix, mid + 1, r, k));
-    int[] tmp = new int[r - l + 1];
-    int ptr = 0, pr = mid + 1;
-    for (int i = l; i &lt;= mid; i++) {
-        int target = prefix[i] + k;
-        int le = mid + 1, ri = r;
-        while (le &lt;= ri) {
-            int mi = le + (ri - le) / 2;
-            if (prefix[mi] &lt;= target) le = mi + 1;
-            else ri = mi - 1;
-        }
-        if (ri &gt; mid) ans = Math.min(ans, target - prefix[ri]);
-        while (pr &lt;= r &amp;&amp; prefix[pr] &lt; prefix[i]) tmp[ptr++] = prefix[pr++];
-        tmp[ptr++] = prefix[i];
-    }
-    System.arraycopy(tmp, 0, prefix, l, ptr);
-    return ans;
-}
-</code></pre>
-<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><ol>
-<li><a href="https://leetcode.com/problems/count-of-range-sum/discuss/77990/Share-my-solution" target="_blank" rel="noopener">Share my solution</a></li>
-<li><a href="https://algouage.blogspot.com/2017/06/leetcode-327-count-of-range-sum.html" target="_blank" rel="noopener">LeetCode 327. Count of Range Sum 题解</a></li>
-<li><a href="https://leetcode.com/problems/count-of-range-sum/discuss/78030/8-line-multiset-C%2B%2B-solution-(100ms" target="_blank" rel="noopener">8-line multiset C++ solution (100ms), also binary search tree (180ms) + mergesort(52ms)-also-binary-search-tree-(180ms)-%2B-mergesort(52ms))</a>)</li>
-</ol>
-
-        </div>
-        <!-- .entry-content -->
-        <div class="single-reward">
-          <div class="reward-open">赏
-            <div class="reward-main">
-              <ul class="reward-row">
-                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/alipayQR.jpg"></li>
-                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/WechatQR.png"></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
-        <footer class="post-footer">
-          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
-          <div class="post-tags">
-          </div>
-          <div class="post-share">
-            <div class="social-share sharehidden share-component"></div>
-            <i class="iconfont show-share icon-forward"></i>
-          </div>
-        </footer><!-- .entry-footer -->
-      </article>
-      <!-- #post-## -->
-      <div class="toc" style="background: none;"></div>
-      <section class="post-squares nextprev">
-        
-          
-            <div class="post-nepre half previous">
-          
-            <a href="/2018/12/12/src/LeetCode 218. The Skyline Problem/" rel="prev">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-              </div>
-              <span class="label">
-              Previous Post</span>
-              <div class="info">
-                <h3>
-                LeetCode 218. The Skyline Problem</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
-        
-          
-            <div class="post-nepre half next">
-          
-            <a href="/2018/12/12/src/LeetCode 354. Russian Doll Envelopes/" rel="next">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-              </div>
-              <span class="label">
-              Next Post</span>
-              <div class="info">
-                <h3>
-                LeetCode 354. Russian Doll Envelopes</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
-      </section>
+      <h1 class="main-title" style="font-family: 'Ubuntu', sans-serif;">
+      <i class="fa fa-envira" aria-hidden="true"></i>
+      Discovery</h1>
       
-      <section class="author-profile">
-        <div class="info" itemprop="author" itemscope="" itemtype="https://schema.org/Person">
-          <a href="vicety.github.io" class="profile gravatar"><img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji.jpg" itemprop="image" alt="vicety" height="70" width="70"></a>
-          <div class="meta">
-            <span class="title">Author</span>
-            <h3 itemprop="name">
-            <a href="vicety.github.io" itemprop="url" rel="author">vicety</a>
-            </h3>
-          </div>
+  <!-- 首页默认取最最新文章集 -->
+  
+    
+<article  class="post post-list-thumb post-list-thumb-left"  class="post post-list-thumb" itemscope="" itemtype="https://schema.org/BlogPosting">
+
+  <div class="post-thumb">
+    <a href="/2018/12/12/src/LeetCode 136-137-260 Single Number I, II, III/">
+      <img class="lazyload" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
+    </a>
+  </div>
+  <div class="post-content-wrap">
+    <div class="post-content">
+      <div class="post-date">
+        <i class="iconfont icon-time">
+        </i>2018-12-12 22:12</div>
+      <a href="/2018/12/12/src/LeetCode 136-137-260 Single Number I, II, III/" class="post-title">
+        <h3>LeetCode 136-137-260 Single Number I, II, III</h3>
+      </a>
+      <div class="post-meta">
+        <span><i class="fa fa-tags"></i>
+        
+        </span>
+        <span>
+          <i class="iconfont icon-file"></i>
+          
+        </span>
+      </div>
+      <div class="float-content">
+        <p></p>
+        <div class="post-bottom">
+          <a href="/2018/12/12/src/LeetCode 136-137-260 Single Number I, II, III/" class="button-normal">
+            <i class="iconfont icon-caidan"></i>
+          </a>
         </div>
-        <hr>
-        <p><i class="iconfont icon-write"></i></p>
-      </section>
-    </main><!-- #main -->
-  </div><!-- #primary -->
+      </div>
+    </div>
+  </div>
+</article>
+  
+
+
+    </main>
+      <!-- 首页默认取最最新文章集 -->
+    <!-- 
+      <nav class="navigator">
+        
+        <a class="extend prev" rel="prev" href="/page/5/"><i class="iconfont icon-back"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span>
+      </nav>
+     -->
+  </div>
+  
 </div>
-
-
 
     </div>    
     <div class="ins-search">
