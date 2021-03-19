@@ -247,7 +247,8 @@ WithDeadline() Context
 WithTimeout() Context
 WithValue() Context
 </code></pre>
-<p>以上是context包所有的public函数，接下来看一下这些ctx。<br>先大致介绍一下，emptyCtx以外，所有ctx都embed了parent（一个parent可能有多个child，树形结构），使得current ctx支持optionally重写部分函数，并且在函数内可以选择委托parent的同函数，类似一个委托链模式。<br><strong>Context包是线程安全的</strong></p>
+<p>以上是context包所有的public函数，接下来看一下这些ctx。<br>先大致介绍一下，emptyCtx以外，所有ctx都embed了一个parent（一个parent可能有多个child，树形结构），使得current ctx支持optionally重写部分函数，并且在函数内可以选择委托parent的同函数，类似一个委托链模式。</p>
+<p><strong>Context包是线程安全的</strong></p>
 <h3 id="emptyCtx"><a href="#emptyCtx" class="headerlink" title="emptyCtx"></a>emptyCtx</h3><pre><code class="go">type emptyCtx int
 </code></pre>
 <p>无法cancel、不存储value、无deadline，通过<code>context.Background()</code>或<code>context.TODO()</code>可以创建这样的context，前者作为top-level context使用，后者作为需要传递ctx但surrounding function没有提供ctx时可以传递的context，二者都返回的是emptyCtx</p>
