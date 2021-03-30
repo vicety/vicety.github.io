@@ -280,6 +280,19 @@ func Insert(slice []int, index, value int) []int {
 }
 </code></pre>
 <h4 id="append"><a href="#append" class="headerlink" title="append"></a>append</h4><p>capacity是不会自动增长的，除非变量指向的array，或者slice内部指向的array发生了变化，append函数会自动做扩容，类似java的ArrayList，由于传入的是slice值而非指针，而内部实现中可能会allocate新空间，因此编译器要求必须接受append函数的返回值（也就是新的slice指向）</p>
+<p>看一个例子加深理解</p>
+<pre><code class="go"> a := [3]int{1, 2, 3}
+ b := a[0:2]
+ b = append(b, 4) // cap足够，覆盖a[2]
+ fmt.Println(a) // [1 2 4]
+ fmt.Println(b) // [1 2 4]
+ b = append(b, 5) // cap不够，分配新空间+拷贝，此时b底层指向的数组已经不是a了
+ fmt.Println(a) // [1 2 4]
+ fmt.Println(b) // [1 2 4 5]
+ b[0] = -1 
+ fmt.Println(a) // [1 2 4]
+ fmt.Println(b) // [-1 2 4 5]
+</code></pre>
 <h3 id="String"><a href="#String" class="headerlink" title="String"></a>String</h3><p>String仅仅只是read-only的byte slice，此外在语法上提供了一些支持的类型</p>
 <pre><code class="go">slash := &quot;/usr/ken&quot;[0]
 usr := &quot;/usr/ken&quot;[0:4]

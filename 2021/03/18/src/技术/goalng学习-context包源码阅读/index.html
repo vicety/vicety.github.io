@@ -256,241 +256,241 @@ WithValue() Context
 <pre><code class="go">var cancelCtxKey int
 
 type cancelCtx struct {
- Context
+    Context
 
- mu       sync.Mutex            // protects following fields
- done     chan struct{}         // created lazily, closed by first cancel call
- children map[canceler]struct{} // set to nil by the first cancel call
- err      error                 // set to non-nil by the first cancel call
+    mu       sync.Mutex            // protects following fields
+    done     chan struct{}         // created lazily, closed by first cancel call
+    children map[canceler]struct{} // set to nil by the first cancel call
+    err      error                 // set to non-nil by the first cancel call
 }
 
 // 如果传入特定key，返回自己，在parentCancelCtx中用于标记ctx是否内嵌cancelCtx
 func (c *cancelCtx) Value(key interface{}) interface{} {
- if key == &amp;cancelCtxKey {
-  return c
- }
- return c.Context.Value(key)
+    if key == &amp;cancelCtxKey {
+        return c
+    }
+    return c.Context.Value(key)
 }
 
 // 懒加载done channel
 func (c *cancelCtx) Done() &lt;-chan struct{} {
- c.mu.Lock()
- if c.done == nil {
-  c.done = make(chan struct{})
- }
- d := c.done
- c.mu.Unlock()
- return d
+    c.mu.Lock()
+    if c.done == nil {
+        c.done = make(chan struct{})
+    }
+    d := c.done
+    c.mu.Unlock()
+    return d
 }
 
 func (c *cancelCtx) Err() error {
- c.mu.Lock()
- err := c.err
- c.mu.Unlock()
- return err
+    c.mu.Lock()
+    err := c.err
+    c.mu.Unlock()
+    return err
 }
 
 // note that cancelctx没有实现Deadline方法，调用的是内嵌Context对象的Deadline方法
 
 // 创建cancel需要传入parent ctx
 func WithCancel(parent Context) (ctx Context, cancel CancelFunc) {
- c := newCancelCtx(parent)
- propagateCancel(parent, &amp;c)
- return &amp;c, func() { c.cancel(true, Canceled) }
+    c := newCancelCtx(parent)
+    propagateCancel(parent, &amp;c)
+    return &amp;c, func() { c.cancel(true,    Canceled) }
 }
 
 func newCancelCtx(parent Context) cancelCtx {
- return cancelCtx{Context: parent}
+    return cancelCtx{Context: parent}
 }
 
 
 func propagateCancel(parent Context, child canceler) {
- // 如果parent不支持cancel，return
- done := parent.Done()
- if done == nil {
-  return // parent is never canceled
- }
+    // 如果parent不支持cancel，return
+    done := parent.Done()
+    if done == nil {
+     return // parent is never canceled
+    }
 
- // 如果parent已经done，调用current的cancel方法，传递parent的err
- select {
- case &lt;-done:
-  // parent is already canceled
-  child.cancel(false, parent.Err())
-  return
- default:
- }
+    // 如果parent已经done，调用current的cancel方法，传递parent的err
+    select {
+    case &lt;-done:
+        // parent is already canceled
+        child.cancel(false, parent.Err())
+        return
+    default:
+    }
 
- // 如果parent是context包内的cancelCtx或内嵌cancelCtx的timerCtx
- // 将current注册到parent.child
- // 否则监听parent的Done
- if p, ok := parentCancelCtx(parent); ok {
-  p.mu.Lock()
-  if p.err != nil {
-   // parent has already been canceled
-   child.cancel(false, p.err)
-  } else {
-   if p.children == nil {
-    p.children = make(map[canceler]struct{})
-   }
-   p.children[child] = struct{}{}
-  }
-  p.mu.Unlock()
- } else {
-  atomic.AddInt32(&amp;goroutines, +1)
-  go func() {
-   select {
-   case &lt;-parent.Done():
-    child.cancel(false, parent.Err())
-   case &lt;-child.Done(): // child done后的清理
-   }
-  }()
- }
+    // 如果parent是context包内的cancelCtx或内嵌   cancelCtx的timerCtx
+    // 将current注册到parent.child
+    // 否则监听parent的Done
+    if p, ok := parentCancelCtx(parent); ok {
+        p.mu.Lock()
+        if p.err != nil {
+            // parent has already been canceled
+            child.cancel(false, p.err)
+        } else {
+            if p.children == nil {
+             p.children = make(map[canceler]struct{})
+            }
+            p.children[child] = struct{}{}
+        }
+        p.mu.Unlock()
+    } else {
+        atomic.AddInt32(&amp;goroutines, +1)
+        go func() {
+            select {
+            case &lt;-parent.Done():
+                child.cancel(false, parent.Err())
+            case &lt;-child.Done(): // child done后的清理
+            }
+        }()
+    }
 }
 
 // 检查parent是否支持done
 // 检查parent是否内嵌可通过Value访问的cancelCtx且parent.done等于这个内嵌cancelCtx的done channel
 func parentCancelCtx(parent Context) (*cancelCtx, bool) {
- done := parent.Done()
- if done == closedchan || done == nil {
-  return nil, false
- }
- p, ok := parent.Value(&amp;cancelCtxKey).(*cancelCtx)
- if !ok {
-  return nil, false
- }
- p.mu.Lock()
- ok = p.done == done
- p.mu.Unlock()
- if !ok {
-  return nil, false
- }
- return p, true
+    done := parent.Done()
+    if done == closedchan || done == nil {
+        return nil, false
+    }
+    p, ok := parent.Value(&amp;cancelCtxKey).(*cancelCtx)
+    if !ok {
+        return nil, false
+    }
+    p.mu.Lock()
+    ok = p.done == done
+    p.mu.Unlock()
+    if !ok {
+        return nil, false
+    }
+    return p, true
 }
 
 // 关闭current及其所有child的done channel，if removeFromParent，从parent取消与current的关联
 func (c *cancelCtx) cancel(removeFromParent bool, err error) {
- if err == nil {
-  panic(&quot;context: internal error: missing cancel error&quot;)
- }
- c.mu.Lock()
- if c.err != nil {
-  c.mu.Unlock()
-  return // already canceled
- }
- c.err = err
- if c.done == nil {
-  c.done = closedchan
- } else {
-  close(c.done)
- }
- for child := range c.children {
-  // NOTE: acquiring the child&#39;s lock while holding parent&#39;s lock.
-  child.cancel(false, err)
- }
- c.children = nil
- c.mu.Unlock()
+    if err == nil {
+        panic(&quot;context: internal error: missing cancel    error&quot;)
+    }
+    c.mu.Lock()
+    if c.err != nil {
+        c.mu.Unlock()
+        return // already canceled
+    }
+    c.err = err
+    if c.done == nil {
+        c.done = closedchan
+    } else {
+        close(c.done)
+    }
+    for child := range c.children {
+        // NOTE: acquiring the child&#39;s lock while holding parent&#39;s lock.
+        child.cancel(false, err)
+    }
+    c.children = nil
+    c.mu.Unlock()
 
- if removeFromParent {
-  removeChild(c.Context, c)
- }
+    if removeFromParent {
+        removeChild(c.Context, c)
+    }
 }
 
 // removeChild removes a context from its parent.
 func removeChild(parent Context, child canceler) {
- p, ok := parentCancelCtx(parent)
- if !ok {
-  return
- }
- p.mu.Lock()
- if p.children != nil {
-  delete(p.children, child)
- }
- p.mu.Unlock()
+    p, ok := parentCancelCtx(parent)
+    if !ok {
+        return
+    }
+    p.mu.Lock()
+    if p.children != nil {
+        delete(p.children, child)
+    }
+    p.mu.Unlock()
 }
 </code></pre>
 <h3 id="timerCtx"><a href="#timerCtx" class="headerlink" title="timerCtx"></a>timerCtx</h3><p>timerCtx重写了Deadline和cancel函数，使得触发Done channel close的条件增加了一条（when timer fires），其中cancel委托了parent，context接口的其他函数依赖parent的实现</p>
 <pre><code class="go">type timerCtx struct {
- cancelCtx
- timer *time.Timer // Under cancelCtx.mu.
+    cancelCtx
+    timer *time.Timer // Under cancelCtx.mu.
 
- deadline time.Time
+    deadline time.Time
 }
 
 func WithDeadline(parent Context, d time.Time) (Context, CancelFunc) {
- // 如果parent deadline早于当前deadline，返回cancel包装的parent（TODO：此时为什么有必要建一个新的context？）
- if cur, ok := parent.Deadline(); ok &amp;&amp; cur.Before(d) {
-  // The current deadline is already sooner than the new one.
-  return WithCancel(parent)
- }
- c := &amp;timerCtx{
-  cancelCtx: newCancelCtx(parent),
-  deadline:  d,
- }
- // 与parent cancel绑定(if exists)
- propagateCancel(parent, c)
- dur := time.Until(d)
- // 如果current deadline not passed，创建timer
- if dur &lt;= 0 {
-  c.cancel(true, DeadlineExceeded) // deadline has already passed
-  return c, func() { c.cancel(false, Canceled) } // var Canceled = errors.New(&quot;context canceled&quot;)
- }
- c.mu.Lock()
- defer c.mu.Unlock()
- if c.err == nil {
-  c.timer = time.AfterFunc(dur, func() {
-   c.cancel(true, DeadlineExceeded)
-  })
- }
- return c, func() { c.cancel(true, Canceled) }
+    // 如果parent deadline早于当前deadline，返回cancel包装的parent（TODO：此时为什么有必要建一个新的context？）
+    if cur, ok := parent.Deadline(); ok &amp;&amp; cur.Before(d) {
+        // The current deadline is already sooner than the new one.
+        return WithCancel(parent)
+    }
+    c := &amp;timerCtx{
+        cancelCtx: newCancelCtx(parent),
+        deadline:  d,
+    }
+    // 与parent cancel绑定(if exists)
+    propagateCancel(parent, c)
+    dur := time.Until(d)
+    // 如果current deadline not passed，创建timer
+    if dur &lt;= 0 {
+        c.cancel(true, DeadlineExceeded) // deadline has    already passed
+        return c, func() { c.cancel(false, Canceled) } /   / var Canceled = errors.New(&quot;context canceled&quot;)
+    }
+    c.mu.Lock()
+    defer c.mu.Unlock()
+    if c.err == nil {
+        c.timer = time.AfterFunc(dur, func() {
+         c.cancel(true, DeadlineExceeded)
+        })
+    }
+    return c, func() { c.cancel(true, Canceled) }
 }
 
 func (c *timerCtx) Deadline() (deadline time.Time, ok bool) {
- return c.deadline, true
+    return c.deadline, true
 }
 
 func (c *timerCtx) cancel(removeFromParent bool, err error) {
- // current type equals timerCtx的情况下，由于向parent注册的child类型是timerCtx，如果cancel填入true，尝试解除连接的会是current内嵌的cancelCtx而不是current自身
- c.cancelCtx.cancel(false, err)
- if removeFromParent {
-  // 需要在这里手动removeChild
-  // Remove this timerCtx from its parent cancelCtx&#39;s children.
-  removeChild(c.cancelCtx.Context, c)
- }
- // 清理timer
- c.mu.Lock()
- if c.timer != nil {
-  c.timer.Stop()
-  c.timer = nil
- }
- c.mu.Unlock()
+    // current type equals timerCtx的情况下，由于向parent注册的child类型是timerCtx，如果cancel填入true，尝试解除连接的会是current内嵌的cancelCtx而不是current自身
+    c.cancelCtx.cancel(false, err)
+    if removeFromParent {
+     // 需要在这里手动removeChild
+     // Remove this timerCtx from its parent cancelCtx&#39;s children.
+     removeChild(c.cancelCtx.Context, c)
+    }
+    // 清理timer
+    c.mu.Lock()
+    if c.timer != nil {
+        c.timer.Stop()
+        c.timer = nil
+    }
+    c.mu.Unlock()
 }
 
 // alias
 func WithTimeout(parent Context, timeout time.Duration) (Context, CancelFunc) {
- return WithDeadline(parent, time.Now().Add(timeout))
+    return WithDeadline(parent, time.Now().Add(timeout))
 }
 </code></pre>
 <h3 id="valueCtx"><a href="#valueCtx" class="headerlink" title="valueCtx"></a>valueCtx</h3><p>valueCtx重写了Value函数，在内部委托了parent，context接口的其他函数依赖parent的实现</p>
 <pre><code class="go">type valueCtx struct {
- Context
- key, val interface{}
+    Context
+    key, val interface{}
 }
 
 func WithValue(parent Context, key, val interface{}) Context {
- if key == nil {
-  panic(&quot;nil key&quot;)
- }
- if !reflectlite.TypeOf(key).Comparable() {
-  panic(&quot;key is not comparable&quot;)
- }
- return &amp;valueCtx{parent, key, val}
+    if key == nil {
+        panic(&quot;nil key&quot;)
+    }
+    if !reflectlite.TypeOf(key).Comparable() {
+        panic(&quot;key is not comparable&quot;)
+    }
+    return &amp;valueCtx{parent, key, val}
 }
 
 func (c *valueCtx) Value(key interface{}) interface{} {
- if c.key == key {
-  return c.val
- }
- return c.Context.Value(key)
+    if c.key == key {
+        return c.val
+    }
+    return c.Context.Value(key)
 }
 </code></pre>
 <h3 id="更进一步"><a href="#更进一步" class="headerlink" title="更进一步"></a>更进一步</h3><p>有空找份源码介绍ctx如何在实战中使用</p>

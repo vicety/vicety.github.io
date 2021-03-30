@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">LeetCode 128. Longest Consecutive Sequence | vicety</title>
+  <title itemprop="name">Kuberntes client-go informer包源码阅读 | vicety</title>
   
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji-ico.ico">
   
@@ -195,7 +195,7 @@
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      LeetCode 128. Longest Consecutive Sequence</h1>
+      Kuberntes client-go informer包源码阅读</h1>
       <p class="entry-census">
         <span>
           <a href="vicety.github.io">
@@ -207,7 +207,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2018-12-12<span class="bull">
+        2021-3-29<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -221,53 +221,126 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <p>求出数组中连续数字的最长长度，如[100, 200, 3, 400, 1, 4, 2]，的最长连续数字为[1, 2, 3, 4]，长度为4,</p>
-<p>对每个数字维护以其为根节点的所在块的块大小，同时尝试寻找其两侧是否有数，有则bind，bind同时更新块大小</p>
-<pre><code class="java">class Solution {
-    class Unit {
-        int fa;
-        int val;
-        int size;
-
-        public Unit(int fa, int val, int size) {
-            this.fa = fa;
-            this.val = val;
-            this.size = size;
-        }
+          <p>最近项目要写k8s resource watcher，watch指对特定资源的一次订阅请求，订阅后连接保持打开，通过长连接的方式接收来自api-server关于此资源状态变化的推送，相比轮询减轻了api-server的压力。</p>
+<p>informer是k8s提供的基于Watch请求包装的一套代码，抛开informer，先看一下如何做一个简单的watch</p>
+<pre><code class="go">func main() {
+    config, err := clientcmd.BuildConfigFromFlags(&quot;&quot;, &quot;conf/kube.config&quot;)
+    if err != nil {
+        panic(err.Error())
     }
 
-    Map&lt;Integer, Unit&gt; mp;
-
-    private Unit find(Unit item) {
-        if (item.fa == item.val) return item;
-        item.fa = find(mp.get(item.fa)).val;
-        return mp.get(item.fa);
+    clientset, err := kubernetes.NewForConfig(config)
+    if err != nil {
+        panic(err.Error())
     }
 
-    private void bind(Unit a, Unit b) {
-        Unit afa = find(a);
-        Unit bfa = find(b);
-        afa.fa = bfa.val;
-        bfa.size += afa.size;
-    }
+    labelSelector := labels.Set(map[string]string{&quot;k&quot;: &quot;v&quot;}).AsSelector().String()
 
-    public int longestConsecutive(int[] nums) {
-        if(nums.length == 0) return 0;
-        mp = new HashMap&lt;&gt;();
-        for (int num : nums) {
-            if (mp.get(num) != null) continue;
-            mp.put(num, new Unit(num, num, 1));
-            if (mp.get(num - 1) != null) bind(mp.get(num), mp.get(num - 1));
-            if (mp.get(num + 1) != null) bind(mp.get(num), mp.get(num + 1));
-        }
-        int ans = Integer.MIN_VALUE;
-        for (int num : mp.keySet()) {
-            ans = Math.max(ans, mp.get(num).size);
-        }
-        return ans;
+    jobs, err := clientset.BatchV1().Jobs(apiv1.NamespaceAll).List(metav1.ListOptions{LabelSelector: labelSelector})
+    if err != nil {
+        panic(err.Error())
+    }
+    resourceVersion := jobs.ListMeta.ResourceVersion
+
+    watcher, err := clientset.BatchV1().Jobs(apiv1.NamespaceAll).Watch(metav1.ListOptions{
+        LabelSelector:   labelSelector,
+        ResourceVersion: resourceVersion, // 监听指定resourceVersion后发生的变化
+    })
+    if err != nil {
+        panic(err.Error())
+    }
+    ch := watcher.ResultChan()
+
+    for {
+        event := &lt;-ch
+        job, _ := event.Object.(*v1.Job)
+        fmt.Printf(&quot;%v\n&quot;, job.ObjectMeta.Name)
     }
 }
 </code></pre>
+<p>相当简短，但是有些问题需要考虑</p>
+<ol>
+<li><p>多线程从resultChan读取，可能出现两个线程处理同一个对象先后不同事件的问题</p>
+</li>
+<li><p>watcher在api-server默认的超时时间是1800s，需要考虑超时重连</p>
+</li>
+<li><p>watch返回的resultChan是无缓冲的，如果消费者处理速度小于生产者会阻塞生产者</p>
+</li>
+<li><p>在从resultChan读出前，同一对象的先后多个事件应以最后一个为准，因为watcher是level-based的，这样能够提高效率。<br>（edge-based相对于level-based更加robust，因为edge有可能丢失）</p>
+</li>
+</ol>
+<p>k8s的informer基于上面这一套简单（但有问题的）代码进行封装，解决了如上问题</p>
+<p>看一下如何使用这套框架监听资源变化</p>
+<pre><code class="go">// 伪代码，以mpiJob资源举例，资源类型是什么并不重要
+func main() {
+    informerFactory := externalversions.NewSharedInformerFactory(client.GetK8sResourceClient(), 0)
+    mpiJobInformer := informerFactory.Kubeflow().V1().MPIJobs().Informer()
+    workQueue := workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(),
+                &quot;mpi-job-work-queue&quot;),
+    mpiJobInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+            AddFunc: jw.enqueueEvent,
+            UpdateFunc: func(oldObj, newObj interface{}) {
+                jw.enqueueEvent(newObj)
+            },
+            DeleteFunc: func(obj interface{}) {
+                var mpiJob *kubeflowV1.MPIJob
+                switch obj := obj.(type) {
+                case *kubeflowV1.MPIJob:
+                    mpiJob = obj
+                case cache.DeletedFinalStateUnknown:
+                    deletedObj := obj.Obj
+                    mpiJob = deletedObj.(*kubeflowV1.MPIJob)
+                }
+                if mpiJob != nil {
+                    jw.enqueueEvent(mpiJob)
+                }
+            },
+        })
+
+    informerFactory.Start(stopCh)
+    go wait.Until(runWorker, time.Second, stop)
+}
+
+func runWorker() {
+    log.Logger.Info(&quot;worker start...&quot;)
+    defer r.HandleCrash()
+    for s.processWorkItem() {
+    }
+}
+
+func (s *JobWatcher) processWorkItem() {
+    key, shutdown := s.workQueue.Get()
+    defer s.workQueue.Done(key)
+    obj, exists, err := mpiJobInformer.GetIndexer().GetByKey(key.(string))
+    mpiJob := obj.(*v1.MpiJob)
+    // do things based on mpiJob status
+}
+</code></pre>
+<p>与第一版相比，省略了client初始化，加上了一些通用的对象处理逻辑，总体上用户需要关心的代码量减少了</p>
+<p>下面介绍informer包中几个重要的数据结构，可以配合下方的类关系图理解</p>
+<ul>
+<li><p>informerFactory: 可以通过builder模式，以group version kind的形式创建资源类型的单例informer，相对于手动创建informer减免了listFunc和watchFunc的编写（但是也不支持对list/watch请求进行配置，如指定label selector），在有多个watcher需要创建informer时能够利用单例。</p>
+</li>
+<li><p>sharedIndexInformer: 用于对特定某种资源类型进行list&amp;watch，并根据watch到的事件调用用户注册的对应处理函数。informer的主要组件包括controller、indexer、processor</p>
+<ul>
+<li><p>controller: 用于对特定资源类型进行list&amp;watch，并将watch到的结果发往一个队列（DeltaFIFO），同时更新本地缓存（indexer）中此对象的最新状态，此外，另一个线程不断消费队列，发往processor组件的addCh。controller的主要组件是reflector</p>
+<ul>
+<li><p>reflector: 负责进行list&amp;watch，并将结果写入队列（DeltaFIFO），主要成员包括listWatcher（list和watch的函数指针，不走informerFactory创建时可配）和store（也就是DeltaFIFO）</p>
+<ul>
+<li>store: DeltaFIFO对象，一个特殊的队列，下文介绍，同时持有indexer的引用</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>processor: 包括addCh和nextCh两个无缓冲Channel，addCh接收来自队列DeltaFIFO的输出，存入一个可扩容的ringBuffer，并不断从ringBuffer取出放入nextCh，另一个线程从nextCh消费，根据资源事件类型（创建/更新/删除）调用用户注册的对应handler</p>
+</li>
+<li><p>indexer：watcher到的资源会更新到indexer中，下文解释作用</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://cdn.jsdelivr.net/gh/vicety/Images@master/images/list&amp;watch(mpi-operator" alt>.svg)</p>
+<p>// TODO：这些组件如何解决上述问题</p>
 
         </div>
         <!-- .entry-content -->
@@ -296,28 +369,11 @@
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
-          
-            <div class="post-nepre half previous">
-          
-            <a href="/2018/12/12/src/LeetCode 179. Largest Number/" rel="prev">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-              </div>
-              <span class="label">
-              Previous Post</span>
-              <div class="info">
-                <h3>
-                LeetCode 179. Largest Number</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
         
           
-            <div class="post-nepre half next">
+            <div class="post-nepre full next">
           
-            <a href="/2018/12/12/src/LeetCode 149. Max Points In a line/" rel="next">
+            <a href="/2021/03/18/src/技术/golang基础学习/" rel="next">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
               </div>
@@ -325,7 +381,7 @@
               Next Post</span>
               <div class="info">
                 <h3>
-                LeetCode 149. Max Points In a line</h3>
+                golang基础学习</h3>
                 <hr>
               </div>
             </a>

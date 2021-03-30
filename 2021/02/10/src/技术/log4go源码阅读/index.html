@@ -234,83 +234,83 @@
 <p>数据结构定义如日志结构、日志等级</p>
 <pre><code class="go">// 定义一条结构化的日志数据
 type LogRecord struct {
- Level   LevelType 
- Created time.Time 
- Source  string    // 消息来源，从runtime.Caller(skipNum)中获得，skipNum为忽略的调用链层数，例子见下方%S占位符对应的值
- Message string    // string类型的日志
- Binary  []byte    // 二进制类型的日志
+    Level   LevelType 
+    Created time.Time 
+    Source  string    // 消息来源，从runtime.   Caller(skipNum)中获得，skipNum为忽略的调用链层   数，例子见下方%S占位符对应的值
+    Message string    // string类型的日志
+    Binary  []byte    // 二进制类型的日志
 }
 </code></pre>
 <p>日志格式化DSL可以解析结构化日志的字段进行转换，如<code>[%D %T] [%L] (%S) %M</code>对应<code>[2021/02/09 12:47:10] [INFO] (vicety.github.io/test-lib/middleware.LoggerWithFormatter.func1:72) Something happens...</code></p>
 <p>日志使用接口</p>
 <pre><code class="go">// This is an interface for anything that should be able to write logs
 type LogWriter interface {
- // This will be called to log a LogRecord message.
- LogWrite(rec *LogRecord)
+    // This will be called to log a LogRecord    message.
+    LogWrite(rec *LogRecord)
 
- // This should clean up anything lingering about the LogWriter, as it is called before
- // the LogWriter is removed.  LogWrite should not be called after Close.
- Close()
+    // This should clean up anything    lingering about the LogWriter, as it is    called before
+    // the LogWriter is removed.  LogWrite    should not be called after Close.
+    Close()
 }
 </code></pre>
 <p>调用log.warn时的分发</p>
 <pre><code class="go">func (log Logger) Info(arg0 interface{}, args ...interface{}) {
- const (
-  lvl = INFO
- )
- switch first := arg0.(type) {
- case string:
-  // Use the string as a format string
-  log.intLogf(lvl, first, args...)
- case func() string:
-  // Log the closure (no other arguments used)
-  log.intLogc(lvl, first)
- case []byte:
-  // Log the binary log message
-  log.intLogb(lvl, first)
- default:
-  // Build a format string so that it will be similar to Sprint
-  log.intLogf(lvl, fmt.Sprint(arg0)+strings.Repeat(&quot; %v&quot;, len(args)), args...)
- }
+    const (
+        lvl = INFO
+    )
+    switch first := arg0.(type) {
+    case string:
+        // Use the string as a format string
+        log.intLogf(lvl, first, args...)
+    case func() string:
+        // Log the closure (no other    arguments    used)
+        log.intLogc(lvl, first)
+    case []byte:
+        // Log the binary log message
+        log.intLogb(lvl, first)
+    default:
+        // Build a format string so that it    will    be similar to Sprint
+        log.intLogf(lvl, fmt.Sprint(arg0)      +strings.Repeat(&quot; %v&quot;, len(args)),    args..   .)
+    }
 }
 
 // Send a formatted log message internally
 func (log Logger) intLogf(lvl LevelType, format string, args ...interface{}) {
- skip := true
+    skip := true
 
- // Determine if any logging will be done
- for _, filt := range log {
-  if lvl &gt;= filt.Level {
-   skip = false
-   break
-  }
- }
- if skip {
-  return
- }
+    // Determine if any logging will be done
+    for _, filt := range log {
+        if lvl &gt;= filt.Level {
+            skip = false
+            break
+        }
+    }
+    if skip {
+        return
+    }
 
- // get log record
- lr := GetLogRecord(lvl, format, args...) // 构造格式化日志对象lr
+    // get log record
+    lr := GetLogRecord(lvl, format, args...) /   / 构造格式化日志对象lr
 
- // Dispatch the logs
- for _, filt := range log {
-  if lvl &lt; filt.Level {
-   continue
-  }
-  filt.LogWrite(&amp;lr)
- }
+    // Dispatch the logs
+    for _, filt := range log {
+        if lvl &lt; filt.Level {
+            continue
+        }
+        filt.LogWrite(&amp;lr)
+    }
 }
 </code></pre>
 <p>框架本身并不复杂，非开箱即用，依赖上层业务去规定日志格式、日志处理，此外缓存队列的实现也是上层做的（尽管在go中很简单）</p>
 <p>LogWrite实现例</p>
 <pre><code class="go">func (w *ExampleLogWriter) LogWrite(rec *log4go.LogRecord) {
- if !log4go.LogWithBlocking {
-  if len(w.rec) &gt;= log4go.LogBufferLength {
-   return
-  }
- }
+    if !log4go.LogWithBlocking {
+        if len(w.rec) &gt;= log4go.LogBufferLength {
+            return
+        }
+    }
 
- w.rec &lt;- rec // 接日志处理逻辑
+    w.rec &lt;- rec // 接日志处理逻辑
 }
 </code></pre>
 
