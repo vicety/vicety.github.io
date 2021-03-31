@@ -307,6 +307,7 @@ func runWorker() {
 func (s *JobWatcher) processWorkItem() {
     key, shutdown := s.workQueue.Get()
     defer s.workQueue.Done(key)
+    // workQueue只应该传递key，具体对象应从indexer中获取，因为indexer中是本地watch到的最新状态，
     obj, exists, err := mpiJobInformer.GetIndexer().GetByKey(key.(string))
     mpiJob := obj.(*v1.MpiJob)
     // do things based on mpiJob status
@@ -338,11 +339,84 @@ func (s *JobWatcher) processWorkItem() {
 <p><img src="http://cdn.jsdelivr.net/gh/vicety/Images@master/images/list-watch-arch.svg" alt="informer架构"></p>
 <p>设计这些组件的目的是为了解决先前直接watch可能出现的问题：</p>
 <ol>
-<li>通过DeltaFIFO实现</li>
+<li>通过client-go/util/workqueue包实现</li>
 <li>informer包的list&amp;watch放在一个死循环中实现重试</li>
 <li>workQueue和ringBuffer都可以起到缓冲作用，这里还不太清楚使用ringBuffer的优势在哪里</li>
+<li>通过DeltaFIFO实现</li>
 </ol>
-<p>4.</p>
+<h4 id="DeltaFIFO"><a href="#DeltaFIFO" class="headerlink" title="DeltaFIFO"></a>DeltaFIFO</h4><p>DeltaFIFO与一般队列的区别在于</p>
+<ol>
+<li>队内的对象是一个数组，记录了这个资源在队内期间发生的变化事件</li>
+<li>持有一个kv形式的缓存对象保存出队元素的最新状态（如果变化事件是删除，在出队时也会在缓存中删除），这样确保下游永远基于最新状态进行处理</li>
+<li>支持定期将缓存内对象全量以update事件的形式enqueue到队列中（感觉并没什么作用）</li>
+</ol>
+<pre><code class="go">type DeltaFIFO struct {
+    // lock/cond protects access to &#39;items&#39; and &#39;queue&#39;.
+    lock sync.RWMutex
+    cond sync.Cond
+
+    // We depend on the property that items in the set are in
+    // the queue and vice versa, and that all Deltas in this
+    // map have at least one Delta.
+    items map[string]Deltas // Deltas是Delta数组，而Dealta包含对象与其事件（Add、Update、Delete、SyncFromCache）
+    queue []string // 存储资源的key
+
+    // populated is true if the first batch of items inserted by Replace() has been populated
+    // or Delete/Add/Update was called first.
+    populated bool
+    // initialPopulationCount is the number of items inserted by the first call of Replace()
+    initialPopulationCount int
+
+    // keyFunc is used to make the key used for queued item
+    // insertion and retrieval, and should be deterministic.
+    keyFunc KeyFunc
+
+    // knownObjects list keys that are &quot;known&quot;, for the
+    // purpose of figuring out which items have been deleted
+    // when Replace() or Delete() is called.
+    knownObjects KeyListerGetter
+
+    // Indication the queue is closed.
+    // Used to indicate a queue is closed so a control loop can exit when a queue is empty.
+    // Currently, not used to gate any of CRED operations.
+    closed     bool
+    closedLock sync.Mutex
+}
+
+</code></pre>
+<p>以下是从DeltaFIFO pop delta，交由processor distriubte的逻辑</p>
+<pre><code class="go">func (s *sharedIndexInformer) HandleDeltas(obj interface{}) error {
+    s.blockDeltas.Lock()
+    defer s.blockDeltas.Unlock()
+
+    // from oldest to newest
+    for _, d := range obj.(Deltas) {
+        switch d.Type {
+        case Sync, Added, Updated:
+            isSync := d.Type == Sync
+            s.cacheMutationDetector.AddObject(d.Object)
+            if old, exists, err := s.indexer.Get(d.Object); err == nil &amp;&amp; exists {
+                if err := s.indexer.Update(d.Object); err != nil {
+                    return err
+                }
+                s.processor.distribute(updateNotification{oldObj: old, newObj: d.Object}, isSync)
+            } else {
+                if err := s.indexer.Add(d.Object); err != nil {
+                    return err
+                }
+                s.processor.distribute(addNotification{newObj: d.Object}, isSync)
+            }
+        case Deleted:
+            if err := s.indexer.Delete(d.Object); err != nil {
+                return err
+            }
+            s.processor.distribute(deleteNotification{oldObj: d.Object}, false)
+        }
+    }
+    return nil
+}
+</code></pre>
+<h4 id="WorkQueue"><a href="#WorkQueue" class="headerlink" title="WorkQueue"></a>WorkQueue</h4><p>TODO<br><a href="https://myonlyzzy.github.io/post/k8s_workqueue/" target="_blank" rel="noopener">https://myonlyzzy.github.io/post/k8s_workqueue/</a></p>
 <h4 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h4><ol>
 <li>这些组件如何解决上述问题，继续往下写</li>
 <li>如何写watcher的处理逻辑</li>
