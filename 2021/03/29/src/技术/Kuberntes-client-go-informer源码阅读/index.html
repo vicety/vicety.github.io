@@ -260,14 +260,10 @@
 </code></pre>
 <p>相当简短，但是有些问题需要考虑</p>
 <ol>
-<li><p>多线程从resultChan读取，可能出现两个线程处理同一个对象先后不同事件的问题</p>
-</li>
-<li><p>watcher在api-server默认的超时时间是1800s，需要考虑超时重连</p>
-</li>
-<li><p>watch返回的resultChan是无缓冲的，如果消费者处理速度小于生产者会阻塞生产者</p>
-</li>
-<li><p>在从resultChan读出前，同一对象的先后多个事件应以最后一个为准，因为watcher是level-based的，这样能够提高效率。<br>（edge-based相对于level-based更加robust，因为edge有可能丢失）</p>
-</li>
+<li>多线程从resultChan读取，可能出现两个线程处理同一个对象先后不同事件的问题</li>
+<li>watcher在api-server默认的超时时间是1800s，需要考虑超时重连</li>
+<li>watch返回的resultChan是无缓冲的，如果消费者处理速度小于生产者会阻塞生产者</li>
+<li>在从resultChan读出前，同一对象的先后多个事件应以最后一个为准，因为watcher是level-based的，这样能够提高效率。<br>（edge-based相对于level-based更加robust，因为edge有可能丢失）</li>
 </ol>
 <p>k8s的informer基于上面这一套简单（但有问题的）代码进行封装，解决了如上问题</p>
 <p>看一下如何使用这套框架监听资源变化</p>
@@ -340,7 +336,17 @@ func (s *JobWatcher) processWorkItem() {
 </li>
 </ul>
 <p><img src="http://cdn.jsdelivr.net/gh/vicety/Images@master/images/list-watch-arch.svg" alt="informer架构"></p>
-<p>// TODO：这些组件如何解决上述问题</p>
+<p>设计这些组件的目的是为了解决先前直接watch可能出现的问题：</p>
+<ol>
+<li>通过DeltaFIFO实现</li>
+<li>informer包的list&amp;watch放在一个死循环中实现重试</li>
+<li>workQueue和ringBuffer都可以起到缓冲作用，这里还不太清楚使用ringBuffer的优势在哪里</li>
+</ol>
+<p>4.</p>
+<h4 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h4><ol>
+<li>这些组件如何解决上述问题，继续往下写</li>
+<li>如何写watcher的处理逻辑</li>
+</ol>
 
         </div>
         <!-- .entry-content -->
