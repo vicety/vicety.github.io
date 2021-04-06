@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">LeetCode 315. Count of Smaller Numbers After Self | vicety</title>
+  <title itemprop="name">Category: 游戏 | vicety</title>
   
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji-ico.ico">
   
@@ -185,223 +185,105 @@
   </div>
 </header>
 
-      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
+      
 <div class="pattern-center-blank"></div>
-
-  <div class="pattern-center single-center">
-    <!-- 有配图默认渲染第一张 -->
-    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg);" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-    </div>
-    <header class="pattern-header single-header">
-      <h1 class="entry-title">
-      LeetCode 315. Count of Smaller Numbers After Self</h1>
-      <p class="entry-census">
-        <span>
-          <a href="vicety.github.io">
-            <img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji.jpg">
-          </a>
-        </span>
-        <span>
-          <a href="vicety.github.io">vicety</a>
-        </span>
-        <span class="bull">
-        ·</span>
-        2018-12-12<span class="bull">
-        ·</span>
-      <span id="busuanzi_value_page_pv"></span>次阅读</p>
-    </header>
+<div class="pattern-center ">
+  <div class="pattern-attachment-img">
+    <img data-src="游戏.img" class="lazyload" onerror="imgError(this,3)" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;">
   </div>
-
+  <header class="pattern-header ">
+    <h1 class="cat-title">游戏.zh</h1>
+    <span class="cat-des">
+      <p>游戏.en</p>
+    </span>
+  </header>
+</div>
 <div id="content" class="site-content">
   <div id="primary" class="content-area">
     <main id="main" class="site-main" role="main">
-      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
-        <div class="toc"></div>
-        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
-        
-        <div class="entry-content">
-          <p>稍微加深了一些对BST的认识……</p>
-<p>维护一个BST，节点中保存当前节点与其子节点的权重和，新节点权重为一，插入时整条查询路径上权重加一。查询时将查询路径上确保比查询值小的节点的权重加入统计。</p>
-<pre><code class="java">class Solution {
-
-    class Node {
-        int val;
-        int weight;
-        Node l;
-        Node r;
-
-        public Node(int val, int weight) {
-            this.val = val;
-            this.weight = weight;
-        }
-    }
-
-    class BST {
-        Node root;
-
-        public Node insert(Node now, int val) {
-            if (now == null) return new Node(val, 1);
-            now.weight++;
-            if (val == now.val) return now;
-            else if (val &lt; now.val) now.l = insert(now.l, val);
-            else now.r = insert(now.r, val);
-            return now;
-        }
-
-        public int query(Node now, int val) {
-            if (now == null) return 0;
-            int res = 0;
-            if (val &lt; now.val) res += query(now.l, val);
-            else if (val == now.val) {
-                if (now.l != null) res += now.l.weight;
-            } else {
-                res += now.weight;
-                if (now.r != null) res -= now.r.weight;
-                res += query(now.r, val);
-            }
-            return res;
-        }
-    }
-
-    public List&lt;Integer&gt; countSmaller(int[] nums) {
-        int[] ans = new int[nums.length];
-        BST bst = new BST();
-        for (int i = nums.length - 1; i &gt;= 0; i--) {
-            ans[i] = bst.query(bst.root, nums[i]);
-            bst.root = bst.insert(bst.root, nums[i]);
-        }
-        return IntStream.of(ans).boxed().collect(Collectors.toList());
-    }
-}
-</code></pre>
-<p>参考<a href="https://algouage.blogspot.com/2017/06/leetcode-315-count-of-smaller-numbers.html" target="_blank" rel="noopener">这篇博客</a>写了一个树状数组的做法，bit中储存的是离散化后的数字的出现次数。</p>
-<p>先对数组离散化（排序），对原数组中的元素从右至左，每个元素先查询该元素在bit中的前缀和，随后插入bit</p>
-<pre><code class="java">class Solution {
-    private int[] bit;
-
-    private int lowbit(int x) {
-        return x &amp; -x;
-    }
-
-    private int sum(int pos) {
-        int res = 0;
-        while (pos &gt; 0) {
-            res += bit[pos];
-            pos -= lowbit(pos);
-        }
-        return res;
-    }
-
-    private void update(int pos, int val, int n) {
-        while (pos &lt;= n) {
-            bit[pos] += val;
-            pos += lowbit(pos);
-        }
-    }
-
-    // 按照从原数组从右到左的顺序，插入按大小顺序排序的bit中
-    public List&lt;Integer&gt; countSmaller(int[] nums) {
-        Map&lt;Integer, Integer&gt; numToIndex = new HashMap&lt;&gt;();
-        bit = new int[nums.length + 1];
-        int[] ans = new int[nums.length];
-        int[] sortedNums = nums.clone();
-        Arrays.sort(sortedNums);
-        for (int i = 0; i &lt; sortedNums.length; i++) {
-            numToIndex.put(sortedNums[i], i + 1);
-        }
-        for (int i = nums.length - 1; i &gt;= 0; i--) {
-            ans[i] = sum(numToIndex.get(nums[i]) - 1); // 小于等于则不用减一
-            update(numToIndex.get(nums[i]), 1, nums.length);
-        }
-        return IntStream.of(ans).boxed().collect(Collectors.toList());
-    }
-}
-</code></pre>
-
-        </div>
-        <!-- .entry-content -->
-        <div class="single-reward">
-          <div class="reward-open">赏
-            <div class="reward-main">
-              <ul class="reward-row">
-                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/alipayQR.jpg"></li>
-                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/WechatQR.png"></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
-        <footer class="post-footer">
-          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
-          <div class="post-tags">
-          </div>
-          <div class="post-share">
-            <div class="social-share sharehidden share-component"></div>
-            <i class="iconfont show-share icon-forward"></i>
-          </div>
-        </footer><!-- .entry-footer -->
-      </article>
-      <!-- #post-## -->
-      <div class="toc" style="background: none;"></div>
-      <section class="post-squares nextprev">
-        
-          
-            <div class="post-nepre half previous">
-          
-            <a href="/2018/12/12/src/LeetCode 287. Find the Duplicate Number/" rel="prev">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-              </div>
-              <span class="label">
-              Previous Post</span>
-              <div class="info">
-                <h3>
-                LeetCode 287. Find the Duplicate Number</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
-        
-          
-            <div class="post-nepre half next">
-          
-            <a href="/2018/12/12/src/LeetCode 327. Count of Range Sum 区间过滤/" rel="next">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-              </div>
-              <span class="label">
-              Next Post</span>
-              <div class="info">
-                <h3>
-                LeetCode 327. Count of Range Sum 区间过滤</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
-      </section>
       
-      <section class="author-profile">
-        <div class="info" itemprop="author" itemscope="" itemtype="https://schema.org/Person">
-          <a href="vicety.github.io" class="profile gravatar"><img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji.jpg" itemprop="image" alt="vicety" height="70" width="70"></a>
-          <div class="meta">
-            <span class="title">Author</span>
-            <h3 itemprop="name">
-            <a href="vicety.github.io" itemprop="url" rel="author">vicety</a>
-            </h3>
-          </div>
+  <!-- 首页默认取最最新文章集 -->
+  
+    <article class="post post-list" itemscope="" itemtype="https://schema.org/BlogPosting">
+  <div class="post-entry">
+    <div class="feature">
+      <a href="/2021/04/06/src/游戏/ドーナドーナ-いっしょにわるいことをしよう-游戏体验/">
+        <div class="overlay">
+          <i class="iconfont icon-text">
+          </i>
         </div>
-        <hr>
-        <p><i class="iconfont icon-write"></i></p>
-      </section>
-    </main><!-- #main -->
-  </div><!-- #primary -->
+        <img width="150" height="150" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" >
+      </a>
+    </div>
+    <h1 class="entry-title">
+    <a href="/2021/04/06/src/游戏/ドーナドーナ-いっしょにわるいことをしよう-游戏体验/">
+    《ドーナドーナ いっしょにわるいことをしよう》游戏体验</a>
+    </h1>
+    <div class="p-time">
+      <i class="iconfont icon-time">
+      </i>
+    2021-4-6</div>
+    <p>
+    </p>
+    <footer class="entry-footer">
+      <div class="post-more">
+        <a href="/2021/04/06/src/游戏/ドーナドーナ-いっしょにわるいことをしよう-游戏体验/">
+          <i class="iconfont icon-caidan">
+          </i>
+        </a>
+      </div>
+    </footer>
+  </div>
+  <hr>
+</article>
+  
+
+
+      <div class="clearer">
+      </div>
+    </main>
+    <!--  -->
+    
+  </div>
 </div>
 
+<!-- 
+  
+    <article class="post post-list" itemscope="" itemtype="https://schema.org/BlogPosting">
+  <div class="post-entry">
+    <div class="feature">
+      <a href="/2021/04/06/src/游戏/ドーナドーナ-いっしょにわるいことをしよう-游戏体验/">
+        <div class="overlay">
+          <i class="iconfont icon-text">
+          </i>
+        </div>
+        <img width="150" height="150" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" >
+      </a>
+    </div>
+    <h1 class="entry-title">
+    <a href="/2021/04/06/src/游戏/ドーナドーナ-いっしょにわるいことをしよう-游戏体验/">
+    《ドーナドーナ いっしょにわるいことをしよう》游戏体验</a>
+    </h1>
+    <div class="p-time">
+      <i class="iconfont icon-time">
+      </i>
+    2021-4-6</div>
+    <p>
+    </p>
+    <footer class="entry-footer">
+      <div class="post-more">
+        <a href="/2021/04/06/src/游戏/ドーナドーナ-いっしょにわるいことをしよう-游戏体验/">
+          <i class="iconfont icon-caidan">
+          </i>
+        </a>
+      </div>
+    </footer>
+  </div>
+  <hr>
+</article>
+  
 
-
+ -->
     </div>    
     <div class="ins-search">
     <div class="ins-search-mask"></div>
