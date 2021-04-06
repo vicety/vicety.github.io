@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="/"/>
-  <updated>2021-04-06T13:46:39.046Z</updated>
+  <updated>2021-04-06T13:47:29.425Z</updated>
   <id>/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="/2021/04/06/src/%E6%B8%B8%E6%88%8F/%E3%83%89%E3%83%BC%E3%83%8A%E3%83%89%E3%83%BC%E3%83%8A-%E3%81%84%E3%81%A3%E3%81%97%E3%82%87%E3%81%AB%E3%82%8F%E3%82%8B%E3%81%84%E3%81%93%E3%81%A8%E3%82%92%E3%81%97%E3%82%88%E3%81%86-%E6%B8%B8%E6%88%8F%E4%BD%93%E9%AA%8C/"/>
     <id>/2021/04/06/src/游戏/ドーナドーナ-いっしょにわるいことをしよう-游戏体验/</id>
     <published>2021-04-06T05:13:00.000Z</published>
-    <updated>2021-04-06T13:46:39.046Z</updated>
+    <updated>2021-04-06T13:47:29.425Z</updated>
     
     <summary type="html">
     
@@ -46,7 +46,7 @@
     <link href="/2021/03/29/src/%E6%8A%80%E6%9C%AF/Kuberntes-client-go-informer%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/"/>
     <id>/2021/03/29/src/技术/Kuberntes-client-go-informer源码阅读/</id>
     <published>2021-03-29T08:50:56.000Z</published>
-    <updated>2021-04-06T13:46:39.041Z</updated>
+    <updated>2021-04-06T13:47:29.417Z</updated>
     
     <summary type="html">
     
@@ -70,7 +70,7 @@
     <link href="/2021/03/18/src/%E6%8A%80%E6%9C%AF/golang%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/"/>
     <id>/2021/03/18/src/技术/golang基础学习/</id>
     <published>2021-03-18T06:36:42.000Z</published>
-    <updated>2021-04-06T13:46:39.040Z</updated>
+    <updated>2021-04-06T13:47:29.416Z</updated>
     
     <summary type="html">
     
@@ -94,7 +94,7 @@
     <link href="/2021/03/18/src/%E6%8A%80%E6%9C%AF/goalng%E5%AD%A6%E4%B9%A0-context%E5%8C%85%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/"/>
     <id>/2021/03/18/src/技术/goalng学习-context包源码阅读/</id>
     <published>2021-03-18T06:23:34.000Z</published>
-    <updated>2021-04-06T13:46:39.041Z</updated>
+    <updated>2021-04-06T13:47:29.417Z</updated>
     
     <summary type="html">
     
@@ -120,7 +120,7 @@
     <link href="/2021/03/12/src/%E6%8A%80%E6%9C%AF/golang%E5%AD%A6%E4%B9%A0-strings-bytes-runes-and-charaters/"/>
     <id>/2021/03/12/src/技术/golang学习-strings-bytes-runes-and-charaters/</id>
     <published>2021-03-12T08:30:44.000Z</published>
-    <updated>2021-04-06T13:46:39.041Z</updated>
+    <updated>2021-04-06T13:47:29.416Z</updated>
     
     <summary type="html">
     
@@ -148,7 +148,7 @@ fmt.Println(a[3])
     <link href="/2021/03/11/src/%E6%8A%80%E6%9C%AF/golang%E5%AD%A6%E4%B9%A0-Array%E3%80%81Slice%E4%B8%8EString/"/>
     <id>/2021/03/11/src/技术/golang学习-Array、Slice与String/</id>
     <published>2021-03-11T09:39:50.000Z</published>
-    <updated>2021-04-06T13:46:39.040Z</updated>
+    <updated>2021-04-06T13:47:29.416Z</updated>
     
     <summary type="html">
     
@@ -172,7 +172,7 @@ fmt.Println(a[3])
     <link href="/2021/02/10/src/%E6%8A%80%E6%9C%AF/log4go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/"/>
     <id>/2021/02/10/src/技术/log4go源码阅读/</id>
     <published>2021-02-10T09:44:15.000Z</published>
-    <updated>2021-04-06T13:46:39.040Z</updated>
+    <updated>2021-04-06T13:47:29.415Z</updated>
     
     <summary type="html">
     
@@ -196,7 +196,7 @@ fmt.Println(a[3])
     <link href="/2021/01/28/src/%E6%9D%82%E8%B0%88/last-words/"/>
     <id>/2021/01/28/src/杂谈/last-words/</id>
     <published>2021-01-27T18:02:19.000Z</published>
-    <updated>2021-04-06T13:46:39.039Z</updated>
+    <updated>2021-04-06T13:47:29.414Z</updated>
     
     <summary type="html">
     
@@ -216,7 +216,7 @@ fmt.Println(a[3])
     <link href="/2021/01/22/src/%E6%9D%82%E8%B0%88/%E6%9C%89%E6%84%9F%E8%80%8C%E5%8F%91/"/>
     <id>/2021/01/22/src/杂谈/有感而发/</id>
     <published>2021-01-22T02:39:22.000Z</published>
-    <updated>2021-04-06T13:46:39.039Z</updated>
+    <updated>2021-04-06T13:47:29.414Z</updated>
     
     <summary type="html">
     
@@ -236,7 +236,7 @@ fmt.Println(a[3])
     <link href="/2021/01/21/src/%E6%8A%80%E6%9C%AF/Go%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86/"/>
     <id>/2021/01/21/src/技术/Go依赖管理/</id>
     <published>2021-01-21T09:23:36.000Z</published>
-    <updated>2021-04-06T13:46:39.041Z</updated>
+    <updated>2021-04-06T13:47:29.417Z</updated>
     
     <summary type="html">
     
@@ -261,7 +261,7 @@ fmt.Println(a[3])
     <link href="/2021/01/19/src/%E6%8A%80%E6%9C%AF/%E5%8D%9A%E5%AE%A2%E9%83%A8%E7%BD%B2%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/"/>
     <id>/2021/01/19/src/技术/博客部署过程记录/</id>
     <published>2021-01-18T17:50:34.000Z</published>
-    <updated>2021-04-06T13:46:39.040Z</updated>
+    <updated>2021-04-06T13:47:29.416Z</updated>
     
     <summary type="html">
     
@@ -287,7 +287,7 @@ fmt.Println(a[3])
     <link href="/2021/01/18/src/%E6%9D%82%E8%B0%88/%E6%9D%82%E8%B0%88-2021%E5%B9%B41%E6%9C%88/"/>
     <id>/2021/01/18/src/杂谈/杂谈-2021年1月/</id>
     <published>2021-01-18T01:41:24.000Z</published>
-    <updated>2021-04-06T13:46:39.039Z</updated>
+    <updated>2021-04-06T13:47:29.414Z</updated>
     
     <summary type="html">
     
@@ -307,7 +307,7 @@ fmt.Println(a[3])
     <link href="/2020/11/16/src/%E6%8A%80%E6%9C%AF/%E6%96%BD%E5%B7%A5%E4%B8%AD-Golang%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5/"/>
     <id>/2020/11/16/src/技术/施工中-Golang线程同步/</id>
     <published>2020-11-16T03:50:46.000Z</published>
-    <updated>2021-04-06T13:46:39.040Z</updated>
+    <updated>2021-04-06T13:47:29.416Z</updated>
     
     <summary type="html">
     
@@ -333,7 +333,7 @@ fmt.Println(a[3])
     <link href="/2020/11/08/src/%E6%9D%82%E8%B0%88/%E6%9D%82%E8%B0%88-2020%E5%B9%B411%E6%9C%88/"/>
     <id>/2020/11/08/src/杂谈/杂谈-2020年11月/</id>
     <published>2020-11-08T14:26:08.000Z</published>
-    <updated>2021-04-06T13:46:39.039Z</updated>
+    <updated>2021-04-06T13:47:29.414Z</updated>
     
     <summary type="html">
     
@@ -360,7 +360,7 @@ fmt.Println(a[3])
     <link href="/2018/12/12/src/LeetCode%201143%20Longest%20Common%20Subsequence/"/>
     <id>/2018/12/12/src/LeetCode 1143 Longest Common Subsequence/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-04-06T13:46:39.042Z</updated>
+    <updated>2021-04-06T13:47:29.418Z</updated>
     
     <summary type="html">
     
@@ -382,7 +382,7 @@ fmt.Println(a[3])
     <link href="/2018/12/12/src/LeetCode%20121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%B3%BB%E5%88%97/"/>
     <id>/2018/12/12/src/LeetCode 121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-买卖股票系列/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-04-06T13:46:39.045Z</updated>
+    <updated>2021-04-06T13:47:29.423Z</updated>
     
     <summary type="html">
     
@@ -404,7 +404,7 @@ fmt.Println(a[3])
     <link href="/2018/12/12/src/LeetCode%201235.%20Maximum%20Profit%20in%20Job%20Scheduling/"/>
     <id>/2018/12/12/src/LeetCode 1235. Maximum Profit in Job Scheduling/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-04-06T13:46:39.039Z</updated>
+    <updated>2021-04-06T13:47:29.414Z</updated>
     
     <summary type="html">
     
@@ -424,11 +424,11 @@ fmt.Println(a[3])
   </entry>
   
   <entry>
-    <title>LeetCode 149. Max Points In a line</title>
-    <link href="/2018/12/12/src/LeetCode%20149.%20Max%20Points%20In%20a%20line/"/>
-    <id>/2018/12/12/src/LeetCode 149. Max Points In a line/</id>
+    <title>LeetCode 128. Longest Consecutive Sequence</title>
+    <link href="/2018/12/12/src/LeetCode%20128.%20Longest%20Consecutive%20Sequence/"/>
+    <id>/2018/12/12/src/LeetCode 128. Longest Consecutive Sequence/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-04-06T13:46:39.046Z</updated>
+    <updated>2021-04-06T13:47:29.427Z</updated>
     
     <summary type="html">
     
@@ -436,10 +436,7 @@ fmt.Println(a[3])
       
         
         
-          &lt;p&gt;题意；求图中共线点的最大个数&lt;br&gt;解法：对每个点计算其他点相对于此点的斜率即可&lt;br&gt;注意：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;斜率使用gcd归一化后使用字符串表示，(2,-1)和(-1,2)其实不需要预处理，直接除gcd就可以归一化为(-1,2)&lt;/li&gt;
-&lt;li&gt;delta
+          &lt;p&gt;求出数组中连续数字的最长长度，如[100, 200, 3, 400, 1, 4, 2]，的最长连续数字为[1, 2, 3,
         
       
     
@@ -453,7 +450,7 @@ fmt.Println(a[3])
     <link href="/2018/12/12/src/LeetCode%20136-137-260%20Single%20Number%20I,%20II,%20III/"/>
     <id>/2018/12/12/src/LeetCode 136-137-260 Single Number I, II, III/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-04-06T13:46:39.044Z</updated>
+    <updated>2021-04-06T13:47:29.422Z</updated>
     
     <summary type="html">
     
@@ -471,11 +468,11 @@ fmt.Println(a[3])
   </entry>
   
   <entry>
-    <title>LeetCode 128. Longest Consecutive Sequence</title>
-    <link href="/2018/12/12/src/LeetCode%20128.%20Longest%20Consecutive%20Sequence/"/>
-    <id>/2018/12/12/src/LeetCode 128. Longest Consecutive Sequence/</id>
+    <title>LeetCode 149. Max Points In a line</title>
+    <link href="/2018/12/12/src/LeetCode%20149.%20Max%20Points%20In%20a%20line/"/>
+    <id>/2018/12/12/src/LeetCode 149. Max Points In a line/</id>
     <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2021-04-06T13:46:39.047Z</updated>
+    <updated>2021-04-06T13:47:29.425Z</updated>
     
     <summary type="html">
     
@@ -483,7 +480,10 @@ fmt.Println(a[3])
       
         
         
-          &lt;p&gt;求出数组中连续数字的最长长度，如[100, 200, 3, 400, 1, 4, 2]，的最长连续数字为[1, 2, 3,
+          &lt;p&gt;题意；求图中共线点的最大个数&lt;br&gt;解法：对每个点计算其他点相对于此点的斜率即可&lt;br&gt;注意：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;斜率使用gcd归一化后使用字符串表示，(2,-1)和(-1,2)其实不需要预处理，直接除gcd就可以归一化为(-1,2)&lt;/li&gt;
+&lt;li&gt;delta
         
       
     
