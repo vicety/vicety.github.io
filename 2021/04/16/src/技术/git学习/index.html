@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">LeetCode 179. Largest Number | vicety</title>
+  <title itemprop="name">git学习 | vicety</title>
   
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji-ico.ico">
   
@@ -195,7 +195,7 @@
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      LeetCode 179. Largest Number</h1>
+      git学习</h1>
       <p class="entry-census">
         <span>
           <a href="vicety.github.io">
@@ -207,7 +207,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2018-12-12<span class="bull">
+        2021-4-16<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -221,27 +221,36 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <p>很容易想到的方法是转化为数组排序，使用此方法首先需要证明数组中元素集是一个偏序集，另外还需要证明最终按降序排列将字符串组合起来得到的答案一定是最优答案。</p>
-<p>(这个主题不支持Latex，TAT，改贴图吧)</p>
-<p><img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/20200311114831.png" alt="图片加载失败"></p>
-<p>代码比较简单</p>
-<pre><code class="java">public String largestNumber(int[] nums) {
-    List&lt;String&gt; strs = IntStream.of(nums).boxed().map(String::valueOf).collect(Collectors.toList());
-    strs.sort((s1, s2) -&gt; {
-        String s1s2 = s1 + s2;
-        String s2s1 = s2 + s1;
-        for(int i = 0; i &lt; s1s2.length(); i++) {
-            if(s1s2.charAt(i) &gt; s2s1.charAt(i)) return -1;
-            else if(s1s2.charAt(i) &lt; s2s1.charAt(i)) return 1;
-        }
-        return 0;
-    });
-    StringBuilder sb = new StringBuilder();
-    strs.forEach(sb::append);
-    String res = sb.toString();
-    if(res.charAt(0) == &#39;0&#39;) return &quot;0&quot;;
-    return res;
-}
+          <p>本文首先回顾干活中常用的git命令（仅列出，不介绍），之后介绍一些也许能用于提升生产力的命令，希望以后能用起来</p>
+<h2 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h2><ul>
+<li>git add -u / git add .</li>
+<li>git commit -m / git commit –amend</li>
+<li>git push</li>
+<li>git fetch</li>
+<li>git merge / git merge \&lt;commit-id></li>
+<li>git rebase / git rebase -i</li>
+<li>git reset –hard / git reset – mixed / git reset –soft</li>
+<li>git checkout / git checkout -b / git checkout -</li>
+<li>git branch / git branch -m</li>
+<li>git log</li>
+<li>git cherry-pick</li>
+<li>git log –graph –pretty=oneline –abbrev-commit （嫌长git log –graph也够用）</li>
+</ul>
+<h2 id="学习中"><a href="#学习中" class="headerlink" title="学习中"></a>学习中</h2><h3 id="git-merge-–no-ff"><a href="#git-merge-–no-ff" class="headerlink" title="git merge –no-ff"></a>git merge –no-ff</h3><p>git merge默认是fast-forward的（fast-forward：如果当前HEAD是要merge的commit id所在branch的祖先，那么merge操作不会创建一个新commit，取而代之直接将HEAD指向此commit），这样会导致看不出哪些提交是merge来的，看个例子</p>
+<pre><code class="sh">*   9372ec3 (HEAD -&gt; master-no-ff) Merge branch &#39;dev&#39; into master-no-ff
+|\
+| * 931e3f1 (master-ff, dev) dev-2
+| * a69be14 dev-1
+|/
+* 8ae5860 (master) init
+</code></pre>
+<h3 id="git-rebase-–onto"><a href="#git-rebase-–onto" class="headerlink" title="git rebase –onto"></a>git rebase –onto</h3><p>git rebase –onto \&lt;new-parent> \&lt;old-parent> \&lt;until(optional, default=HEAD)></p>
+<p>将current branch 从 \&lt;old-parent>开始（不含）到 \&lt;until> 为止的部分的部分剪切下来，拼接到\&lt;new-parent>上，可以说是移花接木了，引用下<a href="https://stackoverflow.com/questions/29914052/i-cant-understand-the-behaviour-of-git-rebase-onto" target="_blank" rel="noopener">Stack Overflow的图</a></p>
+<pre><code class="sh"># git rebase --onto F D H
+          Before                                     After
+    A---B---C---F---G (branch)                A---B---C---F---G (branch)
+             \                                             \
+              D---E---H---I (HEAD)                          E---H (HEAD)
 </code></pre>
 
         </div>
@@ -271,36 +280,19 @@
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
-          
-            <div class="post-nepre half previous">
-          
-            <a href="/2018/12/12/src/LeetCode 136-137-260 Single Number I, II, III/" rel="prev">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-              </div>
-              <span class="label">
-              Previous Post</span>
-              <div class="info">
-                <h3>
-                LeetCode 136-137-260 Single Number I, II, III</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
         
           
-            <div class="post-nepre half next">
+            <div class="post-nepre full next">
           
-            <a href="/2018/12/12/src/LeetCode 218. The Skyline Problem/" rel="next">
+            <a href="/2021/04/06/src/游戏/ドーナドーナ-いっしょにわるいことをしよう-游戏体验/" rel="next">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/dohnadohna-title.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/dohnadohna-title.jpg">
               </div>
               <span class="label">
               Next Post</span>
               <div class="info">
                 <h3>
-                LeetCode 218. The Skyline Problem</h3>
+                《ドーナドーナ いっしょにわるいことをしよう》游戏体验</h3>
                 <hr>
               </div>
             </a>
