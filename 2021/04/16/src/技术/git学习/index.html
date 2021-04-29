@@ -236,7 +236,10 @@
 <li>git cherry-pick</li>
 <li>git log –graph –pretty=oneline –abbrev-commit （嫌长git log –graph也够用）</li>
 </ul>
-<h2 id="学习中"><a href="#学习中" class="headerlink" title="学习中"></a>学习中</h2><h3 id="git-merge-–no-ff"><a href="#git-merge-–no-ff" class="headerlink" title="git merge –no-ff"></a>git merge –no-ff</h3><p>git merge默认是fast-forward的（fast-forward：如果当前HEAD是要merge的commit id所在branch的祖先，那么merge操作不会创建一个新commit，取而代之直接将HEAD指向此commit），这样会导致看不出哪些提交是merge来的，看个例子</p>
+<h2 id="学习中"><a href="#学习中" class="headerlink" title="学习中"></a>学习中</h2><h3 id="回退单个文件到先前版本"><a href="#回退单个文件到先前版本" class="headerlink" title="回退单个文件到先前版本"></a>回退单个文件到先前版本</h3><pre><code class="sh">git checkout &lt;commit-id&gt; /path/to/file
+# then git add -u; git commit --amend;
+</code></pre>
+<h3 id="git-merge-–no-ff"><a href="#git-merge-–no-ff" class="headerlink" title="git merge –no-ff"></a>git merge –no-ff</h3><p>git merge默认是fast-forward的（fast-forward：如果当前HEAD是要merge的commit id所在branch的祖先，那么merge操作不会创建一个新commit，取而代之直接将HEAD指向此commit），这样会导致看不出哪些提交是merge来的，看个例子</p>
 <pre><code class="sh">*   9372ec3 (HEAD -&gt; master-no-ff) Merge branch &#39;dev&#39; into master-no-ff
 |\
 | * 931e3f1 (master-ff, dev) dev-2
@@ -280,9 +283,26 @@
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
+          
+            <div class="post-nepre half previous">
+          
+            <a href="/2021/04/26/src/技术/解决Golang-diamond-dependency-problem/" rel="prev">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
+              </div>
+              <span class="label">
+              Previous Post</span>
+              <div class="info">
+                <h3>
+                从Golang diamond dependency problem学习go mod包管理</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
         
           
-            <div class="post-nepre full next">
+            <div class="post-nepre half next">
           
             <a href="/2021/04/06/src/游戏/ドーナドーナ-いっしょにわるいことをしよう-游戏体验/" rel="next">
               <div class="background">

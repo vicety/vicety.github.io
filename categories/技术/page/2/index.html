@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">LeetCode 1235. Maximum Profit in Job Scheduling | vicety</title>
+  <title itemprop="name">Category: 技术 | vicety</title>
   
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji-ico.ico">
   
@@ -185,242 +185,110 @@
   </div>
 </header>
 
-      <link rel="stylesheet" type="text/css" href="/css/sharejs.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css">
+      
 <div class="pattern-center-blank"></div>
-
-  <div class="pattern-center single-center">
-    <!-- 有配图默认渲染第一张 -->
-    <div class="pattern-attachment-img lazyload" style="background-image: url(https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg);" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-    </div>
-    <header class="pattern-header single-header">
-      <h1 class="entry-title">
-      LeetCode 1235. Maximum Profit in Job Scheduling</h1>
-      <p class="entry-census">
-        <span>
-          <a href="vicety.github.io">
-            <img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji.jpg">
-          </a>
-        </span>
-        <span>
-          <a href="vicety.github.io">vicety</a>
-        </span>
-        <span class="bull">
-        ·</span>
-        2018-12-12<span class="bull">
-        ·</span>
-      <span id="busuanzi_value_page_pv"></span>次阅读</p>
-    </header>
+<div class="pattern-center ">
+  <div class="pattern-attachment-img">
+    <img data-src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/banner/coding.jpg" class="lazyload" onerror="imgError(this,3)" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;">
   </div>
-
+  <header class="pattern-header ">
+    <h1 class="cat-title">野生技术协会</h1>
+    <span class="cat-des">
+      <p>Geek – Only for Love</p>
+    </span>
+  </header>
+</div>
 <div id="content" class="site-content">
   <div id="primary" class="content-area">
     <main id="main" class="site-main" role="main">
-      <article id="post-1" class="post-1 post type-post status-publish format-standard has-post-thumbnail hentry category-uncategorized">
-        <div class="toc"></div>
-        <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
-        
-        <div class="entry-content">
-          <p>给出订单类，包括开始时间、结束时间和利润，假设同时只能参与一个订单，求最大利润。</p>
-<p>（解法二和解法三来自leetcode）</p>
-<h3 id="解法一：离散化DP"><a href="#解法一：离散化DP" class="headerlink" title="解法一：离散化DP"></a>解法一：离散化DP</h3><p>坐标离散化后按订单开始顺序排序，插入对应slot，从后往前扫，dp[i]存的是从i开始时的最大利润</p>
-<pre><code class="java">class Order {
-    int st, ed, profit;
-    public Order(int st, int ed, int profit) {
-        this.st = st;
-        this.ed = ed;
-        this.profit = profit;
-    }
-}
-
-public int jobScheduling(int[] startTime, int[] endTime, int[]profit) {
-    if (startTime.length == 0) return 0;
-    List&lt;Order&gt; orders = new ArrayList&lt;&gt;();
-    Set&lt;Integer&gt; indexes = new HashSet&lt;&gt;();
-    for (int i = 0; i &lt; startTime.length; i++) {
-        indexes.add(startTime[i]);
-        indexes.add(endTime[i]);
-    }
-    List&lt;Integer&gt; indexesArr = new ArrayList&lt;&gt;(indexes);
-    indexesArr.sort(Comparator.comparingInt(i -&gt; i));
-    Map&lt;Integer, Integer&gt; toIndex = new HashMap&lt;&gt;();
-    for (int i = 0; i &lt; indexesArr.size(); i++) toIndex.put(indexesArr.get(i), i);
-    for (int i = 0; i &lt; startTime.length; i++) {
-        orders.add(new Order(toIndex.get(startTime[i]), toIndex.get(endTime[i]), profit[i]));
-    }
-    orders.sort(Comparator.comparingInt(order -&gt; order.st));
-    int[] dp = new int[indexesArr.size()];
-    List&lt;List&lt;Order&gt;&gt; schedule = new ArrayList&lt;&gt;();
-    for (int i = 0; i &lt; indexesArr.size(); i++) schedule.add(new ArrayList&lt;&gt;());
-    for (Order order : orders) schedule.get(order.st).add(order);
-    for (int i = indexesArr.size() - 2; i &gt;= 0; i--) {
-        dp[i] = dp[i + 1];
-        for (int j = 0; j &lt; schedule.get(i).size(); j++) {
-            Order order = schedule.get(i).get(j);
-            dp[i] = Math.max(dp[i], dp[order.ed] + order.profit);
-        }
-    }
-    return dp[0];
-}
-</code></pre>
-<h3 id="解法二：DP-红黑树"><a href="#解法二：DP-红黑树" class="headerlink" title="解法二：DP+红黑树"></a>解法二：DP+红黑树</h3><p>订单事件按结束时间排序，红黑树按结束顺序排序，存储特定结束时间时的最大利润，利润随结束时间增加应为递增序列，因为结束时间大且利润小的dp没有必要存储。从左往右扫，对于新来的事件，找到小于等于开始时间位置的dp，加上事件的利润，检查能否大于当前结束时间最后的结果（也就是上一次成功插入的枚举，由排序保证），大于则插入。</p>
-<pre><code class="java">class Solution {
-    public int jobScheduling(int[] startTime, int[] endTime, int[] profit) {
-        int n = startTime.length;
-        int[][] arr = new int[n][3];
-
-        for(int i=0; i&lt;n; i++){
-            arr[i] = new int[]{startTime[i], endTime[i], profit[i]};
-        }
-        Arrays.sort(arr, (a, b) -&gt; a[1]-b[1]);
-        TreeMap&lt;Integer, Integer&gt; treeMap = new TreeMap();
-        treeMap.put(0, 0);
-
-        for(int i=0; i&lt;n; i++){
-            Map.Entry&lt;Integer, Integer&gt; floorEntry = treeMap.floorEntry(arr[i][0]);
-
-            Map.Entry&lt;Integer, Integer&gt; lastEntry = treeMap.lastEntry();
-            if(floorEntry.getValue()+arr[i][2] &gt; lastEntry.getValue()){
-                treeMap.put(arr[i][1], floorEntry.getValue()+arr[i][2]);
-            }
-        }
-        return treeMap.lastEntry().getValue();
-    }
-}
-</code></pre>
-<h3 id="解法三：DP"><a href="#解法三：DP" class="headerlink" title="解法三：DP"></a>解法三：DP</h3><p>与解法二不同，枚举向前查找第一个结束时间小于等于当前事件开始时间的事件，尝试优化答案。复杂度上不如解法二，但是解法一到解法三的时间是递增的……</p>
-<pre><code class="java">class Solution {
-    public int jobScheduling(int[] startTime, int[] endTime, int[] profit) {
-        Job[] jobs = new Job[startTime.length];
-        for(int i=0;i&lt;startTime.length;i++){
-            jobs[i] = new Job(startTime[i], endTime[i], profit[i]);
-        }
-        Arrays.sort(jobs, new JobComparator());
-        int dp[] = new int[jobs.length];
-
-        dp[0] = jobs[0].profit;
-        for(int i = 1; i &lt; jobs.length; i++){
-            dp[i] = jobs[i].profit;
-            for(int j = i-1; j &gt;= 0; j--){
-                if(jobs[j].endTime &lt;= jobs[i].startTime){
-                    dp[i] = jobs[i].profit + dp[j];
-                    break;
-                }
-            }
-            dp[i] = Math.max(dp[i], dp[i-1]);
-        }
-        return dp[jobs.length-1];
-    }
-}
-
-class Job{
-    int startTime;
-    int endTime;
-    int profit;
-    public Job(int start, int end, int prof){
-        startTime = start;
-        endTime = end;
-        profit = prof;
-    }
-}
-
-class JobComparator implements Comparator&lt;Job&gt;{
-    public int compare(Job j1, Job j2){
-        if(j1.endTime &lt; j2.endTime){
-            return -1;
-        } else if(j1.endTime &gt; j2.endTime){
-            return 1;
-        }
-        return 0;
-    }
-}
-</code></pre>
-<h3 id="follow-up"><a href="#follow-up" class="headerlink" title="follow up"></a>follow up</h3><p>在地里看到的一个follow up，如果可以同时处理n个订单怎么做？</p>
-<p>并不会……感觉是二维dp，希望有生之年有机会填坑……</p>
-
-        </div>
-        <!-- .entry-content -->
-        <div class="single-reward">
-          <div class="reward-open">赏
-            <div class="reward-main">
-              <ul class="reward-row">
-                <li class="alipay-code"><img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/alipayQR.jpg"></li>
-                <li class="wechat-code"><img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/WechatQR.png"></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div style="text-align:center; width: 100%" class="social-share share-mobile" data-disabled="diandian, tencent"></div>
-        <footer class="post-footer">
-          <div class="post-lincenses"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank" rel="nofollow"><i class="fa fa-creative-commons" aria-hidden="true"></i> 知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></div>
-          <div class="post-tags">
-          </div>
-          <div class="post-share">
-            <div class="social-share sharehidden share-component"></div>
-            <i class="iconfont show-share icon-forward"></i>
-          </div>
-        </footer><!-- .entry-footer -->
-      </article>
-      <!-- #post-## -->
-      <div class="toc" style="background: none;"></div>
-      <section class="post-squares nextprev">
-        
-          
-            <div class="post-nepre half previous">
-          
-            <a href="/2018/12/12/src/LeetCode 121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-买卖股票系列/" rel="prev">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-              </div>
-              <span class="label">
-              Previous Post</span>
-              <div class="info">
-                <h3>
-                LeetCode 121|122|123|188|309. Best-Time-to-Buy-and-Sell-Stock-买卖股票系列</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
-        
-          
-            <div class="post-nepre half next">
-          
-            <a href="/2018/12/12/src/LeetCode 128. Longest Consecutive Sequence/" rel="next">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-              </div>
-              <span class="label">
-              Next Post</span>
-              <div class="info">
-                <h3>
-                LeetCode 128. Longest Consecutive Sequence</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
-      </section>
       
-      <section class="author-profile">
-        <div class="info" itemprop="author" itemscope="" itemtype="https://schema.org/Person">
-          <a href="vicety.github.io" class="profile gravatar"><img src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji.jpg" itemprop="image" alt="vicety" height="70" width="70"></a>
-          <div class="meta">
-            <span class="title">Author</span>
-            <h3 itemprop="name">
-            <a href="vicety.github.io" itemprop="url" rel="author">vicety</a>
-            </h3>
-          </div>
+  <!-- 首页默认取最最新文章集 -->
+  
+    <article class="post post-list" itemscope="" itemtype="https://schema.org/BlogPosting">
+  <div class="post-entry">
+    <div class="feature">
+      <a href="/2020/11/16/src/技术/施工中-Golang线程同步/">
+        <div class="overlay">
+          <i class="iconfont icon-text">
+          </i>
         </div>
-        <hr>
-        <p><i class="iconfont icon-write"></i></p>
-      </section>
-    </main><!-- #main -->
-  </div><!-- #primary -->
+        <img width="150" height="150" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" >
+      </a>
+    </div>
+    <h1 class="entry-title">
+    <a href="/2020/11/16/src/技术/施工中-Golang线程同步/">
+    [施工中]Golang学习</a>
+    </h1>
+    <div class="p-time">
+      <i class="iconfont icon-time">
+      </i>
+    2020-11-16</div>
+    <p>
+    </p>
+    <footer class="entry-footer">
+      <div class="post-more">
+        <a href="/2020/11/16/src/技术/施工中-Golang线程同步/">
+          <i class="iconfont icon-caidan">
+          </i>
+        </a>
+      </div>
+    </footer>
+  </div>
+  <hr>
+</article>
+  
+
+
+      <div class="clearer">
+      </div>
+    </main>
+    <!-- 
+      <nav class="navigator">
+        
+        <a class="extend prev" rel="prev" href="/categories/技术/"><i class="iconfont icon-back"></i></a><a class="page-number" href="/categories/技术/">1</a><span class="page-number current">2</span>
+      </nav>
+     -->
+    
+  </div>
 </div>
 
+<!-- 
+  
+    <article class="post post-list" itemscope="" itemtype="https://schema.org/BlogPosting">
+  <div class="post-entry">
+    <div class="feature">
+      <a href="/2020/11/16/src/技术/施工中-Golang线程同步/">
+        <div class="overlay">
+          <i class="iconfont icon-text">
+          </i>
+        </div>
+        <img width="150" height="150" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" >
+      </a>
+    </div>
+    <h1 class="entry-title">
+    <a href="/2020/11/16/src/技术/施工中-Golang线程同步/">
+    [施工中]Golang学习</a>
+    </h1>
+    <div class="p-time">
+      <i class="iconfont icon-time">
+      </i>
+    2020-11-16</div>
+    <p>
+    </p>
+    <footer class="entry-footer">
+      <div class="post-more">
+        <a href="/2020/11/16/src/技术/施工中-Golang线程同步/">
+          <i class="iconfont icon-caidan">
+          </i>
+        </a>
+      </div>
+    </footer>
+  </div>
+  <hr>
+</article>
+  
 
-
+ -->
     </div>    
     <div class="ins-search">
     <div class="ins-search-mask"></div>

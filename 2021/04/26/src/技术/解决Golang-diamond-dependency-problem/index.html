@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">LeetCode 1235. Maximum Profit in Job Scheduling | vicety</title>
+  <title itemprop="name">从Golang diamond dependency problem学习go mod包管理 | vicety</title>
   
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji-ico.ico">
   
@@ -195,7 +195,7 @@
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      LeetCode 1235. Maximum Profit in Job Scheduling</h1>
+      从Golang diamond dependency problem学习go mod包管理</h1>
       <p class="entry-census">
         <span>
           <a href="vicety.github.io">
@@ -207,7 +207,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2018-12-12<span class="bull">
+        2021-4-26<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -221,122 +221,50 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <p>给出订单类，包括开始时间、结束时间和利润，假设同时只能参与一个订单，求最大利润。</p>
-<p>（解法二和解法三来自leetcode）</p>
-<h3 id="解法一：离散化DP"><a href="#解法一：离散化DP" class="headerlink" title="解法一：离散化DP"></a>解法一：离散化DP</h3><p>坐标离散化后按订单开始顺序排序，插入对应slot，从后往前扫，dp[i]存的是从i开始时的最大利润</p>
-<pre><code class="java">class Order {
-    int st, ed, profit;
-    public Order(int st, int ed, int profit) {
-        this.st = st;
-        this.ed = ed;
-        this.profit = profit;
-    }
-}
+          <p>问题：A依赖B、C，B、C依赖不同版本的D，不同版本间的D不兼容，而go mod中只能指定一种版本的D（具体来说，A是某业务模块，B是mpi-operator，C是paddle-operator，D是client-go）</p>
+<p>可能的解决方案：</p>
+<ol>
+<li>如果B与C分别vendor了D，那么可以通过vendor业务模块实现D不同版本的引用（未证实），参考<a href="https://juejin.cn/pin/6844910357664759816" target="_blank" rel="noopener">这里</a></li>
+<li><p>如果B或C遵守了Go mod中对可能被依赖的包的规范，使用v+semantic version，并且对于major version发生改动（对于semantic versioning意味着不再向后兼容）的情况使用了不同的package path（如k8s.io/kubernetes，k8s.io/kubernetes/v2)，那么能够利用这一特性解决问题，遗憾的是B与C都没有</p>
+<blockquote>
+<p>// <a href="https://golang.org/ref/mod#module-path" target="_blank" rel="noopener">https://golang.org/ref/mod#module-path</a><br>If the module is released at major version 2 or higher, the module path must end with a major version suffix like /v2. This may or may not be part of the subdirectory name. For example, the module with path golang.org/x/repo/sub/v2 could be in the /sub or /sub/v2 subdirectory of the repository golang.org/x/repo.</p>
+<p>If a module might be depended on by other modules, <strong>these rules must be followed</strong> so that the go command can find and download the module.</p>
+</blockquote>
+</li>
+<li><p>如果引用不是钻石型的，如A引用B、C1，B引用C2，C1、C2不兼容，那么可以考虑在repo中维护一份C1的snapshot，对C1的引用全部转为对本地snapshot的引用，关于如何引用本地依赖，可以参考<a href="https://github.com/golang/go/issues/27274" target="_blank" rel="noopener">这里</a></p>
+<pre><code class="sh"> // file structure
+ /tmp/playground/hello
+ |-- go.mod
+ `-- hello.go
+ /tmp/playground/goodbye
+ |-- go.mod
+ `-- goodbye.go
 
-public int jobScheduling(int[] startTime, int[] endTime, int[]profit) {
-    if (startTime.length == 0) return 0;
-    List&lt;Order&gt; orders = new ArrayList&lt;&gt;();
-    Set&lt;Integer&gt; indexes = new HashSet&lt;&gt;();
-    for (int i = 0; i &lt; startTime.length; i++) {
-        indexes.add(startTime[i]);
-        indexes.add(endTime[i]);
-    }
-    List&lt;Integer&gt; indexesArr = new ArrayList&lt;&gt;(indexes);
-    indexesArr.sort(Comparator.comparingInt(i -&gt; i));
-    Map&lt;Integer, Integer&gt; toIndex = new HashMap&lt;&gt;();
-    for (int i = 0; i &lt; indexesArr.size(); i++) toIndex.put(indexesArr.get(i), i);
-    for (int i = 0; i &lt; startTime.length; i++) {
-        orders.add(new Order(toIndex.get(startTime[i]), toIndex.get(endTime[i]), profit[i]));
-    }
-    orders.sort(Comparator.comparingInt(order -&gt; order.st));
-    int[] dp = new int[indexesArr.size()];
-    List&lt;List&lt;Order&gt;&gt; schedule = new ArrayList&lt;&gt;();
-    for (int i = 0; i &lt; indexesArr.size(); i++) schedule.add(new ArrayList&lt;&gt;());
-    for (Order order : orders) schedule.get(order.st).add(order);
-    for (int i = indexesArr.size() - 2; i &gt;= 0; i--) {
-        dp[i] = dp[i + 1];
-        for (int j = 0; j &lt; schedule.get(i).size(); j++) {
-            Order order = schedule.get(i).get(j);
-            dp[i] = Math.max(dp[i], dp[order.ed] + order.profit);
-        }
-    }
-    return dp[0];
-}
+ // go.mod
+ module example.com/me/hello
+
+ require (
+     example.com/me/goodbye v0.0.0
+     rsc.io/quote v1.5.2
+ )
+
+ replace example.com/me/goodbye =&gt; ../goodbye
 </code></pre>
-<h3 id="解法二：DP-红黑树"><a href="#解法二：DP-红黑树" class="headerlink" title="解法二：DP+红黑树"></a>解法二：DP+红黑树</h3><p>订单事件按结束时间排序，红黑树按结束顺序排序，存储特定结束时间时的最大利润，利润随结束时间增加应为递增序列，因为结束时间大且利润小的dp没有必要存储。从左往右扫，对于新来的事件，找到小于等于开始时间位置的dp，加上事件的利润，检查能否大于当前结束时间最后的结果（也就是上一次成功插入的枚举，由排序保证），大于则插入。</p>
-<pre><code class="java">class Solution {
-    public int jobScheduling(int[] startTime, int[] endTime, int[] profit) {
-        int n = startTime.length;
-        int[][] arr = new int[n][3];
-
-        for(int i=0; i&lt;n; i++){
-            arr[i] = new int[]{startTime[i], endTime[i], profit[i]};
-        }
-        Arrays.sort(arr, (a, b) -&gt; a[1]-b[1]);
-        TreeMap&lt;Integer, Integer&gt; treeMap = new TreeMap();
-        treeMap.put(0, 0);
-
-        for(int i=0; i&lt;n; i++){
-            Map.Entry&lt;Integer, Integer&gt; floorEntry = treeMap.floorEntry(arr[i][0]);
-
-            Map.Entry&lt;Integer, Integer&gt; lastEntry = treeMap.lastEntry();
-            if(floorEntry.getValue()+arr[i][2] &gt; lastEntry.getValue()){
-                treeMap.put(arr[i][1], floorEntry.getValue()+arr[i][2]);
-            }
-        }
-        return treeMap.lastEntry().getValue();
-    }
-}
-</code></pre>
-<h3 id="解法三：DP"><a href="#解法三：DP" class="headerlink" title="解法三：DP"></a>解法三：DP</h3><p>与解法二不同，枚举向前查找第一个结束时间小于等于当前事件开始时间的事件，尝试优化答案。复杂度上不如解法二，但是解法一到解法三的时间是递增的……</p>
-<pre><code class="java">class Solution {
-    public int jobScheduling(int[] startTime, int[] endTime, int[] profit) {
-        Job[] jobs = new Job[startTime.length];
-        for(int i=0;i&lt;startTime.length;i++){
-            jobs[i] = new Job(startTime[i], endTime[i], profit[i]);
-        }
-        Arrays.sort(jobs, new JobComparator());
-        int dp[] = new int[jobs.length];
-
-        dp[0] = jobs[0].profit;
-        for(int i = 1; i &lt; jobs.length; i++){
-            dp[i] = jobs[i].profit;
-            for(int j = i-1; j &gt;= 0; j--){
-                if(jobs[j].endTime &lt;= jobs[i].startTime){
-                    dp[i] = jobs[i].profit + dp[j];
-                    break;
-                }
-            }
-            dp[i] = Math.max(dp[i], dp[i-1]);
-        }
-        return dp[jobs.length-1];
-    }
-}
-
-class Job{
-    int startTime;
-    int endTime;
-    int profit;
-    public Job(int start, int end, int prof){
-        startTime = start;
-        endTime = end;
-        profit = prof;
-    }
-}
-
-class JobComparator implements Comparator&lt;Job&gt;{
-    public int compare(Job j1, Job j2){
-        if(j1.endTime &lt; j2.endTime){
-            return -1;
-        } else if(j1.endTime &gt; j2.endTime){
-            return 1;
-        }
-        return 0;
-    }
-}
-</code></pre>
-<h3 id="follow-up"><a href="#follow-up" class="headerlink" title="follow up"></a>follow up</h3><p>在地里看到的一个follow up，如果可以同时处理n个订单怎么做？</p>
-<p>并不会……感觉是二维dp，希望有生之年有机会填坑……</p>
+</li>
+<li><p>本地维护一份C或D的snapshot，对其依赖的D进行升/降级，这也是本次解决问题采用的方案</p>
+</li>
+</ol>
+<h3 id="问题预防"><a href="#问题预防" class="headerlink" title="问题预防"></a>问题预防</h3><p>对于之后可能引用的tf-operator、pytorch-operator、spark-operator，提前尝试引入，确认是否会发生冲突，提早发现问题</p>
+<h3 id="附关于版本号"><a href="#附关于版本号" class="headerlink" title="附关于版本号"></a>附关于版本号</h3><p>不稳定的版本：<br>patch version: 即仅版本号第三位改动的版本<br>release version:：v1.1.1<br>pre-release: v1.1.1-beta，应出现于v1.1.1之前<br>pseudo-version: 用于tagged version not available的情况，编码了版本信息（通常是git commit hash）与时间戳，如v0.0.0-20191109021931-daa7c04131f5</p>
+<ul>
+<li>版本号后的incompatible是什么意思？<br><a href="https://stackoverflow.com/a/57372286" target="_blank" rel="noopener">https://stackoverflow.com/a/57372286</a></li>
+<li>版本号后的indirect是什么意思？<br><a href="https://stackoverflow.com/questions/61115111/how-to-avoid-indirect-dependencies-in-go-mod-file" target="_blank" rel="noopener">https://stackoverflow.com/questions/61115111/how-to-avoid-indirect-dependencies-in-go-mod-file</a></li>
+<li>当多个直接依赖进一步依赖不同版本的间接依赖，构建时最终会采用何种版本的间接依赖<ul>
+<li>会采用最高版本，具体算法参考<a href="https://golang.org/ref/mod#minimal-version-selection" target="_blank" rel="noopener">go mod采用的MVS算法</a>，其中Upgrade的部分也是indirect出现的原因之一</li>
+</ul>
+</li>
+</ul>
+<h3 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h3><p>go目录下src和pkg的区别<br>go.sum文件，go为什么不像yarn、npm会产生lock文件</p>
 
         </div>
         <!-- .entry-content -->
@@ -365,28 +293,11 @@ class JobComparator implements Comparator&lt;Job&gt;{
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
-          
-            <div class="post-nepre half previous">
-          
-            <a href="/2018/12/12/src/LeetCode 121-122-123-188-309-Best-Time-to-Buy-and-Sell-Stock-买卖股票系列/" rel="prev">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
-              </div>
-              <span class="label">
-              Previous Post</span>
-              <div class="info">
-                <h3>
-                LeetCode 121|122|123|188|309. Best-Time-to-Buy-and-Sell-Stock-买卖股票系列</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
         
           
-            <div class="post-nepre half next">
+            <div class="post-nepre full next">
           
-            <a href="/2018/12/12/src/LeetCode 128. Longest Consecutive Sequence/" rel="next">
+            <a href="/2021/04/16/src/技术/git学习/" rel="next">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg">
               </div>
@@ -394,7 +305,7 @@ class JobComparator implements Comparator&lt;Job&gt;{
               Next Post</span>
               <div class="info">
                 <h3>
-                LeetCode 128. Longest Consecutive Sequence</h3>
+                git学习</h3>
                 <hr>
               </div>
             </a>
