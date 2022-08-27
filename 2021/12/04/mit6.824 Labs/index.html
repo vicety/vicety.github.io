@@ -1,0 +1,979 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-cn" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="vicety">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[toc] 这份笔记不包括最简单的Lab1，很久之前做的，细节已经忘记了。 花费20多天做完了Lab2-Lab4，稳定通过所有测试（含Lab4的两个Challenge），用例也有不全面的地方，下面会提到。遗憾的地方也有不少：  代码结构上不够美观；代码行数上，Lab4 server 1000行，Lab2 raft 2000行，也有不少的压缩空间。 Lab3 Lab4实现的kvServer没有优化，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MIT6.824 Lab2 Lab3 Lab4">
+<meta property="og:url" content="https://vicety.github.io/2021/12/04/mit6.824%20Labs/index.html">
+<meta property="og:site_name" content="vicety的博客">
+<meta property="og:description" content="[toc] 这份笔记不包括最简单的Lab1，很久之前做的，细节已经忘记了。 花费20多天做完了Lab2-Lab4，稳定通过所有测试（含Lab4的两个Challenge），用例也有不全面的地方，下面会提到。遗憾的地方也有不少：  代码结构上不够美观；代码行数上，Lab4 server 1000行，Lab2 raft 2000行，也有不少的压缩空间。 Lab3 Lab4实现的kvServer没有优化，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://decentralizedthoughts.github.io/uploads/RAFT%201.jpg">
+<meta property="og:image" content="https://decentralizedthoughts.github.io/uploads/RAFT%202.jpg">
+<meta property="article:published_time" content="2021-12-04T11:13:00.000Z">
+<meta property="article:modified_time" content="2022-08-27T21:31:30.860Z">
+<meta property="article:author" content="vicety">
+<meta property="article:tag" content="分布式">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://decentralizedthoughts.github.io/uploads/RAFT%201.jpg">
+  
+  
+  
+  <title>MIT6.824 Lab2 Lab3 Lab4 - vicety的博客</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"vicety.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Startseite
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archiv
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Kategorien
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Schlagwörter
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                Über
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://raw.githubusercontent.com/vicety/Images/master/93401075_p0.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="MIT6.824 Lab2 Lab3 Lab4"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-12-04 12:13" pubdate>
+          2021年12月4日 中午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          45k wörter
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          377 minuten
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">MIT6.824 Lab2 Lab3 Lab4</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[toc]</p>
+<p>这份笔记不包括最简单的Lab1，很久之前做的，细节已经忘记了。</p>
+<p>花费20多天做完了Lab2-Lab4，稳定通过所有测试（含Lab4的两个Challenge），用例也有不全面的地方，下面会提到。遗憾的地方也有不少：</p>
+<ol>
+<li>代码结构上不够美观；代码行数上，Lab4 server 1000行，Lab2 raft 2000行，也有不少的压缩空间。</li>
+<li>Lab3 Lab4实现的kvServer没有优化，据说get是可以不加锁的</li>
+<li>不少地方使用轮询，用wait&#x2F;signal会更加高效（与优雅）</li>
+</ol>
+<p>难度上，我认同[2]作者的排序，Lab4 &gt; Lab2 &gt;&gt; Lab3 &gt; Lab1。<br>Lab2的难度在于：1. 理解Raft协议，仔细实现论文Figure2中的<strong>所有</strong>细节。2. 第一次编写调试分布式代码<br>Lab4的难度在于：1. 发现在Lab2对Raft的实现是有错误的。2.复杂度高，结构上：搭Raft上的状态机，数量上：12个Raft Server，3个ShardKV Server，很多客户端），调试难度上升</p>
+<h2 id="推荐资料"><a href="#推荐资料" class="headerlink" title="推荐资料"></a>推荐资料</h2><p>TODO 补充这些资料的简略说明</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.824/schedule.html">作业自带的说明与Hint</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/LebronAl/MIT6.824-2021">MIT6.824-2021</a> 四个Lab的实现笔记，Lab2的Snapshot和Lab4的部分思路参考于这里</li>
+<li><a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.824/notes/raft_diagram.pdf">Raft架构图</a></li>
+<li><a target="_blank" rel="noopener" href="https://thesquareplanet.com/blog/instructors-guide-to-raft/">Instructors’ Guide to Raft</a></li>
+<li><a target="_blank" rel="noopener" href="https://thesquareplanet.com/blog/students-guide-to-raft/">Students’ Guide to Raft</a></li>
+<li><a target="_blank" rel="noopener" href="http://thesecretlivesofdata.com/raft/">The Secret Lives of Data - Raft: Understandable Distributed Consensus</a> Raft算法可视化，初学时辅助理解</li>
+<li><a target="_blank" rel="noopener" href="http://doc.jackdu.cn/OngaroPhD.pdf">CONSENSUS: BRIDGING THEORY AND PRACTICE</a> Raft的PhD论文</li>
+<li><a target="_blank" rel="noopener" href="https://gist.github.com/jonhoo/f686cacb4b9fe716d5aa">go-test-many.sh</a> 并行测试脚本，使用方法 .&#x2F;go-test-many.sh 1024 32 TestUnreliableAgree2C，三个参数分别是测试次数、并行执行数、用例包含的字符串</li>
+<li><a target="_blank" rel="noopener" href="https://decentralizedthoughts.github.io/2020-12-12-raft-liveness-full-omission/">Raft does not Guarantee Liveness in the face of Network Faults</a></li>
+<li><a target="_blank" rel="noopener" href="https://pingcap.com/zh/blog/lease-read">TiKV 功能介绍 - Lease Read</a></li>
+<li><a target="_blank" rel="noopener" href="https://etcd.io/docs/v3.4/op-guide/performance/">Performance</a></li>
+<li>In Search of an Understandable Consensus Algorithm Raft论文本身</li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/359206808">Raft成员变更的工程实践</a></li>
+</ol>
+<h4 id="相关资料"><a href="#相关资料" class="headerlink" title="相关资料"></a>相关资料</h4><p>来不及看的一些文章，优先级递减</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000010793687">Linearizability 一致性验证</a><br>PingCAP的文章</li>
+<li><a target="_blank" rel="noopener" href="https://www.cl.cam.ac.uk/techreports/UCAM-CL-TR-857.pdf">ARC: Analysis of Raft Consensus</a></li>
+<li><a target="_blank" rel="noopener" href="https://decentralizedthoughts.github.io/tags/#dist101">dist101</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.josejg.com/debugging-pretty/">Debugging by Pretty Printing</a></li>
+</ol>
+<h2 id="Lab2"><a href="#Lab2" class="headerlink" title="Lab2"></a>Lab2</h2><p>TODO：协程整理</p>
+<p>Lab2分四次小作业</p>
+<ul>
+<li>2A: 实现选举+心跳包</li>
+<li>2B: 实现Basic Raft</li>
+<li>2C: 持久化</li>
+<li>2D: 日志压缩</li>
+</ul>
+<p>整体上需要注意的点有：</p>
+<ol>
+<li>在实现snapshot时会截断日志，因此一定不要使用Log数组的下标保存index，后面改起来会很麻烦</li>
+<li>RPC的发送需要手动管理超时，当发送给挂掉的server时，网络时延可能高达7s</li>
+<li>测试时确保任意时刻CPU不要打满。在测试Lab4的TestJoinLeave和TestChallenge2Unaffected时，用例中给了一个假定的时限用于迁移shard，随后shutdown那个group，如果server进展过慢则会fail。使用并行数为8进行测试时，5800x在某些时刻存在打满的情况，测试结果中会低概率（&lt;1%）无法通过这两个测试，给两倍时间，或并行数修改为4，能够稳定通过所有测试。</li>
+</ol>
+<h3 id="结构定义与初始化"><a href="#结构定义与初始化" class="headerlink" title="结构定义与初始化"></a>结构定义与初始化</h3><p>结构定义</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> Raft <span class="hljs-keyword">struct</span> &#123;<br>	mu        DebugLock           <span class="hljs-comment">// Lock to protect shared access to this peer&#x27;s state</span><br>	peers     []*labrpc.ClientEnd <span class="hljs-comment">// RPC end points of all peers</span><br>	persister *Persister          <span class="hljs-comment">// Object to hold this peer&#x27;s persisted state</span><br>	me        <span class="hljs-type">int</span>                 <span class="hljs-comment">// this peer&#x27;s Index into peers[]</span><br>	dead      <span class="hljs-type">int32</span>               <span class="hljs-comment">// set by Kill()</span><br><br>	commitIndex <span class="hljs-type">int</span> <span class="hljs-comment">// index of the highest entry known to be committed</span><br>	lastApplied <span class="hljs-type">int</span> <span class="hljs-comment">// highest entry applied to the state machine</span><br><br>	nextIndex      []<span class="hljs-type">int</span> <span class="hljs-comment">// next Log entry to send to that server, init len(Log)</span><br>	<span class="hljs-comment">// matchIndex     []int // highest Log entry known to be replicated on server, init -1</span><br><br>	PersistentState <span class="hljs-comment">// 见下方</span><br><br>	<span class="hljs-comment">// ====== 以上是Figure 2中的所有变量 ======</span><br>	<br>	role <span class="hljs-type">string</span> <span class="hljs-comment">// leader、follower or candidate</span><br><br>	newDataNotifyChan     []<span class="hljs-keyword">chan</span> <span class="hljs-type">string</span> <span class="hljs-comment">// 通过此channel触发向其他raft server的日志发送逻辑</span><br>	installSnapshotChan   []<span class="hljs-keyword">chan</span> <span class="hljs-type">string</span> <span class="hljs-comment">// 通过此channel触发向其他raft server install snapshot的逻辑</span><br>	stateChangeNotifyChan <span class="hljs-keyword">chan</span> <span class="hljs-type">string</span> <span class="hljs-comment">// 通过此channel通知主循环当前节点角色变化事件</span><br><br>	muSnapshot sync.Mutex <span class="hljs-comment">// 避免执行CondInstallSnapshot时的lastAppliedIndex与实际不一致，之后详细介绍</span><br>	electionDeadline time.Time <span class="hljs-comment">// follwer与candidate的任期超时时间</span><br><br>	applyCh <span class="hljs-keyword">chan</span> ApplyMsg <span class="hljs-comment">// 提交给状态机的Channel</span><br><br>	<span class="hljs-comment">// debug用</span><br>	name           <span class="hljs-type">string</span> <span class="hljs-comment">// 用于区分不同的raft server</span><br>	enableLog      <span class="hljs-type">bool</span><br>	omitLogCommand <span class="hljs-type">bool</span><br>	enablePProf    <span class="hljs-type">bool</span><br><br>	<span class="hljs-comment">//logsToSendChan  chan *LogEntry // note: reinitialize when restart</span><br>	<span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> 用lock似乎无法同时响应多个中断，使用select</span><br>&#125;<br><br><span class="hljs-comment">// 需要持久化的raft状态</span><br><span class="hljs-keyword">type</span> PersistentState <span class="hljs-keyword">struct</span> &#123;<br>	<span class="hljs-comment">// Figure 2指出的几个需要持久化的变量</span><br>	Term     <span class="hljs-type">int</span><br>	VotedFor <span class="hljs-type">int</span><br>	Log      Logs<br><br>	RaftSnapshot <span class="hljs-comment">// 快照状态</span><br>&#125;<br><br><span class="hljs-keyword">type</span> RaftSnapshot <span class="hljs-keyword">struct</span> &#123;<br>	LastIncludedTerm  <span class="hljs-type">int</span><br>	LastIncludedIndex <span class="hljs-type">int</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>常量</p>
+<p>选举timeout 550ms-1100ms，心跳180ms，RPC超时100ms</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go">ELECTION_TIMEOUT_MIN   = <span class="hljs-number">550</span> <span class="hljs-comment">// follower/candidate timeout = (550 + rand.Intn(550)) ms</span><br>ELECTION_TIMEOUT_DELTA = <span class="hljs-number">550</span><br><br>HEARTBEAT_TIMEOUT       = <span class="hljs-number">180</span> <span class="hljs-comment">// 心跳包间隔</span><br>RPC_TIMEOUT             = <span class="hljs-number">100</span> <span class="hljs-comment">// RPC超时</span><br>DEADLINE_CHECK_INTERVAL = <span class="hljs-number">15</span> <span class="hljs-comment">// check election timeout的间隔</span><br></code></pre></td></tr></table></figure>
+
+<p>初始化，只列出必要代码（略去辅助代码）</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Make</span><span class="hljs-params">(peers []*labrpc.ClientEnd, me <span class="hljs-type">int</span>,</span></span><br><span class="hljs-params"><span class="hljs-function">	persister *Persister, applyCh <span class="hljs-keyword">chan</span> ApplyMsg)</span></span> *Raft &#123;<br>	rf := &amp;Raft&#123;&#125;<br>	rf.peers = peers<br>	rf.persister = persister<br>	rf.me = me<br><br>	<span class="hljs-comment">// Your initialization code here (2A, 2B, 2C).</span><br>	rf.VotedFor = <span class="hljs-number">-1</span><br>	rf.Term = <span class="hljs-number">0</span><br>	rf.role = ROLE_FOLLOWER<br>	rf.commitIndex = <span class="hljs-number">-1</span><br>	rf.lastApplied = <span class="hljs-number">-1</span> <span class="hljs-comment">// 这里使用0开始的日志index，test中使用的是1开始的，提交给applyCh转换即可</span><br>	<span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> golang race怎么检测冲突的</span><br>	rf.nextIndex = <span class="hljs-built_in">make</span>([]<span class="hljs-type">int</span>, <span class="hljs-built_in">len</span>(rf.peers))<br>	rf.matchIndex = <span class="hljs-built_in">make</span>([]<span class="hljs-type">int</span>, <span class="hljs-built_in">len</span>(rf.peers))<br>	<span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; <span class="hljs-built_in">len</span>(rf.peers); i++ &#123;<br>		rf.matchIndex[i] = <span class="hljs-number">-1</span><br>	&#125;<br>	rf.nextIndexValid = <span class="hljs-built_in">make</span>([]<span class="hljs-type">bool</span>, <span class="hljs-built_in">len</span>(rf.peers))<br>	rf.applyCh = applyCh<br>	rf.stateChangeNotifyChan = <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-type">string</span>, <span class="hljs-number">1</span>)<br>	rf.newDataNotifyChan = <span class="hljs-built_in">make</span>([]<span class="hljs-keyword">chan</span> <span class="hljs-type">string</span>, <span class="hljs-number">0</span>)<br>	<span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; <span class="hljs-built_in">len</span>(rf.peers); i++ &#123;<br>		rf.newDataNotifyChan = <span class="hljs-built_in">append</span>(rf.newDataNotifyChan, <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-type">string</span>, <span class="hljs-number">1</span>))<br>	&#125;<br><br>	<span class="hljs-comment">// snapshot</span><br>	rf.RaftSnapshot.LastIncludedTerm = <span class="hljs-number">-1</span><br>	rf.RaftSnapshot.LastIncludedIndex = <span class="hljs-number">-1</span><br>	rf.installSnapshotChan = <span class="hljs-built_in">make</span>([]<span class="hljs-keyword">chan</span> <span class="hljs-type">string</span>, <span class="hljs-number">0</span>)<br>	<span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; <span class="hljs-built_in">len</span>(rf.peers); i++ &#123;<br>		rf.installSnapshotChan = <span class="hljs-built_in">append</span>(rf.installSnapshotChan, <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-type">string</span>, <span class="hljs-number">1</span>))<br>	&#125;<br><br>	<span class="hljs-comment">// initialize from state persisted after a crash</span><br>	rf.readPersist(persister.ReadRaftState())<br><br>	<span class="hljs-comment">// 主循环</span><br>	<span class="hljs-keyword">go</span> rf.ticker()<br>	<span class="hljs-comment">// 异步日志提交</span><br>	<span class="hljs-keyword">go</span> rf.applier()<br><br>	<span class="hljs-keyword">return</span> rf<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="主循环"><a href="#主循环" class="headerlink" title="主循环"></a>主循环</h3><p>状态转移矩阵，横向为起始状态，纵向为目标状态。只有candidate可以转化为两种状态，其他角色的下一状态都是必然的。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>leader</th>
+<th>follower</th>
+<th>candidate</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>leader</td>
+<td>-</td>
+<td>发现更高term的server</td>
+<td>-</td>
+</tr>
+<tr>
+<td>follower</td>
+<td>-</td>
+<td>-</td>
+<td>超时</td>
+</tr>
+<tr>
+<td>candidate</td>
+<td>majority vote</td>
+<td>发现更高term的server</td>
+<td>选举超时，下一轮还是candidate</td>
+</tr>
+</tbody></table>
+<p>实现复杂度上：leader &gt; candidate &gt; follower</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> ticker() &#123;<br>	<span class="hljs-keyword">for</span> rf.killed() == <span class="hljs-literal">false</span> &#123;<br>		rf.mu.Lock()<br>		role := rf.role <span class="hljs-comment">// 即使在锁外role发生多次变化，使用term作为逻辑时钟，raft可以避免落后的server发挥作用</span><br>		rf.mu.Unlock()<br><br>		<span class="hljs-keyword">if</span> role == ROLE_FOLLOWER &#123;<br>			rf.loopFollower()<br>		&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> role == ROLE_CANDIDATE &#123;<br>			rf.loopCandidate()<br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			rf.loopLeader()<br>		&#125;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="LoopFollower"><a href="#LoopFollower" class="headerlink" title="LoopFollower"></a>LoopFollower</h4><p>follower只有任期结束这一种角色转换的可能性，逻辑较为简单</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> loopFollower() &#123;<br>	rf.mu.Lock()<br>	rf.resetElectionTimeout()<br>	rf.mu.Unlock()<br><br>	timeoutChan := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-type">string</span>, <span class="hljs-number">1</span>)<br>	<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		<span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123; timeoutChan &lt;- <span class="hljs-string">&quot;x&quot;</span> &#125;()<br>		<span class="hljs-keyword">for</span> &#123;<br>			rf.mu.Lock() <span class="hljs-comment">// 加锁确保检查时间的时候没有vote正在进行</span><br>			<span class="hljs-keyword">if</span> time.Now().After(rf.electionDeadline) &#123;<br>				rf.mu.Unlock()<br>				<span class="hljs-keyword">return</span><br>			&#125;<br>			rf.mu.Unlock()<br>			time.Sleep(time.Millisecond * DEADLINE_CHECK_INTERVAL) <span class="hljs-comment">// golang的timer很容易错误使用，这里轮询</span><br>		&#125;<br>	&#125;()<br><br>	&lt;-timeoutChan <span class="hljs-comment">// 只有timeout导致角色变化一种可能性</span><br><br>	rf.mu.Lock()<br>	rf.Term++<br>  rf.role = ROLE_CANDIDATE <span class="hljs-comment">// role变更与相关的初始化在同一次加锁内完成</span><br>  rf.VotedFor = rf.me<br>	rf.persist() <span class="hljs-comment">// 一致修改persistent变量后记得做原子保存</span><br>	<br>	rf.mu.Unlock()<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>测试在kill之前会先断网，防止状态传播到其他server，然后将持久化状态拷贝一份用于将来重启server，最后调用<code>Kill()</code>杀死服务，persist提供的保存会持锁，与拷贝过程持锁冲突，这样提供了原子的持久化接口</p>
+<h4 id="LoopCandidate"><a href="#LoopCandidate" class="headerlink" title="LoopCandidate"></a>LoopCandidate</h4><p>包括loopLeader，采用的都是类似的模式，对每个out channel创建协程，加锁构造请求，避免在请求发送期间被修改；无锁发送请求；加锁处理请求，确保对自身状态修改的一致性</p>
+<p>Candidate需要同步地响应三种中断：作为RPC receiver引发的角色切换、任期超时、requestVote RPC被接受</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> loopCandidate() &#123;<br>	ackChan := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-type">string</span>, <span class="hljs-built_in">len</span>(rf.peers)) <span class="hljs-comment">// 存放requestVote的ack</span><br>	ackNum := <span class="hljs-number">1</span><br><br>	rf.mu.Lock()<br><br>	returnFunc := <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(term <span class="hljs-type">int</span>)</span></span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> <span class="hljs-type">bool</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> <span class="hljs-type">bool</span> &#123;<br>			<span class="hljs-keyword">return</span> rf.role != ROLE_CANDIDATE || rf.killed() || term != rf.Term<br>		&#125;<br>	&#125;(rf.Term)<br><br>	rf.resetElectionTimeout()<br>	rf.persist()<br><br>	<span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; <span class="hljs-built_in">len</span>(rf.peers); i++ &#123;<br>		<span class="hljs-keyword">if</span> i == rf.me &#123;<br>			<span class="hljs-keyword">continue</span><br>		&#125;<br><br>		<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(i <span class="hljs-type">int</span>)</span></span> &#123;<br>			<span class="hljs-keyword">for</span> &#123;<br>				rf.mu.Lock()<br><br>				<span class="hljs-keyword">if</span> returnFunc() &#123; <span class="hljs-comment">// 在合适的时机释放协程</span><br>					rf.mu.Unlock()<br>					<span class="hljs-keyword">return</span><br>				&#125;<br><br>				lastTerm, lastIndex := rf.getLatestTermAndIndex()<br>				req := &amp;RequestVoteArgs&#123;<br>					Term:         rf.Term,<br>					CandidateId:  rf.me,<br>					LastLogIndex: lastIndex,<br>					LastLogTerm:  lastTerm,<br>				&#125;<br>				rf.mu.Unlock()<br>				resp := RequestVoteReply&#123;&#125;<br><br>				sendSuccess := rf.retrySend(i, returnFunc, <span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>, req, &amp;resp, <span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>, <span class="hljs-number">1</span>) <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> returnFunc</span><br><br>				<span class="hljs-keyword">if</span> sendSuccess &#123;<br>					<span class="hljs-keyword">if</span> resp.VoteGranted &#123;<br>						ackChan &lt;- <span class="hljs-string">&quot;ok&quot;</span><br>					&#125; <span class="hljs-keyword">else</span> &#123;<br>						rf.mu.Lock()<br>						<span class="hljs-keyword">if</span> resp.Term &gt; rf.Term &#123;<br>							rf.Term = resp.Term<br>							rf.VotedFor = <span class="hljs-number">-1</span><br>							rf.persist()<br>							rf.role = ROLE_FOLLOWER<br>							<span class="hljs-keyword">select</span> &#123;<br>							<span class="hljs-keyword">case</span> rf.stateChangeNotifyChan &lt;- <span class="hljs-string">&quot;x&quot;</span>:<br>							<span class="hljs-keyword">default</span>:<br>							&#125;<br>						&#125;<br>						rf.mu.Unlock()<br>					&#125;<br>					<span class="hljs-keyword">break</span><br>				&#125; <span class="hljs-comment">// else continue next round</span><br>			&#125;<br><br>		&#125;(i)<br>	&#125;<br>	rf.mu.Unlock()<br><br>	timeoutChan := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> <span class="hljs-type">string</span>, <span class="hljs-number">1</span>)<br>	<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		<span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123; timeoutChan &lt;- <span class="hljs-string">&quot;x&quot;</span> &#125;()<br>		<span class="hljs-keyword">for</span> &#123;<br>			rf.mu.Lock() <span class="hljs-comment">// 加锁确保检查时间的时候没有vote正在进行</span><br>			<span class="hljs-keyword">if</span> time.Now().After(rf.electionDeadline) &#123;<br>				<span class="hljs-keyword">if</span> rf.role != ROLE_CANDIDATE &#123;<br>					rf.mu.Unlock()<br>					<span class="hljs-keyword">return</span><br>				&#125;<br>				rf.Term++<br>				rf.persist()<br>				rf.mu.Unlock()<br>				<span class="hljs-keyword">return</span><br>			&#125;<br>			rf.mu.Unlock()<br>			time.Sleep(time.Millisecond * DEADLINE_CHECK_INTERVAL)<br>		&#125;<br>	&#125;()<br><br>	<span class="hljs-comment">// 响应不同类型的中断</span><br>	<span class="hljs-keyword">for</span> &#123;<br>		<span class="hljs-keyword">select</span> &#123;<br>		<span class="hljs-keyword">case</span> &lt;-ackChan:<br>			ackNum++<br>			<span class="hljs-keyword">if</span> ackNum == rf.getQuorumSize() &#123;<br>				rf.mu.Lock()<br>				rf.logNoLock(<span class="hljs-string">&quot;got %d vote&quot;</span>, ackNum)<br>				<span class="hljs-keyword">if</span> rf.role != ROLE_CANDIDATE &#123;<br>					rf.mu.Unlock()<br>					<span class="hljs-keyword">return</span><br>				&#125;<br>				rf.role = ROLE_LEADER <span class="hljs-comment">// 直接进入下一个cycle，不需要响应stateChange</span><br>        <span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; <span class="hljs-built_in">len</span>(rf.peers); i++ &#123;<br>					rf.nextIndex[i] = rf.getLatestIndex() + <span class="hljs-number">1</span><br>				&#125;<br>				rf.mu.Unlock()<br>				<span class="hljs-keyword">return</span><br>			&#125;<br>		<span class="hljs-keyword">case</span> &lt;-timeoutChan:<br>			<span class="hljs-keyword">return</span><br>		<span class="hljs-keyword">case</span> &lt;-rf.stateChangeNotifyChan:<br>			<span class="hljs-keyword">return</span><br>		&#125;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="LoopLeader"><a href="#LoopLeader" class="headerlink" title="LoopLeader"></a>LoopLeader</h4><p>存放了Raft的主要逻辑（另一个主要部分是RPC处理），整体逻辑与LoopCandidate相似，需要注意的问题有：</p>
+<ol>
+<li>唯一需要响应的中断是来自更高Term RPC导致转换为follower</li>
+<li>上任后立即发送一个心跳，尽快向其他server宣告自己的地位，避免它们升到更高的term，导致系统再次进入无leader状态（也就不可用）<br>实际上应当发送一个空日志而非心跳，考虑某个当选的leader在当选时有commitIndex&#x3D;5，lastLogIndex&#x3D;6，而其他server均为commitIndex&#x3D;lastLogIndex&#x3D;6，上层状态机仅当被deliver index&#x3D;6的消息后，才会向raft server提交新的日志。在这种情况下，根据论文Figure 8，来自上一个term的消息通过counting majority提交时不安全的，此时这条消息永远不会deliver，系统无法前进，即不满足liveness property。发送当前任期的空日志可以解决这一问题。然而，在用例中提交自己创造的日志会引发错误，说明给出的测试用例是有缺陷的。这一问题最常在TestBasicAgreeUnreliable中触发，概率约0.2%。Lab4中在状态机级别会主动提交空日志解决此问题。</li>
+<li>论文给出的matchIndex变量我没有找到用途，我认为依赖nextIndex-1作为对方当前持有的日志位置是安全的。因为只要leader与其他server发生过success&#x3D;true的AppendEntries RPC交互，上面的命题为真。对于未发生交互的情况，使用初始化的值<code>rf.nextIndex[i] = rf.getLatestIndex() + 1</code>作为对方持有的日志位置进行判断是否已经发给majority，即使超过majority，也会由于日志非当前term而无法提交，除非之后有当前term的位置检测到majority，而这个位置一定又是发生过AppendEntries RPC交互的情况。</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> loopLeader() &#123;<br>	rf.mu.Lock()<br><br>	returnCond := <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(term <span class="hljs-type">int</span>)</span></span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> <span class="hljs-type">bool</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> <span class="hljs-type">bool</span> &#123;<br>			<span class="hljs-keyword">return</span> rf.role != ROLE_LEADER || rf.killed() || term != rf.Term<br>		&#125;<br>	&#125;(rf.Term)<br><br>	<span class="hljs-keyword">for</span> i := <span class="hljs-number">0</span>; i &lt; <span class="hljs-built_in">len</span>(rf.peers); i++ &#123;<br>		<span class="hljs-keyword">if</span> i == rf.me &#123;<br>			<span class="hljs-keyword">continue</span><br>		&#125;<br><br>		<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(i <span class="hljs-type">int</span>)</span></span> &#123;<br>			<span class="hljs-keyword">var</span> prevLogTerm <span class="hljs-type">int</span><br>			<span class="hljs-keyword">var</span> sendSuccess <span class="hljs-type">bool</span><br><br>			<span class="hljs-comment">// 立即发送心跳</span><br>			heartbeatTimeoutTimer := time.NewTimer(<span class="hljs-number">0</span>)<br><br>			<span class="hljs-keyword">for</span> &#123;<br>				<span class="hljs-keyword">select</span> &#123; <span class="hljs-comment">// 注意select的不同case间是没有优先级的</span><br>				<span class="hljs-keyword">case</span> &lt;-heartbeatTimeoutTimer.C:<br>				HTBT: <br>					<span class="hljs-comment">// 发送心跳的逻辑，下方介绍</span><br>				<span class="hljs-keyword">case</span> &lt;-rf.newDataNotifyChan[i]:<br>				MSG:<br>					<span class="hljs-comment">// 发送日志的逻辑，下方介绍</span><br>				<span class="hljs-keyword">case</span> &lt;-rf.installSnapshotChan[i]:<br>				SNAPSHOT:<br>					<span class="hljs-comment">// 向其他server发送snapshot的逻辑，下方介绍</span><br>				&#125;<br>			&#125;<br>		&#125;(i)<br>	&#125;<br>	rf.mu.Unlock()<br><br>	&lt;-rf.stateChangeNotifyChan<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="发送心跳"><a href="#发送心跳" class="headerlink" title="发送心跳"></a>发送心跳</h5><p>经典的加锁构造，无锁发送，加锁处理结构</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">var</span> req *AppendEntriesRequest<br>resp := AppendEntriesResponse&#123;&#125;<br>heartbeatTimeoutTimer.Reset(rf.getHeartbeatTimeout())<br>rf.mu.Lock()<br><span class="hljs-keyword">if</span> returnCond() &#123; <span class="hljs-comment">// note: 只靠ctx.Done()好像还不够……麻了</span><br>	rf.mu.Unlock()<br>	<span class="hljs-keyword">return</span><br>&#125;<br><span class="hljs-comment">// 如果有新数据，优先触发发送日志的handler</span><br><span class="hljs-keyword">if</span> rf.nextIndex[i] &lt;= rf.getLatestIndex() &#123;<br>	<span class="hljs-keyword">select</span> &#123;<br>	<span class="hljs-keyword">case</span> rf.newDataNotifyChan[i] &lt;- <span class="hljs-string">&quot;x&quot;</span>:<br>	<span class="hljs-keyword">default</span>:<br>	&#125;<br>	rf.mu.Unlock()<br>	<span class="hljs-keyword">continue</span><br>&#125;<br><br><span class="hljs-keyword">if</span> rf.nextIndex[i] &lt;= <span class="hljs-number">0</span> &#123;<br>	prevLogTerm = <span class="hljs-number">-1</span><br>&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> rf.nextIndex[i] &lt;= rf.RaftSnapshot.LastIncludedIndex &#123;<br>	<span class="hljs-comment">// 如果对方的nextIndex小于等于我的snapshot位置，优先触发installSnapshot的handler</span><br>	<span class="hljs-keyword">select</span> &#123;<br>	<span class="hljs-keyword">case</span> rf.installSnapshotChan[i] &lt;- <span class="hljs-string">&quot;x&quot;</span>:<br>	<span class="hljs-keyword">default</span>:<br>	&#125;<br>	rf.mu.Unlock()<br>	<span class="hljs-keyword">return</span><br>&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> rf.nextIndex[i] == rf.RaftSnapshot.LastIncludedIndex+<span class="hljs-number">1</span> &#123;<br>	prevLogTerm = rf.RaftSnapshot.LastIncludedTerm<br>&#125; <span class="hljs-keyword">else</span> &#123;<br>	prevLogTerm = rf.getLogByIndex(rf.nextIndex[i] - <span class="hljs-number">1</span>).Term <br>&#125;<br><br>req = &amp;AppendEntriesRequest&#123;<br>	Msgs:         <span class="hljs-literal">nil</span>,<br>	Term:         rf.Term,<br>	LeaderId:     rf.me,<br>	PrevLogIndex: rf.nextIndex[i] - <span class="hljs-number">1</span>,<br>	PrevLogTerm:  prevLogTerm,<br>	LeaderCommit: rf.commitIndex,<br>&#125;<br>rf.mu.Unlock()<br><br><span class="hljs-comment">// 把所有的rpc发送与接收实现在一个函数中了，最初的设计是支持重试，也就是最后一个参数，但loopLeader的循环本身就是重试，于是重试次数都填1</span><br><span class="hljs-keyword">if</span> !rf.retrySend(i, returnCond, req, &amp;resp, <span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>, <span class="hljs-number">1</span>) &#123;<br>	<span class="hljs-keyword">continue</span><br>&#125;<br><br>rf.mu.Lock()<br><span class="hljs-keyword">if</span> returnCond() &#123;<br>	rf.mu.Unlock()<br>	<span class="hljs-keyword">return</span><br>&#125;<br><br><span class="hljs-keyword">if</span> resp.Success &#123;<br>	rf.mu.Unlock()<br>	<span class="hljs-keyword">continue</span><br>&#125;<br><br><span class="hljs-keyword">if</span> resp.Term &gt; rf.Term &#123;<br>	rf.Term = resp.Term<br>	rf.role = ROLE_FOLLOWER<br>	rf.stateChangeNotifyChan &lt;- <span class="hljs-string">&quot;x&quot;</span><br>	rf.VotedFor = <span class="hljs-number">-1</span><br>	rf.persist()<br>	rf.mu.Unlock()<br>	<span class="hljs-keyword">return</span><br>&#125; <span class="hljs-keyword">else</span> &#123;<br>  <span class="hljs-comment">// nextIndex估计错误，回退</span><br>	<span class="hljs-keyword">if</span> rf.adjustNextIndex(i, req.PrevLogIndex, resp.ConflictTerm, resp.ConflictIndex) &#123;<br>		rf.mu.Unlock()<br>		<span class="hljs-keyword">goto</span> HTBT <span class="hljs-comment">// 不等待，立即发送下一次心跳，继续调整nextIndex直到正确</span><br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		rf.mu.Unlock()<br>		<span class="hljs-keyword">continue</span><br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="调整nextIndex"><a href="#调整nextIndex" class="headerlink" title="调整nextIndex"></a>调整nextIndex</h5><p>在测试<code>TestFigure8Unreliable2C</code>中，会产生要求大量回退的场景，且网络是unreliable的，意味着单次回退一个index太慢。这里使用[5]中提供的回退策略加速回退。</p>
+<p>follower</p>
+<ol>
+<li>如果follower在发送的prevIndex位置没有日志，那么<code>(conflictTerm=-1, conflictIndex=indexOfLastLog+1)</code></li>
+<li>如果follower在prevIndex位置有日志，但冲突（term不同，一定是小于），conflictTerm&#x3D;prevIndex位置日志entry的term，conflictIndex&#x3D;第一条term为此term的index</li>
+</ol>
+<p>leader</p>
+<ol>
+<li>如果conflictTerm&#x3D;-1，回退到conflictIndex</li>
+<li>如果有term&#x3D;conflictTerm的日志，回退到最后一条这样日志的下一条日志</li>
+<li>否则仍然回退到conflictIndex</li>
+</ol>
+<p>分析安全性：<br>回退不足会导致效率下降（在网络环境差时加剧），回退过度要么导致发送installSnapshot，要么导致发送一些冗余日志（由于appendEntries是批量发送，RPC次数是一样的），不会有安全性问题</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> adjustNextIndex(i <span class="hljs-type">int</span>, prevLogIndex <span class="hljs-type">int</span>, conflictTerm <span class="hljs-type">int</span>, conflictIndex <span class="hljs-type">int</span>) <span class="hljs-type">bool</span> &#123;<br>	<span class="hljs-comment">// 发送请求期间自身进行过日志裁剪，导致发送的prevIndex处的日志已经不在了，触发installSnapshot handler</span><br>	<span class="hljs-keyword">if</span> prevLogIndex &lt;= rf.RaftSnapshot.LastIncludedIndex &#123;<br>		rf.logNoLock(<span class="hljs-string">&quot;prevLogIndex %d not in log, impossible to go back, notify install snapshot for %d&quot;</span>, prevLogIndex, i)<br>		<span class="hljs-keyword">select</span> &#123;<br>		<span class="hljs-keyword">case</span> rf.installSnapshotChan[i] &lt;- <span class="hljs-string">&quot;x&quot;</span>:<br>		<span class="hljs-keyword">default</span>:<br>		&#125;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span><br>	&#125;<br><br>	<span class="hljs-keyword">if</span> conflictTerm == <span class="hljs-number">-1</span> &#123;<br>		rf.nextIndex[i] = conflictIndex<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		conflictTermIndex := <span class="hljs-number">-1</span><br><br>		<span class="hljs-keyword">for</span> j := rf.Log.getLocalIndex(prevLogIndex); j &gt;= <span class="hljs-number">1</span>; j-- &#123;<br>			<span class="hljs-comment">// note: 考虑日志leader 1122333，follower 112222，发送最后两个33，返回conflictTerm=2，回到最后一个2的后一个位置作为nextIndex发送</span><br>			<span class="hljs-keyword">if</span> rf.Log[j<span class="hljs-number">-1</span>].Term == conflictTerm &#123;<br>				conflictTermIndex = j<br>				<span class="hljs-keyword">break</span><br>			&#125;<br>			<span class="hljs-keyword">if</span> rf.Log[j<span class="hljs-number">-1</span>].Term &lt; conflictTerm &#123;<br>				<span class="hljs-keyword">break</span><br>			&#125;<br>		&#125;<br>		<span class="hljs-keyword">if</span> conflictTermIndex == <span class="hljs-number">-1</span> &#123;<br>			<span class="hljs-comment">// note: 考虑日志leader 113333，follower 1122，发送最后两个33，conflictTerm=2 conflictIndex=无法在leader日志找到，那么按照conflictIndex=2来</span><br>			<span class="hljs-comment">//  follower视角：冲突点在第二个2，找到第一个2作为conflictIndex返回，即leader视角的第一个3位置</span><br>			rf.nextIndex[i] = conflictIndex<br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			rf.nextIndex[i] = rf.Log[conflictTermIndex].Index<br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 触发发送日志handler</span><br>	<span class="hljs-keyword">select</span> &#123;<br>	<span class="hljs-keyword">case</span> rf.newDataNotifyChan[i] &lt;- <span class="hljs-string">&quot;x&quot;</span>:<br>	<span class="hljs-keyword">default</span>:<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="发送日志"><a href="#发送日志" class="headerlink" title="发送日志"></a>发送日志</h5><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">var</span> req *AppendEntriesRequest<br>resp := AppendEntriesResponse&#123;&#125;<br><br>heartbeatTimeoutTimer.Reset(rf.getHeartbeatTimeout())<br><br>rf.mu.Lock()<br><span class="hljs-keyword">if</span> returnCond() &#123;<br>	rf.mu.Unlock()<br>	<span class="hljs-keyword">return</span><br>&#125;<br><br><span class="hljs-keyword">if</span> rf.nextIndex[i] &gt; rf.getLatestIndex() &#123;<br>	rf.mu.Unlock()<br>	<span class="hljs-keyword">continue</span><br>&#125;<br><br><span class="hljs-keyword">if</span> rf.nextIndex[i] &lt;= rf.RaftSnapshot.LastIncludedIndex &#123;<br>	<span class="hljs-keyword">select</span> &#123;<br>	<span class="hljs-keyword">case</span> rf.installSnapshotChan[i] &lt;- <span class="hljs-string">&quot;x&quot;</span>:<br>	<span class="hljs-keyword">default</span>:<br>	&#125;<br>	rf.mu.Unlock()<br>	<span class="hljs-keyword">continue</span><br>&#125;<br><br><span class="hljs-keyword">if</span> rf.nextIndex[i] &lt;= <span class="hljs-number">0</span> &#123;<br>	prevLogTerm = <span class="hljs-number">-1</span><br>&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> rf.nextIndex[i] &lt;= rf.RaftSnapshot.LastIncludedIndex &#123;<br>	<span class="hljs-keyword">select</span> &#123;<br>	<span class="hljs-keyword">case</span> rf.installSnapshotChan[i] &lt;- <span class="hljs-string">&quot;x&quot;</span>:<br>	<span class="hljs-keyword">default</span>:<br>	&#125;<br>	rf.mu.Unlock()<br>	<span class="hljs-keyword">return</span><br>&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> rf.nextIndex[i] == rf.RaftSnapshot.LastIncludedIndex+<span class="hljs-number">1</span> &#123;<br>	prevLogTerm = rf.RaftSnapshot.LastIncludedTerm<br>&#125; <span class="hljs-keyword">else</span> &#123;<br>	prevLogTerm = rf.Log.getByIndex(rf.nextIndex[i] - <span class="hljs-number">1</span>).Term<br>&#125;<br><br><span class="hljs-comment">// 考虑发送过程中接收到更高term的appendEntries请求，对日志进行了覆盖，那么请求参数会被改变，因此需要复制一份</span><br>logCp := <span class="hljs-built_in">make</span>([]LogEntry, <span class="hljs-number">0</span>)<br><span class="hljs-keyword">for</span> _, log := <span class="hljs-keyword">range</span> rf.Log &#123;<br>	logCp = <span class="hljs-built_in">append</span>(logCp, LogEntry&#123;<br>		Log:   log.Log,<br>		Term:  log.Term,<br>		Index: log.Index,<br>	&#125;)<br>&#125;<br>req = &amp;AppendEntriesRequest&#123;<br>	Msgs:         logCp[rf.Log.getLocalIndex(rf.nextIndex[i]):],<br>	Term:         rf.Term,<br>	LeaderId:     rf.me,<br>	PrevLogIndex: rf.nextIndex[i] - <span class="hljs-number">1</span>,<br>	PrevLogTerm:  prevLogTerm,<br>	LeaderCommit: rf.commitIndex,<br>&#125;<br>rf.mu.Unlock()<br><br><span class="hljs-keyword">if</span> !rf.retrySend(i, returnCond, req, &amp;resp, <span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>, <span class="hljs-number">1</span>) &#123;<br>	<span class="hljs-keyword">goto</span> MSG <span class="hljs-comment">// 重试</span><br>&#125;<br><br>rf.mu.Lock()<br><span class="hljs-keyword">if</span> returnCond() &#123;<br>	rf.mu.Unlock()<br>	<span class="hljs-keyword">return</span><br>&#125;<br><span class="hljs-keyword">if</span> resp.Success &#123;<br>	forward := <span class="hljs-built_in">len</span>(req.Msgs)<br>	rf.nextIndex[i] += forward<br>	rf.tryCommit(i, rf.nextIndex[i]-forward) <span class="hljs-comment">// 从nextIndex-消息长度的位置开始检查commit条件是否满足</span><br>	rf.mu.Unlock()<br>	<span class="hljs-keyword">goto</span> MSG <span class="hljs-comment">// 确认是否有更多消息，没有消息才等待心跳包超时</span><br>&#125;<br><br><span class="hljs-keyword">if</span> resp.Term &gt; rf.Term &#123;<br>	rf.Term = resp.Term<br>	rf.persist()<br>	rf.role = ROLE_FOLLOWER<br>	<span class="hljs-keyword">select</span> &#123;<br>	<span class="hljs-keyword">case</span> rf.stateChangeNotifyChan &lt;- <span class="hljs-string">&quot;x&quot;</span>:<br>	<span class="hljs-keyword">default</span>:<br>	&#125;<br>	rf.mu.Unlock()<br>	<span class="hljs-keyword">return</span><br>&#125;<br><br><span class="hljs-keyword">if</span> rf.adjustNextIndex(i, req.PrevLogIndex, resp.ConflictTerm, resp.ConflictIndex) &#123;<br>	rf.mu.Unlock()<br>	<span class="hljs-keyword">goto</span> MSG<br>&#125; <span class="hljs-keyword">else</span> &#123;<br>	rf.mu.Unlock()<br>	<span class="hljs-keyword">continue</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="更新提交位置"><a href="#更新提交位置" class="headerlink" title="更新提交位置"></a>更新提交位置</h5><p>从successStartIndex到当前日志位置检查是否可以提交，一旦有日志不符合提交条件，后续日志也无检查必要。commit只是逻辑上的标志，有专门的日志提交协程。</p>
+<p>这里解释一下论文figure 8：不允许通过replicate仅含之前term的日志到majority来判定其committed<br>考虑5台server的raft cluster<br>term 2：server 1是leader，replicate msg2到server 1(leader), server2(follower)后挂掉。<br>term 3：server 5当选为leader（因为有三台没有收到msg2的server），自己append一条日志后挂掉。<br>term 4：server1复活，选举为leader，server1根据心跳获知server 3没有msg2这条日志，通过AppendEntires发送，根据心跳获知server1有这条日志，此时根据AppendEntries的成功返回（success&#x3D;true），term 3 leader获知已经replicate到majority，但不能commit，下面会看到msg2如何被覆盖。假设server1在term4仅仅发送一条msg2给server3后就挂掉<br>term 5：server5当选leader（根据论文中RequestVote RPC中的as up-to-date比较log新旧顺序，server5比server2&#x2F;3&#x2F;4更新，因此能够收到来自majority的投票），收到心跳包回复，回退日志，发送AppendEntries RPC，会对之前的msg2进行覆盖，这就是不允许通过replicate仅含之前term的日志到majority来判定其committed的原因。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> tryCommit(i <span class="hljs-type">int</span>, successStartIndex <span class="hljs-type">int</span>) &#123;<br>	<span class="hljs-keyword">for</span> current := successStartIndex; current &lt; rf.nextIndex[i]; current++ &#123;<br>		ackNum := <span class="hljs-number">1</span><br>		<span class="hljs-keyword">for</span> j := <span class="hljs-number">0</span>; j &lt; <span class="hljs-built_in">len</span>(rf.peers); j++ &#123;<br>			<span class="hljs-keyword">if</span> j == rf.me &#123;<br>				<span class="hljs-keyword">continue</span><br>			&#125;<br><br>			<span class="hljs-keyword">if</span> rf.nextIndex[j] &gt; current &#123;<br>				ackNum++<br>			&#125;<br>		&#125;<br><br>		<span class="hljs-comment">// 最后的rf.commitIndex &lt; current属于assert性质，没有来得及验证是否可以删除</span><br>		<span class="hljs-keyword">if</span> ackNum &gt;= rf.getQuorumSize() &amp;&amp; current &gt; rf.RaftSnapshot.LastIncludedIndex &amp;&amp; rf.Log.getByIndex(current).Term == rf.Term &amp;&amp; rf.commitIndex &lt; current &#123; <br>			rf.commitIndex = current<br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			<span class="hljs-keyword">break</span><br>		&#125;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="发送snapshot"><a href="#发送snapshot" class="headerlink" title="发送snapshot"></a>发送snapshot</h5><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">var</span> req *InstallSnapshotRequest<br>resp := InstallSnapshotResponse&#123;&#125;<br><br>rf.mu.Lock()<br><span class="hljs-keyword">if</span> returnCond() &#123;<br>	rf.mu.Unlock()<br>	<span class="hljs-keyword">return</span><br>&#125;<br><br><span class="hljs-comment">// note: 不应该发最新的，而是应该发自己的snapshot，snapshot确保commit</span><br>req = &amp;InstallSnapshotRequest&#123;<br>	Term:              rf.Term,<br>	LeaderId:          rf.me,<br>	RaftSnapshot:      rf.RaftSnapshot,<br>	StateMachineState: rf.persister.ReadSnapshot(),<br>&#125;<br>rf.mu.Unlock()<br><br><span class="hljs-keyword">if</span> !rf.retrySend(i, returnCond, <span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>, req, &amp;resp, <span class="hljs-number">1</span>) &#123;<br>	<span class="hljs-keyword">goto</span> SNAPSHOT<br>&#125;<br><br>rf.mu.Lock()<br><span class="hljs-keyword">if</span> returnCond() &#123;<br>	rf.mu.Unlock()<br>	<span class="hljs-keyword">return</span><br>&#125;<br><br><span class="hljs-keyword">if</span> resp.Term &gt; rf.Term &#123;<br>	rf.Term = resp.Term<br>	rf.persist()<br>	rf.role = ROLE_FOLLOWER<br>	<span class="hljs-keyword">select</span> &#123;<br>	<span class="hljs-keyword">case</span> rf.stateChangeNotifyChan &lt;- <span class="hljs-string">&quot;x&quot;</span>:<br>	<span class="hljs-keyword">default</span>:<br>	&#125;<br>	rf.mu.Unlock()<br>	<span class="hljs-keyword">return</span><br>&#125; <span class="hljs-keyword">else</span> &#123;<br>	<span class="hljs-comment">// 如果nextIndex有进展的话</span><br>	<span class="hljs-keyword">if</span> req.LastIncludedIndex+<span class="hljs-number">1</span> &gt; rf.nextIndex[i] &#123;<br>		oldNextId := rf.nextIndex[i]<br>		rf.nextIndex[i] = req.LastIncludedIndex + <span class="hljs-number">1</span><br>		rf.tryCommit(i, oldNextId)<br>	&#125;<br>&#125;<br><br>rf.mu.Unlock()<br></code></pre></td></tr></table></figure>
+
+<h4 id="RequestVote-RPC"><a href="#RequestVote-RPC" class="headerlink" title="RequestVote RPC"></a>RequestVote RPC</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> RequestVote(request *RequestVoteArgs, response *RequestVoteReply) &#123;<br>	rf.mu.Lock()<br>	<span class="hljs-keyword">defer</span> rf.mu.Unlock()<br>	<span class="hljs-keyword">defer</span> rf.persist()<br><br>	<span class="hljs-keyword">if</span> rf.Term &gt; request.Term &#123;<br>		rf.rejectVote(request, response)<br>		<span class="hljs-keyword">return</span><br>	&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> rf.Term &lt; request.Term &#123;<br>		rf.Term = request.Term<br>		rf.VotedFor = <span class="hljs-number">-1</span> <span class="hljs-comment">// 转为follower不意味着一定投票给对方，可能自己的log更up to date</span><br>		rf.role = ROLE_FOLLOWER<br>		<span class="hljs-keyword">select</span> &#123;<br>		<span class="hljs-keyword">case</span> rf.stateChangeNotifyChan &lt;- <span class="hljs-string">&quot;x&quot;</span>:<br>		<span class="hljs-keyword">default</span>:<br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 只有没有投过票，或者已经投给过request.Candidate的server可能会accept</span><br>	<span class="hljs-keyword">if</span> rf.VotedFor != <span class="hljs-number">-1</span> &amp;&amp; rf.VotedFor != request.CandidateId &#123;<br>		rf.logNoLock(<span class="hljs-string">&quot;reject because self.votedFor %d != request.candidateId %d&quot;</span>,<br>			rf.VotedFor, request.CandidateId)<br>		rf.rejectVote(request, response)<br>    <span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// vote only if peer is at least as up to date as self</span><br>	lastTerm, lastIndex := rf.getLatestTermAndIndex()<br>	<span class="hljs-keyword">if</span> request.LastLogTerm &gt; lastTerm || (request.LastLogTerm == lastTerm &amp;&amp; request.LastLogIndex &gt;= lastIndex) &#123;<br>		rf.VotedFor = request.CandidateId<br>		rf.resetElectionTimeout() <span class="hljs-comment">// Figure 2中follower的两种刷新timeout条件之一</span><br>		rf.acceptVote(request, response)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	rf.rejectVote(request, response)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="AppendEntries-RPC"><a href="#AppendEntries-RPC" class="headerlink" title="AppendEntries RPC"></a>AppendEntries RPC</h4><p>某条日志的commit最早可以发生在majority中最后一台server将此日志持久化后的那一刻，但显然leader直到这条（或者随后的RPC）消息返回才能够观测到这个事件</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> AppendEntries(request *AppendEntriesRequest, response *AppendEntriesResponse) &#123;<br>	rf.mu.Lock()<br>	<span class="hljs-keyword">defer</span> rf.mu.Unlock()<br>	<span class="hljs-keyword">defer</span> rf.persist()<br><br>	<span class="hljs-comment">// 检查Term与Role</span><br>	<span class="hljs-keyword">if</span> !rf.checkTermAndRole(request.Term, request.LeaderId) &#123;<br>		rf.logNoLock(<span class="hljs-string">&quot;%s because term&quot;</span>, textRed(<span class="hljs-string">&quot;reject&quot;</span>))<br>		rf.rejectAppendEntries(request, response)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 切除append msg已经在当前server snapshot中的部分，如果Msg不为nil（不是心跳包）且发送的消息全部在snapshot中，立即返回</span><br>	<span class="hljs-keyword">if</span> request.Msgs != <span class="hljs-literal">nil</span> &#123;<br>		firstNonSnapshotIndexInMsg := <span class="hljs-number">0</span><br>		<span class="hljs-keyword">for</span> ; firstNonSnapshotIndexInMsg &lt; <span class="hljs-built_in">len</span>(request.Msgs); firstNonSnapshotIndexInMsg++ &#123;<br>			<span class="hljs-keyword">if</span> request.Msgs[firstNonSnapshotIndexInMsg].Index &gt; rf.RaftSnapshot.LastIncludedIndex &#123;<br>				<span class="hljs-keyword">break</span><br>			&#125;<br>		&#125;<br>		request.Msgs = request.Msgs[firstNonSnapshotIndexInMsg:]<br><br>		<span class="hljs-comment">// 如果长度变短了，那么一定有小于等于snapshot的部分，修改request.PrevLog[Term/Index]使得prevIndex一定与Msg[0].Index能够连起来</span><br>		<span class="hljs-keyword">if</span> firstNonSnapshotIndexInMsg != <span class="hljs-number">0</span> &#123;<br>			request.PrevLogTerm = rf.RaftSnapshot.LastIncludedTerm<br>			request.PrevLogIndex = rf.RaftSnapshot.LastIncludedIndex<br>		&#125;<br><br>		<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(request.Msgs) == <span class="hljs-number">0</span> &#123;<br>			rf.acceptAppendEntries(request, response)<br>			<span class="hljs-keyword">return</span><br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">// 确保PrevLogIndex不新于当前最新日志，即不存在日志Index不连续的情况，否则根据前文介绍的回退规则回退</span><br>	_, lastIndex := rf.getLatestTermAndIndex()<br>	<span class="hljs-keyword">if</span> lastIndex &lt; request.PrevLogIndex &#123;<br>		rf.logNoLock(<span class="hljs-string">&quot;reject entry because not containing Log at prevLogIndex %d, current Log max index %d&quot;</span>, request.PrevLogIndex, lastIndex)<br>		response.ConflictTerm = <span class="hljs-number">-1</span><br>		response.ConflictIndex = lastIndex + <span class="hljs-number">1</span> <span class="hljs-comment">// 回退到自己持有的最新日志位置</span><br>		rf.rejectAppendEntries(request, response)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	localIndexForLogAtPrevIndex, logAtPrevIndex := rf.getLogAndLocalIndexByIndex(request.PrevLogIndex) <br><br>	<span class="hljs-comment">// PrevLogIndex在当前状态中已经存在，但Term不一致，回退。Append被accept后，需要保证与leader在Append的最后一个日志entry以及之前都是一致的</span><br>	<span class="hljs-keyword">if</span> request.PrevLogTerm &gt;= <span class="hljs-number">0</span> &amp;&amp; request.PrevLogIndex &gt; rf.RaftSnapshot.LastIncludedIndex &amp;&amp; logAtPrevIndex.Term != request.PrevLogTerm &#123;<br>		<span class="hljs-comment">// 回退到自身日志中，term等于在prevIndex处自身log的term的第一条日志的位置，这样的位置一定存在</span><br>		response.ConflictTerm = logAtPrevIndex.Term<br>		i := localIndexForLogAtPrevIndex<br>		<span class="hljs-keyword">for</span> &#123;<br>			<span class="hljs-keyword">if</span> i == <span class="hljs-number">0</span> || rf.Log[i<span class="hljs-number">-1</span>].Term != response.ConflictTerm &#123;<br>				response.ConflictIndex = i <span class="hljs-comment">// first index whose entry has term equal to conflictTerm.</span><br>				<span class="hljs-keyword">break</span><br>			&#125;<br>			i--<br>		&#125;<br>		rf.rejectAppendEntries(request, response)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// 所有检查通过，必定accept</span><br>	rf.acceptAppendEntries(request, response)<br><br>	i := localIndexForLogAtPrevIndex + <span class="hljs-number">1</span> <span class="hljs-comment">// prev后的第一个local位置，local index即自身Log数组中log entry的下标</span><br>	j := <span class="hljs-number">0</span><br>	hasConflict := <span class="hljs-literal">false</span><br>	<span class="hljs-keyword">for</span> ; i &lt; <span class="hljs-built_in">len</span>(rf.Log) &amp;&amp; j &lt; <span class="hljs-built_in">len</span>(request.Msgs); i++ &#123;<br>		<span class="hljs-keyword">if</span> rf.Log[i].Term != request.Msgs[j].Term &#123; <span class="hljs-comment">// figure 2中conflict的定义</span><br>			hasConflict = <span class="hljs-literal">true</span><br>		&#125;<br>		<span class="hljs-comment">// 用Msg中的日志覆盖本地日志</span><br>		rf.logNoLock(<span class="hljs-string">&quot;overwrite %d with %d&quot;</span>, rf.Log[i].Index, request.Msgs[j])<br>		rf.Log[i] = request.Msgs[j]<br>		j++<br>	&#125;<br><br>	<span class="hljs-comment">// 如果来自覆盖本地日志后还有多，那么还需要append超出的部分；否则，如果发生了覆盖（存在conflict，定义见figure 2），本地日志需要裁剪至request.Msg中最后一条日志的位置，如果未conflict，那么什么都不需要做</span><br>	<span class="hljs-keyword">if</span> j &lt; <span class="hljs-built_in">len</span>(request.Msgs) &#123;<br>		rf.Log = <span class="hljs-built_in">append</span>(rf.Log, request.Msgs[j:]...)<br>	&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> hasConflict &#123;<br>		rf.Log = rf.Log[:i]<br>	&#125;<br><br>	<span class="hljs-comment">// 根据leader的commit位置尝试更新自身commit位置，在leader会过滤figure 8的情况（不允许通过replicate仅含之前term的日志到majority来判定其committed），这里只是follower leader的commit位置，不需要判断它</span><br>	_, lastIndex = rf.getLatestTermAndIndex()<br>	<span class="hljs-keyword">if</span> request.LeaderCommit &gt; rf.commitIndex &#123;<br>		oldCommitIndex := rf.commitIndex<br>		<span class="hljs-keyword">var</span> newCommitIndex <span class="hljs-type">int</span><br>		<span class="hljs-keyword">if</span> request.LeaderCommit &gt; lastIndex &#123;<br>			newCommitIndex = lastIndex<br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			newCommitIndex = request.LeaderCommit<br>		&#125;<br><br>		<span class="hljs-keyword">if</span> newCommitIndex &gt; oldCommitIndex &#123;<br>			rf.commitIndex = newCommitIndex<br>		&#125;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="异步提交、故障恢复、快照与持久化"><a href="#异步提交、故障恢复、快照与持久化" class="headerlink" title="异步提交、故障恢复、快照与持久化"></a>异步提交、故障恢复、快照与持久化</h4><ul>
+<li>持久化：对任何持久变量的修改，如果修改后的状态是一致的，那么需要进行一次保存。</li>
+<li>快照：如果没有快照，commitIndex按照figure 2中初始化为0，日志是持久化的，那么每次故障恢复都会从第一条日志开始重现历史，因此需要有快照，通过快照获得初始状态，通过重现少量历史回到故障发生前的持久化状态。快照内容包含状态机状态与raft状态，状态机状态与应用相关，raft状态包含<code>LastIncludedTerm</code>和<code>LastIncludedIndex</code>两个变量，显然都需要是持久化的</li>
+</ul>
+<p>关于异步提交这块，applyCh改成有缓冲channel可以解决暂时的日志提交与日志消费速度不匹配的问题（仅仅是暂时），仍然不能避免加锁提交导致的死锁问题。下方仅对当前的无缓冲applyCh实现进行分析。</p>
+<ul>
+<li><p>不要加锁提交：考虑状态机拿到一条日志执行后，判断需要进行snapshot，尝试获得锁（raft有多个持久化状态，为保证snapshot期间读到一致的状态，需要加锁），与此同时，raft server持有锁去提交日志，由于applyCh无缓冲（或者可以看成缓冲区满），产生了死锁状态<br>TODO：如果只有一个持久化状态，就可以不加锁了吗？</p>
+</li>
+<li><p>快照过程：由状态机触发，目的是基于某个commitIndex，收集一个raft与状态机间的一致状态。<br>实际上对于raft的持久化状态，term和voteFor都可能根据新term的产生而改变，似乎只要log，或者snapshot位置（LastIncludedTerm、LastIncludedIndex）不低于状态机传来的commitIndex，就算是一致的</p>
+</li>
+<li><p>同步&#x2F;异步提交：同步提交的问题在于状态机消费与raft提交的速度不一定一致</p>
+</li>
+<li><p>发送快照：首先leader无论何时拥有最新日志，因此这个RPC的方向一定是从leader到其他角色。一旦leader发现其他server的日志比自己的snapshot还落后，由于snapshot会裁剪日志，此时已经无法用AppendEntries RPC来使其追赶，而是通过发送快照实现。需要同时发送raft与状态机的快照。可以看出，上层快照也需要传递给raft server，尽管不需要理解含义。快照可以是异步的（如果在我的实现中使用同步提交snapshot请求给状态机会导致死锁）。</p>
+</li>
+<li><p>接受快照(installSnapshot)过程：leader发送installSnapshot RPC到follower，follower异步发送installSnapshot消息给状态机，状态机调用CondInstallSnapshot确保发来的snapshot比当前状态更新（通过与lastApplied比较）后，raft apply此snapshot，状态机apply此snapshot</p>
+</li>
+<li><p>故障恢复：raft层的故障恢复通过每次持久化状态之间一致时进行持久化来实现，但commitIndex和lastApplied不是持久化的，在恢复后初始化为snapshot的位置，即会从snapshot开始重新向上层提交此后的日志。上层的持久化依赖snapshot时传给raft的状态实现。<br>总结一下：状态机的状态会因故障回退，raft的日志在确认提交后不会回退，因此可以通过重放还原故障前的状态机状态</p>
+<ul>
+<li>什么时候一条日志可以看做提交：前面提到，commitIndex不是持久化的，所以commitIndex的移动不能视作提交。当当前term日志replicate到majority时，并且这些日志被majority server持久化后，尽管没有持久化的变量去标记，但是，由于这些日志不可能被覆盖（不含此日志的server无法成为更高term的leader），也不会丢失（已经在majority持久化），那么在同步(synchronous)或部分同步(partial synchronous)系统中（也许还加上crash-recover模型的条件？），这条日志会最终deliver给状态机，因此可以看做被提交。</li>
+</ul>
+</li>
+</ul>
+<p>可以看到，我们需要一个不加锁、异步的日志提交。这块的代码参考了[2]</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> applier() &#123;<br>	<span class="hljs-keyword">for</span> rf.killed() == <span class="hljs-literal">false</span> &#123;<br>		rf.mu.Lock()<br>		<span class="hljs-comment">// if there is no need to apply entries, just release CPU and wait other goroutine&#x27;s signal if they commit new entries</span><br>		<span class="hljs-keyword">if</span> rf.lastApplied &gt;= rf.commitIndex &#123;<br>			rf.mu.Unlock()<br>			time.Sleep(time.Millisecond * <span class="hljs-number">20</span>)<br>			<span class="hljs-keyword">continue</span><br>		&#125;<br>		lastAppliedLogIndex, _ := rf.getLogAndLocalIndexByIndex(rf.lastApplied)<br>		commitLogIndex, _ := rf.getLogAndLocalIndexByIndex(rf.commitIndex)<br><br>		commitIndex, lastApplied := rf.commitIndex, rf.lastApplied<br>		entries := <span class="hljs-built_in">make</span>([]LogEntry, commitIndex-lastApplied)<br>		<span class="hljs-built_in">copy</span>(entries, rf.Log[lastAppliedLogIndex+<span class="hljs-number">1</span>:commitLogIndex+<span class="hljs-number">1</span>])<br>		rf.mu.Unlock()<br><br>		<span class="hljs-keyword">for</span> _, entry := <span class="hljs-keyword">range</span> entries &#123;<br>			rf.applyCh &lt;- ApplyMsg&#123;<br>				CommandValid: <span class="hljs-literal">true</span>, <span class="hljs-comment">// 这里提上去调的是Snapshot</span><br>				Command:      entry.Log,<br>				CommandIndex: entry.Index + <span class="hljs-number">1</span>,<br>			&#125;<br>		&#125; <span class="hljs-comment">// apply后callback</span><br><br>		rf.mu.Lock()<br>		<span class="hljs-comment">// 注意rf.commitIndex可能会变化，使用提交前加锁记录的commitIndex</span><br>		<span class="hljs-comment">// 加锁进入前可能CondInstall被调用导致lastApplied前进，这里如果不判断更新会导致此变量后退</span><br>		<span class="hljs-keyword">if</span> commitIndex &gt; rf.lastApplied &#123;<br>			rf.lastApplied = commitIndex <br>		&#125;<br>		rf.mu.Unlock()<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="Snapshot相关"><a href="#Snapshot相关" class="headerlink" title="Snapshot相关"></a>Snapshot相关</h4><p>由状态机触发</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> Snapshot(index <span class="hljs-type">int</span>, snapshot []<span class="hljs-type">byte</span>) &#123;<br>	rf.mu.Lock()<br>	<span class="hljs-keyword">defer</span> rf.mu.Unlock()<br><br>	index--<br><br>	<span class="hljs-comment">// note: 因为还可能从其他人那里install</span><br>	<span class="hljs-keyword">if</span> index &lt;= rf.RaftSnapshot.LastIncludedIndex &#123;<br>		rf.logNoLock(<span class="hljs-string">&quot;end snapshot creating because outdated index %d, current snapshot %d&quot;</span>, index, rf.RaftSnapshot.LastIncludedIndex)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// index大于超过快照，这条日志一定存在</span><br>	<span class="hljs-keyword">var</span> persistentRaftState *RaftSnapshot<br>	<span class="hljs-keyword">for</span> _, log := <span class="hljs-keyword">range</span> rf.Log &#123;<br>		<span class="hljs-keyword">if</span> log.Index == index &#123;<br>			persistentRaftState = &amp;RaftSnapshot&#123;<br>				LastIncludedTerm:  log.Term,<br>				LastIncludedIndex: log.Index,<br>			&#125;<br>		&#125;<br>	&#125;<br><br>	rf.RaftSnapshot = *persistentRaftState<br>	<span class="hljs-keyword">if</span> rf.LastIncludedIndex &gt; rf.lastApplied &#123;<br>		rf.lastApplied = rf.LastIncludedIndex <span class="hljs-comment">// applier deliver日志与更新lastApplied间不是原子的（未加锁），此外唯一可能修改的位置就是这里</span><br>	&#125;<br><br>	rf.trimLog(index) <span class="hljs-comment">// 清理日志数组，直到其至少从index+1的位置开始</span><br>	rf.persister.SaveStateAndSnapshot(rf.serialize(), snapshot)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="InstallSnapshot-RPC相关"><a href="#InstallSnapshot-RPC相关" class="headerlink" title="InstallSnapshot RPC相关"></a>InstallSnapshot RPC相关</h4><p>与日志提交同理，installSnapshot向状态机的提交也需要是无锁、异步的</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> InstallSnapshot(request *InstallSnapshotRequest, resposne *InstallSnapshotResponse) &#123;<br>	rf.mu.Lock()<br><br>	resposne.Term = rf.Term<br><br>	<span class="hljs-comment">// note: 里面有个重置election timeout，我认为installSnapshot也要做</span><br>	<span class="hljs-keyword">if</span> !rf.checkTermAndRole(request.Term, request.LeaderId) &#123;<br>		rf.mu.Unlock()<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	<span class="hljs-comment">// note: 如果发来的snapshot确定不改变状态机状态，那么在这里先过滤一下</span><br>	<span class="hljs-keyword">if</span> rf.LastIncludedIndex &gt;= request.LastIncludedIndex &#123; <span class="hljs-comment">// note: 关系是 LastIncludedIndex &lt;= lastApplied &lt;= committed</span><br>		rf.persist() <span class="hljs-comment">// 因为前面调用了checkTermAndRole，所以需要persist</span><br>		rf.mu.Unlock()<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	rf.mu.Unlock()<br><br>	<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		rf.applyCh &lt;- ApplyMsg&#123;<br>			SnapshotValid: <span class="hljs-literal">true</span>,<br>			Snapshot:      request.StateMachineState,<br>			SnapshotTerm:  request.LastIncludedTerm,<br>			SnapshotIndex: request.LastIncludedIndex + <span class="hljs-number">1</span>,<br>		&#125;<br>	&#125;()<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="CondInstallSnapshot"><a href="#CondInstallSnapshot" class="headerlink" title="CondInstallSnapshot"></a>CondInstallSnapshot</h5><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> CondInstallSnapshot(lastIncludedTerm <span class="hljs-type">int</span>, lastIncludedIndex <span class="hljs-type">int</span>, snapshot []<span class="hljs-type">byte</span>) <span class="hljs-type">bool</span> &#123;<br>	rf.mu.Lock()<br>	<span class="hljs-keyword">defer</span> rf.mu.Unlock()<br><br>	lastIncludedIndex--<br><br>	<span class="hljs-comment">// note: LastIncludedIndex决定重放日志的开始位置，如果lastIncludedIndex前进，发来的状态机状态就需要与raft层状态一起原子保存。否则拒绝apply这个snapshot</span><br>	<span class="hljs-keyword">if</span> lastIncludedIndex &lt;= rf.LastIncludedIndex &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span><br>	&#125;<br><br>	rf.trimLog(lastIncludedIndex)<br>	<span class="hljs-comment">// 下面分别是：只更新snapshot位置、更新snapshot/lastApplied位置、更新snapshot/lastApplied/commit位置</span><br>	<span class="hljs-comment">// 三者的关系必定有 lastIncludedIndex &lt;= lastApplied &lt;= commitIndex</span><br>	<span class="hljs-keyword">if</span> lastIncludedIndex &lt;= rf.lastApplied &#123;<br>		rf.RaftSnapshot = RaftSnapshot&#123;LastIncludedTerm: lastIncludedTerm, LastIncludedIndex: lastIncludedIndex&#125;<br>		<span class="hljs-comment">// note: [2]中的实现在这里也修改了lastApplied，这会导致部分日志重复提交，但只要状态机过滤了也ok</span><br>	&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> lastIncludedIndex &lt;= rf.commitIndex &#123;<br>		rf.RaftSnapshot = RaftSnapshot&#123;LastIncludedTerm: lastIncludedTerm, LastIncludedIndex: lastIncludedIndex&#125;<br>		rf.lastApplied = lastIncludedIndex <br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		rf.RaftSnapshot = RaftSnapshot&#123;LastIncludedTerm: lastIncludedTerm, LastIncludedIndex: lastIncludedIndex&#125;<br>		rf.lastApplied = lastIncludedIndex<br>		rf.commitIndex = lastIncludedIndex<br>	&#125;<br><br>	rf.persister.SaveStateAndSnapshot(rf.serialize(), snapshot)<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h4><ol>
+<li>日志：每个服务我都加了一个日志开关，设置了日志格式，提供加锁、不加锁的（以及临时无视开关的，更好的实践应该是日志等级）API，以raft为例：</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> logWithLock(str <span class="hljs-type">string</span>, a ...<span class="hljs-keyword">interface</span>&#123;&#125;) &#123;<br>	<span class="hljs-keyword">if</span> !rf.enableLog &#123;<br>		<span class="hljs-keyword">return</span><br>	&#125;<br>	rf.mu.Lock()<br>	<span class="hljs-keyword">defer</span> rf.mu.Unlock()<br>	rf.logNoLock(str, a...)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> logNoLock(str <span class="hljs-type">string</span>, a ...<span class="hljs-keyword">interface</span>&#123;&#125;) &#123;<br>	<span class="hljs-keyword">if</span> rf.enableLog &#123;<br>		rf.logPrivilege(str, a...)<br>	&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(rf *Raft)</span></span> logPrivilege(str <span class="hljs-type">string</span>, a ...<span class="hljs-keyword">interface</span>&#123;&#125;) &#123;<br>	lastTerm, lastIndex := rf.getLatestTermAndIndex()<br>	fmt.Printf(fmt.Sprintf(<span class="hljs-string">&quot;[%d %s Term: %d, Role: %s, cmt: %d, lastTerm/Idx:%d-%d, snapTerm/Idx:%d-%d LogL: %d, Next:%v, lA:%d Id: %d] &quot;</span>,<br>		realTimeMilli(), rf.name, rf.Term, rf.role, rf.commitIndex, lastTerm, lastIndex, rf.LastIncludedTerm, rf.LastIncludedIndex,<br>		<span class="hljs-built_in">len</span>(rf.Log), rf.nextIndex, rf.lastApplied, rf.me) + fmt.Sprintf(str, a...) + <span class="hljs-string">&quot;\n&quot;</span>)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>效果（此外一些RPC的返回success也加了个颜色，找起来方便一些）</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sh">// 每列分别是：物理时间、进程名称（Lab4用）、Term、Role、CommitIndex、日志位置、快照状态、日志长度、nextIndex数组、lastApplied、raft集群内<span class="hljs-built_in">id</span><br>[124142 101-2 Term: 1, Role: leader, cmt: 19, lastTerm/Idx:1-20, snapTerm/Idx:1-18 LogL: 2, Next:[20 19 0], lA:19 Id: 2] [reqId 22206 msgTiUsd 12] after sending to 1 success:^[[0;32mtrue^[[0mrespSuccess:^[[0;32mtrue^[[0m<br>[124142 101-2 Term: 1, Role: leader, cmt: 19, lastTerm/Idx:1-20, snapTerm/Idx:1-18 LogL: 2, Next:[20 20 0], lA:19 Id: 2] nextIndex <span class="hljs-keyword">for</span> 1 advance to 20, self lastLogIndex 20<br>[124142 101-2 Term: 1, Role: leader, cmt: 19, lastTerm/Idx:1-20, snapTerm/Idx:1-18 LogL: 2, Next:[20 20 0], lA:19 Id: 2] [reqId 47175 realTime 124142] before sending append entries to 1<br>[124142 101-2 Term: 1, Role: leader, cmt: 19, lastTerm/Idx:1-20, snapTerm/Idx:1-18 LogL: 2, Next:[20 20 0], lA:19 Id: 2] &gt;&gt;&gt; sending req[38427] append[<span class="hljs-literal">true</span>] vote[<span class="hljs-literal">false</span>] snap[<span class="hljs-literal">false</span>]<br>[124148 101-1 Term: 1, Role: follower, cmt: 18, lastTerm/Idx:1-19, snapTerm/Idx:1-17 LogL: 2, Next:[0 0 0], lA:17 Id: 1] recv <span class="hljs-built_in">log</span> append [20-&gt;20]<br>[124148 101-1 Term: 1, Role: follower, cmt: 18, lastTerm/Idx:1-19, snapTerm/Idx:1-17 LogL: 2, Next:[0 0 0], lA:17 Id: 1] reset election <span class="hljs-built_in">timeout</span> to 606000000<br>[124148 101-1 Term: 1, Role: follower, cmt: 18, lastTerm/Idx:1-19, snapTerm/Idx:1-17 LogL: 2, Next:[0 0 0], lA:17 Id: 1] accept append entries from 2<br>[124148 101-1 Term: 1, Role: follower, cmt: 18, lastTerm/Idx:1-20, snapTerm/Idx:1-17 LogL: 3, Next:[0 0 0], lA:17 Id: 1] leaderCommit 19 self.lastIndex: 20<br>[124148 101-2 Term: 1, Role: leader, cmt: 19, lastTerm/Idx:1-20, snapTerm/Idx:1-18 LogL: 2, Next:[20 20 0], lA:19 Id: 2] [reqId 47175 msgTiUsd 6] after sending to 1 success:^[[0;32mtrue^[[0m respSuccess:^[[0;32mtrue^[[0m<br></code></pre></td></tr></table></figure>
+
+<p>后期为了排查偶发问题加了不少日志，最终的1024次测试居然打出了16G共10834W行的日志……</p>
+<ol start="2">
+<li>问题排查</li>
+</ol>
+<ul>
+<li>死锁：找到日志最先停止的协程，找到最后一条日志，一般会有些思路。另一种办法是重写一个mutex，加锁解锁打日志。</li>
+<li>活锁：找到最后一个非定时任务触发的日志，比死锁更难查</li>
+<li>断言：在各种地方加断言也是很有效的，不要让程序带着错误状态继续执行，会导致问题爆发的位置与状态开始偏离正常的位置相距很远，导致排查困难</li>
+<li>一致性检测：其实还是断言，对Lab4，我实现了类似Lab2中检测日志一致性的协程去check，这样能够知道问题来源于raft还是来源于状态机，缩小排查范围</li>
+</ul>
+<ol start="3">
+<li>一些小错误<br>之前的一版实现，每次修改持久化变量都存一次档，效率低是其次，问题在于有些时候只改一个变量会导致不一致状态被持久化</li>
+</ol>
+<h2 id="Lab-3"><a href="#Lab-3" class="headerlink" title="Lab 3"></a>Lab 3</h2><p>Lab 4的shard controller基本是复用这里的代码，这里简单介绍一下Lab 3任务，实现细节放在Lab 4介绍。实现细节可以去看[2]</p>
+<p>Lab3任务：基于lab2，实现一个in-memory的linearizable的kv storage</p>
+<p>TODO raft不依赖消息顺序<br>TODO Client UUID</p>
+<h2 id="Lab-4"><a href="#Lab-4" class="headerlink" title="Lab 4"></a>Lab 4</h2><p>Lab4要求实现Sharded Key&#x2F;Value Service，分片是实现multi-raft的方式之一（说实话我还不了解其他方式），架构如下：</p>
+<ul>
+<li>一个基于Raft的高可用的分布式配置中心，用于配置分片策略</li>
+<li>每个raft-group负责一个分片，raft-group就是一个raft集群</li>
+<li>raft-group定时获取配置中心的配置，并向配置的状态同步</li>
+</ul>
+<p>这样的multi-raft实现在相同服务器数量的情况下，以相对更低的可用性，换取了更低的响应访问、状态存储压力</p>
+<p>对于分片迁移，[2]给出了主动拉数据的实现，我的实现使用主动推送作为方案</p>
+<h3 id="Lab-4A"><a href="#Lab-4A" class="headerlink" title="Lab 4A"></a>Lab 4A</h3><p>由于跳过了Lab 3，这里详细介绍一下Lab 4A，本质是实现一个RSM，无论一致性协议上层是何种应用，都可以使用类似的实现</p>
+<p>ClientID这里用的是随机数，最好还是使用一个分布式ID</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// client实现，看一种请求就够了，不需要关心这个请求是什么意思</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(ck *Clerk)</span></span> Join(servers <span class="hljs-keyword">map</span>[<span class="hljs-type">int</span>][]<span class="hljs-type">string</span>) &#123;<br>	<span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123; ck.seq++ &#125;()<br><br>	args := &amp;CommandArgs&#123;&#125;<br>	<span class="hljs-comment">// Your code here.</span><br>	args.ClientInfo = ck.getClientInfo()<br>	args.OpType = OP_JOIN<br>	args.Servers = servers<br><br>	<span class="hljs-keyword">for</span> &#123;<br>		<span class="hljs-keyword">var</span> reply QueryReply<br>		ok := ck.servers[ck.leaderId].Call(<span class="hljs-string">&quot;ShardCtrler.Command&quot;</span>, args, &amp;reply)<br>		<span class="hljs-keyword">if</span> !ok || reply.WrongLeader || reply.Err == ErrTimeout &#123;<br>			ck.leaderId = (ck.leaderId + <span class="hljs-number">1</span>) % <span class="hljs-built_in">len</span>(ck.servers) <span class="hljs-comment">// 缓存上次正确的leaderId</span><br>			time.Sleep(<span class="hljs-number">25</span> * time.Millisecond) <span class="hljs-comment">// 永续尝试所有可能server</span><br>			<span class="hljs-keyword">continue</span><br>		&#125;<br>		<span class="hljs-keyword">return</span><br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 处理Client请求</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(sc *ShardCtrler)</span></span> Command(args *CommandArgs, reply *CommandReply) &#123;<br>	sc.mu.Lock() <span class="hljs-comment">// 加锁修改Client map</span><br>	_, ok := sc.Clients[args.ClientId]<br>	<span class="hljs-keyword">if</span> !ok &#123;<br>		<span class="hljs-comment">// 注册client信息</span><br>		sc.Clients[args.ClientId] = &amp;Client&#123;<br>			ReqSeq:   <span class="hljs-number">-1</span>, <span class="hljs-comment">// client seq id</span><br>			RcvSeq:   <span class="hljs-number">-1</span>, <span class="hljs-comment">// 状态机处理完毕的seq id</span><br>			LastResp: <span class="hljs-literal">nil</span>, <span class="hljs-comment">// RcvSeq对应的Resp（如果有的话）</span><br>			Ch:       <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> Response),<br>		&#125;<br>	&#125;<br>	sc.Clients[args.ClientId].ReqSeq = args.ClientSeq<br><br>	clientInfo := sc.Clients[args.ClientId]<br>	sc.mu.Unlock()<br><br>	<span class="hljs-comment">// 提交日志</span><br>	_, _, isLeader := sc.rf.Start(Op&#123;<br>		CommandArgs: *args,<br>	&#125;)<br>	<span class="hljs-keyword">if</span> !isLeader &#123;<br>		reply.WrongLeader = <span class="hljs-literal">true</span><br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br><span class="hljs-comment">// 等待从client ch拿到这次请求的响应</span><br>RETRY:<br>	<span class="hljs-keyword">select</span> &#123;<br>	<span class="hljs-keyword">case</span> result := &lt;-clientInfo.Ch:<br>		reply.Config = result.QueryReply.Config<br>		<span class="hljs-keyword">if</span> result.MoveReply.Err != <span class="hljs-string">&quot;&quot;</span> &#123;<br>			reply.Err = result.MoveReply.Err<br>		&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> result.LeaveReply.Err != <span class="hljs-string">&quot;&quot;</span> &#123;<br>			reply.Err = result.MoveReply.Err<br>		&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> result.JoinReply.Err != <span class="hljs-string">&quot;&quot;</span> &#123;<br>			reply.Err = result.JoinReply.Err<br>		&#125; <span class="hljs-keyword">else</span> &#123; <span class="hljs-comment">// query reqply</span><br>			reply.Err = result.QueryReply.Err<br>		&#125;<br><br>		<span class="hljs-comment">// 考虑Term1，request[seq=1]日志log1被成功持久化，返回结果，client seq提高到2</span><br>		<span class="hljs-comment">// 切换到Term2，leader切换，client转而请求新leader，新的leader此时才提交log1，那么会从这个channel传来旧request的response，此时重试，继续等待更高request seq的响应</span><br>		<span class="hljs-keyword">if</span> result.ClientSeq &lt; args.ClientSeq &#123;<br>			<span class="hljs-comment">// 另外需要考虑RETRY开始前，第二个args.ClientSeq的commit经由channel到来，而我们还没带的及读它，在下方代码可以看到，写此channel是非阻塞的。这一情况是允许的，超时后重试仍然能返回结果</span><br>			<span class="hljs-keyword">goto</span> RETRY<br>		&#125;<br><br>		<span class="hljs-keyword">return</span><br>	<span class="hljs-keyword">case</span> &lt;-time.After(CONSENSUS_TIMEOUT):<br>		reply.Err = ErrTimeout<br>		<span class="hljs-keyword">return</span><br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(sc *ShardCtrler)</span></span> getFromApplied() &#123;<br>	<span class="hljs-keyword">for</span> applyMsg := <span class="hljs-keyword">range</span> sc.applyCh &#123;<br>		<span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>			sc.mu.Lock()<br>			<span class="hljs-keyword">defer</span> sc.mu.Unlock()<br><br>			op := applyMsg.Command.(Op)<br><br>			_, ok := sc.Clients[op.ClientId]<br>			<span class="hljs-keyword">if</span> !ok &#123;<br>				<span class="hljs-comment">// 对于follower需要在这里初始化client，因为clinet的请求最先不发给它</span><br>				sc.Clients[op.ClientId] = &amp;Client&#123;<br>					ReqSeq:   <span class="hljs-number">-1</span>, <br>					RcvSeq:   <span class="hljs-number">-1</span>, <br>					LastResp: <span class="hljs-literal">nil</span>,<br>					Ch:       <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> Response),<br>				&#125;<br>			&#125;<br>			client := sc.Clients[op.ClientId]<br><br>			<span class="hljs-comment">// 128次全量测试出现28次</span><br>			<span class="hljs-comment">// TODO 不记得原因了</span><br>			<span class="hljs-keyword">if</span> applyMsg.CommandIndex &lt;= sc.LastAppliedIndex &#123;<br>				sc.log(<span class="hljs-string">&quot;discard outdated index %d&quot;</span>, applyMsg.CommandIndex)<br>				<span class="hljs-keyword">return</span><br>			&#125;<br>			sc.LastAppliedIndex = applyMsg.CommandIndex<br><br>			<span class="hljs-comment">// client重试unknown状态的请求（如没有返回，因此不知道是否执行）导致</span><br>			<span class="hljs-keyword">if</span> op.ClientSeq &lt;= client.RcvSeq &#123;<br>				<span class="hljs-keyword">select</span> &#123;<br>				<span class="hljs-keyword">case</span> client.Ch &lt;- *client.LastResp:<br>				<span class="hljs-keyword">default</span>:<br>				&#125;<br>				<span class="hljs-keyword">return</span><br>			&#125; <span class="hljs-keyword">else</span> &#123; <span class="hljs-comment">// 如果op.ClientSeq &gt; client.RcvSeq，说明当前server空洞的seq在其他server已经处理过，当前server依然需要apply这个状态，但不返回response</span><br>				<span class="hljs-keyword">var</span> resp Response<br><br>				<span class="hljs-keyword">if</span> op.OpType == OP_QUERY &#123;<br>					resp = Response&#123;QueryReply: QueryReply&#123;<br>						Config: sc.getConfigNoLock(op.Num),<br>					&#125;&#125;<br>				&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> op.OpType == OP_JOIN &#123;<br>					newCfg := sc.reBalanceCfg(op)<br>					sc.configs = <span class="hljs-built_in">append</span>(sc.configs, newCfg)<br>					resp = Response&#123;JoinReply: JoinReply&#123;&#125;&#125;<br>				&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> op.OpType == OP_MOVE &#123;<br>					newCfg := sc.latestConfig().Copy()<br>					newCfg.Shards[op.Shard] = op.GID<br>					sc.configs = <span class="hljs-built_in">append</span>(sc.configs, *newCfg)<br>					resp = Response&#123;MoveReply: MoveReply&#123;&#125;&#125;<br>				&#125; <span class="hljs-keyword">else</span> &#123; <span class="hljs-comment">// OP_LEAVE</span><br>					newCfg := sc.reBalanceCfg(op)<br>					sc.configs = <span class="hljs-built_in">append</span>(sc.configs, newCfg)<br>					resp = Response&#123;LeaveReply: LeaveReply&#123;&#125;&#125;<br>				&#125;<br><br>				resp.ClientId = op.ClientId<br>				resp.ClientSeq = op.ClientSeq<br><br>				client.RcvSeq = op.ClientSeq<br>				client.LastResp = &amp;resp<br>				sc.LastAppliedIndex = applyMsg.CommandIndex<br><br>				<span class="hljs-keyword">if</span> sc.Clients[op.ClientId].ReqSeq == op.ClientSeq &#123;<br>					<span class="hljs-keyword">select</span> &#123;<br>					<span class="hljs-keyword">case</span> client.Ch &lt;- resp:<br>					<span class="hljs-keyword">default</span>:<br>					&#125;<br>				&#125;<br>			&#125;<br>		&#125;()<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="负载均衡算法"><a href="#负载均衡算法" class="headerlink" title="负载均衡算法"></a>负载均衡算法</h4><p>将shard平均分配到不同的group中，group可能在运行期间加入或离开，要求相对于变更以前的分配，最小化shard移动的数量，降低网络压力</p>
+<p>建议参考[2]实现，核心思路如下：</p>
+<ul>
+<li>Join：不断将shard从具有最多shard的节点分给具有最少shard的节点，直到最多与最少的差不大于1</li>
+<li>Leave：将Leave节点的shard一次一个地分配给具有最少shard的节点</li>
+</ul>
+<h3 id="Lab-4B"><a href="#Lab-4B" class="headerlink" title="Lab 4B"></a>Lab 4B</h3><p>TODO 需要完善</p>
+<p>服务端协程：</p>
+<ul>
+<li>定期拉配置并提交配置更新的日志</li>
+<li>定期轮询将自身数据分片向自身配置靠近，同时做GC</li>
+<li>主协程，处理commit的日志</li>
+<li>轮询新term提交空日志</li>
+</ul>
+<ol>
+<li>Client为什么也要持久化</li>
+<li>Shard Server自身也是一个client</li>
+<li>如何推送，推送是两段的，是否会有问题</li>
+</ol>
+<h2 id="思考-amp-优化"><a href="#思考-amp-优化" class="headerlink" title="思考&amp;优化"></a>思考&amp;优化</h2><h3 id="如何设计测试"><a href="#如何设计测试" class="headerlink" title="如何设计测试"></a>如何设计测试</h3><h4 id="来自6-824"><a href="#来自6-824" class="headerlink" title="来自6.824"></a>来自6.824</h4><h4 id="补充用例"><a href="#补充用例" class="headerlink" title="补充用例"></a>补充用例</h4><p>单client串行写入，必须读到上次写入值后才写入下次值，每次写入后随机shutdown server。用来fail那些上任后没有提交空日志的实现</p>
+<h4 id="性能测试"><a href="#性能测试" class="headerlink" title="性能测试"></a>性能测试</h4><p>在majority节点correct的前提下，raft已经确保了可用性，这里关注性能</p>
+<p>此部分参考[11]中etcd的性能测试</p>
+<p>性能可以从两方面评价：时延和吞吐量。举个例子，时延长而吞吐量大：服务可以同时响应大量请求（吞吐量），但单看每个请求从发送到响应的时间却比较长（时延）。[11]指出最短可能的时间是一个RTT加上fdatasync的时间，前者取决于data center之间的距离、网络环境，后者取决于磁盘类型（HDD、SSD），但由于会批量发送、刷盘，可以将代价均摊到batch中的每条日志</p>
+<p>此外，还有一些其他影响性能的点：</p>
+<ol>
+<li>etcd后端采用bblot（从boltdb fork得到）作为存储引擎，对于事务有MVCC的额外开销</li>
+<li>raft的snapshot需要偶尔刷盘</li>
+<li>inflight compaction，我理解也许是消息发送前后对消息的压缩解压？</li>
+</ol>
+<p>变量如下：</p>
+<ul>
+<li>节点数量</li>
+<li>读或写（读的话，线性一致读还是顺序一致读，也就是走不走日志）</li>
+<li>K、V分别的大小</li>
+<li>KV总数</li>
+<li>Client数</li>
+<li>连接数</li>
+<li>是否只与leader交互，还是允许和任何人交互，follower将请求转发到leader [localref-1]</li>
+</ul>
+<p>评价指标如下：</p>
+<ul>
+<li>平均读写QPS（可能有多个clinet，和latency不同）</li>
+<li>单个request的平均latency</li>
+<li>平均服务RSS，即ps aux中的RSS或top中的RES，即物理内存占用</li>
+</ul>
+<p>我也做了简单的性能测试，但与etcd的也许无法直接比较，为什么</p>
+<ol>
+<li>使用线程模拟，无网络传输开销</li>
+<li>内存kv数据库，无磁盘写入开销</li>
+<li>在单机进行模拟，受CPU限制无法做高并发测试，仅将GOMAXPROCS设为8</li>
+<li>etcd的get有优化，我的没有</li>
+<li>没有做锁优化（至少手动层面没有做）</li>
+</ol>
+<p>我的测试（client总是等于连接数，GOMAXPROCS设为8，默认不分片，关闭snapshot功能）：</p>
+<ol>
+<li>1 client 3节点，kv层read write交互，各1000条读写，共2000条<ul>
+<li>耗时60s，QPS&#x3D;33, latency&#x3D;30ms</li>
+</ul>
+</li>
+<li>3节点，raft层不停write，最后一条write提交视为截止</li>
+<li>100 client 3节点，每个client写入1000条，kv层共10W条写入，<strong>其实更好的做法是限制时间，而不是限制数量</strong>，注意不要加race，会慢很多（大概7倍时间）<ul>
+<li>不加race，耗时52921ms，QPS&#x3D;1889.6(10W&#x2F;552921)，lateny&#x3D;52.9ms，相比于1，吞吐量x57，时延x1.77</li>
+</ul>
+</li>
+<li>3 Group * 3节点，100 client，每个client 1000条写入<ul>
+<li>麻了，是3的三倍时间，不知道怎么解释……<br> （就说QPS是三千多，CPU打满了，看不出来）</li>
+</ul>
+</li>
+</ol>
+<p>local ref</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/56357537/how-does-etcd-propagate-writes-to-non-leader-members">How does etcd propagate writes to non-leader members?</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/issues/8215">Question: What does “Average Server RSS” mean?</a></li>
+</ol>
+<h3 id="Raft与CAP的关系"><a href="#Raft与CAP的关系" class="headerlink" title="Raft与CAP的关系"></a>Raft与CAP的关系</h3><p>英文解释来源<br><a target="_blank" rel="noopener" href="https://www.the-paper-trail.org/page/cap-faq/">https://www.the-paper-trail.org/page/cap-faq/</a></p>
+<p>Availability - will a request made to the data store always eventually complete?<br>Consistency - will all executions of reads and writes seen by all nodes be atomic or linearizably consistent?<br>Partition tolerance - the network is allowed to drop any messages.</p>
+<p>什么是available</p>
+<blockquote>
+<p>A data store is available if and only if all get and set requests eventually return a response that’s part of their specification. This does not permit error responses, since a system could be trivially available by always returning an error.</p>
+</blockquote>
+<p>TODO<br>这块还要看下，目前的理解是raft在保证quorum写入才算commit的同时，意味着放弃了可用性：在分区的情况下，无法保证lower(n&#x2F;2)节点的容错，如果分区大小为quorum+1个节点挂掉，系统hang住，意味着丧失了可用性。即Raft是CP的</p>
+<p>TODO 有人说Redis主备就是AP的，MySQL主备呢<br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/152105666">https://zhuanlan.zhihu.com/p/152105666</a></p>
+<h3 id="Prevote-amp-CheckQuorum"><a href="#Prevote-amp-CheckQuorum" class="headerlink" title="Prevote &amp; CheckQuorum"></a>Prevote &amp; CheckQuorum</h3><p>TL;DR<br>PreVote是对非QCS（Quotum Connected Server） Candidate的限制，CheckQuorum是对非QCS Leader的限制</p>
+<p>（cloudflare因为这个问题挂过六个小时）</p>
+<p>考虑这样的节点拓扑[9]<br><img src="https://decentralizedthoughts.github.io/uploads/RAFT%201.jpg" srcset="/img/loading.gif" lazyload width="40%" height="40%" style="margin-left:auto; margin-right:auto; display:block"></p>
+<p>leader可以在123内产生，但由于45未连接到leader，会不断超时自增term，term传递到2或3，使其成为follower，随后超时成为candidate，这一term最终会传递到当前leader，使得leader失去身份，这一情况会一直持续。也就是说，普通的raft实际上是不满足liveness条件的</p>
+<p>[7] 9.6节给出了叫做<strong>Pre-Vote</strong>算法的解决方案：<br>follower在超时成为candidate并自增term前，需要通过RPC收到一个majority的确认，RPC handler中，如果判断<strong>对方有最新的日志，并且自身自从上次收到leader的消息超出baseline election timeout</strong>（我的理解是最小可能的超时时间），那么grant vote。<strong>Pre-Vote避免了不可能成为leader的节点通过不断提升term导致当前leader退位的问题</strong></p>
+<p>Pre-Vote也引入了新的问题，考虑如下拓扑[9]:<br><img src="https://decentralizedthoughts.github.io/uploads/RAFT%202.jpg" srcset="/img/loading.gif" lazyload width="40%" height="40%" style="margin-left:auto; margin-right:auto; display:block"></p>
+<p>假设从全连通状态立即跳转到此状态，4是leader，13会随后超时，但由于2与4连通，不能从2获得Pre-Vote的grant，13无法发起新的选举。对于这种情况，[7] 6.2节指出，如果<strong>leader长时间没有成功与majority保持心跳</strong>，那么leader主动退位。这一修改也叫做<strong>CheckQuorum</strong>，<strong>使得失效leader能够主动退位</strong>。</p>
+<p>通过补充Pre-Vote RPC与leader主动退位，我们确保了算法的liveness</p>
+<h3 id="DeadLock"><a href="#DeadLock" class="headerlink" title="DeadLock"></a>DeadLock</h3><p>我一直很怀疑partial connection到底是不是一个实际的问题</p>
+<p>当网络拓扑成为树状时，如A-B, A-C，A-D, A-E当A的日志不是最新时，A无法成为leader，系统死锁</p>
+<h3 id="5节点全连通，除了A与B，是否会出现A、B无限轮流称为leader导致违反liveness条件的情况？"><a href="#5节点全连通，除了A与B，是否会出现A、B无限轮流称为leader导致违反liveness条件的情况？" class="headerlink" title="5节点全连通，除了A与B，是否会出现A、B无限轮流称为leader导致违反liveness条件的情况？"></a>5节点全连通，除了A与B，是否会出现A、B无限轮流称为leader导致违反liveness条件的情况？</h3><p>问题来自 <a target="_blank" rel="noopener" href="https://www.zhihu.com/question/54997169">https://www.zhihu.com/question/54997169</a></p>
+<p>不会，之前提到过，为了保证liveness条件，leader上任后需要commit一条no-op后才可提供服务（包括响应读请求），假设A commit完成后，B就不是拥有最新数据的节点了，因此不会出现这一问题</p>
+<h3 id="Raft是否存在脑裂问题"><a href="#Raft是否存在脑裂问题" class="headerlink" title="Raft是否存在脑裂问题"></a>Raft是否存在脑裂问题</h3><p>存在，5节点全连通，除了A与B，A当选leader后、发出任何请求前，B超时，term自增，完成选举，也成为leader</p>
+<p>但并不会造成什么问题，并且，可以设置允许其他节点转发请求，其实是等价于网络仍然是全连通的<br>ref: raft协议应用方面的疑问？ - 我做分布式数据库的回答 <a target="_blank" rel="noopener" href="https://www.zhihu.com/question/54997169/answer/192987776">https://www.zhihu.com/question/54997169/answer/192987776</a></p>
+<p>TODO</p>
+<h3 id="通过client向raft提交op，raft提供什么样的语义"><a href="#通过client向raft提交op，raft提供什么样的语义" class="headerlink" title="通过client向raft提交op，raft提供什么样的语义"></a>通过client向raft提交op，raft提供什么样的语义</h3><p>at-most-once<br>举例：如果提交请求未返回，那么要么op没有被执行，要么执行了一次</p>
+<p>业务上可以利用at-most-once语义进行组合得到exactly-once语义<br>举例：提交请求A未返回，可以再提交一次，就像LAB3 LAB4中的client，raft上层可以基于op的seqNum决定是否apply这个op</p>
+<h3 id="读优化"><a href="#读优化" class="headerlink" title="读优化"></a>读优化</h3><p>走日志的读称为Log Read，是安全的，但我们可以做得更好</p>
+<p>参考了PingCAP的文章[10]</p>
+<h4 id="Lease-Read"><a href="#Lease-Read" class="headerlink" title="Lease Read"></a>Lease Read</h4><p>我们希望能直接读leader本地的数据而不向其他人发任何请求，这要求我们确保leader的已提交数据总是最新的，可以通过确保majority在一定时间内不选择其他leader，使得这个时间段内最多只有自己一个leader（或者自己挂掉），不会有更新term的leader提交日志，使得当前leader的已提交数据总是最新的</p>
+<blockquote>
+<p>在 Raft 论文里面，提到了一种通过 clock + heartbeat 的 lease read 优化方法。也就是 leader 发送 heartbeat 的时候，会首先记录一个时间点 start，当系统大部分节点都回复了 heartbeat response，那么我们就可以认为 leader 的 lease 有效期可以到 start + election timeout &#x2F; (clock drift bound per second * election timeout)这个时间点</p>
+</blockquote>
+<p>lease的时间长度可以变化，但应当比election timeout要短，因为我们只对leader做了限制。考虑lease比timeout长，follower可能timeout，从而选出新的leader。当然，我们也可以对follower做限制，详情参考ID2203 spanner章节，对于paxos，既对proposer进行了限制，也对acceptor进行了限制</p>
+<p>TODO 如果消息传输已经用了比lease还久的时间，那么leader怎么做，leader在lease过期后自己就step down吗，好像不需要，因为写入操作实际上也是心跳，之后的写入等于续约，或者，如果follower已经没有lease了，等于签一个新的lease</p>
+<h4 id="ReadIndex"><a href="#ReadIndex" class="headerlink" title="ReadIndex"></a>ReadIndex</h4><blockquote>
+<p>当leader接收到读请求时，将当前commit index记录下来，记作read index，在返回结果给客户端之前，leader需要先确定自己到底还是不是真的leader，确定的方法就是给其他所有peers发送一次心跳，如果收到了多数派的响应，说明至少这个读请求到达这个节点时，这个节点仍然是leader，这时只需要等到commit index被apply到状态机后，即可返回结果。<br>ref: <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/27869566">https://zhuanlan.zhihu.com/p/27869566</a></p>
+</blockquote>
+<p>我的理解：记录commit index后，读操作可以看做发生在此commit index后的动作，因此状态机apply这个commit index后，状态机就可以返回这个get的结果了。另一方面，考虑leader分区到minority，此时从leader返回的数据可能是stale的，因此在收到请求后，返回数据前还要发起一次心跳，并获得一次majority的ack，从而确保收到请求的时刻，自己还是最新leader</p>
+<p>这块还要看更多文章，先<br>TODO</p>
+<h3 id="Membership"><a href="#Membership" class="headerlink" title="Membership"></a>Membership</h3><p>参考[12]</p>
+<p>论文中介绍了两阶段Membership变更算法，介绍如下：</p>
+<ol>
+<li>外部触发membership变更请求，leader将其转化为 $C_{old,new}$ 日志并广播。任何收到membership变更日志后的节点，立即按照新配置运行（无论其是否commit）</li>
+<li>自 $C_{old,new}$ 日志起，任何日志需要同时达成旧配置与新配置中的quorum ack才视为提交</li>
+<li>当 $C_{old,new}$ 提交后，原有leader构造一条 $C_{new}$ 日志并广播，若leader不在新配置中，当 $C_{new}$ commit后可以退位</li>
+</ol>
+<p>Etcd实际上使用的是单步成员变更，优势之一在于只需要单阶段就可完成单节点的membership变更[13]</p>
+<h4 id="Learner角色"><a href="#Learner角色" class="headerlink" title="Learner角色"></a>Learner角色</h4><p>[7]4.2.1节引入此角色，目的是当membership变化时，新加入的成员在需要在日志同步完成后再加入集群，否则根据[6]中给出的membership变更算法，变更期间的日志提交需要得到both old conf和new conf中majority节点的ack才视为提交，未完成日志同步的节点会阻塞整个集群的日志提交</p>
+<h3 id="Raft的一些重要时刻"><a href="#Raft的一些重要时刻" class="headerlink" title="Raft的一些重要时刻"></a>Raft的一些重要时刻</h3><p>这个是我自己提出的问题（因此问题可能不是很有价值，而且也许是错的……）</p>
+<ul>
+<li>一条日志什么时候算作提交：当第majority个node将日志持久化时</li>
+<li>写入日志的Linearization Point在哪里：Leader将commitIndex指向它的时候</li>
+<li>以kv store为例，上层应用的Linearization Point在哪里：在apply日志到状态机的那一刻</li>
+</ul>
+<h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><h3 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h3><p>测试结果太长了，放在最后</p>
+<p>Lab2 2048次测试通过<br>Lab3 512次测试通过<br>Lab4 1024次测试通过</p>
+<h4 id="Lab2-1"><a href="#Lab2-1" class="headerlink" title="Lab2"></a>Lab2</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><code class="hljs sh">[root@e647a1bc04a2 raft]<span class="hljs-comment"># time go test -run Test</span><br>Test (2A): initial election ...<br>  ... Passed --   3.5  3   34   10312    0<br>Test (2A): election after network failure ...<br>  ... Passed --   5.5  3  127   23366    0<br>Test (2A): multiple elections ...<br>  ... Passed --   7.4  7  838  134958    0<br>Test (2B): basic agreement ...<br>  ... Passed --   1.2  3   16    4750    3<br>Test (2B): basic agreement ...<br>  ... Passed --   1.6  3   16    4420    3<br>Test (2B): RPC byte count ...<br>  ... Passed --   2.9  3   48  115098   11<br>Test (2B): agreement despite follower disconnection ...<br>  ... Passed --   6.9  3  112   26633    8<br>Test (2B): no agreement <span class="hljs-keyword">if</span> too many followers disconnect ...<br>  ... Passed --   4.1  5  299   49880    3<br>Test (2B): concurrent Start()s ...<br>  ... Passed --   1.3  3   10    3002    6<br>Test (2B): rejoin of partitioned leader ...<br>  ... Passed --   5.9  3  129   32434    4<br>Test (2B): leader backs up quickly over incorrect follower logs ...<br>  ... Passed --  27.1  5 2710 1836997  102<br>Test (2B): RPC counts aren<span class="hljs-string">&#x27;t too high ...</span><br><span class="hljs-string">  ... Passed --   2.8  3   28    8866   12</span><br><span class="hljs-string">Test (2C): basic persistence ...</span><br><span class="hljs-string">  ... Passed --   5.6  3   69   18640    6</span><br><span class="hljs-string">Test (2C): more persistence ...</span><br><span class="hljs-string">  ... Passed --  19.9  5 1167  220492   16</span><br><span class="hljs-string">Test (2C): partitioned leader and one follower crash, leader restarts ...</span><br><span class="hljs-string">  ... Passed --   2.8  3   37    9225    4</span><br><span class="hljs-string">Test (2C): Figure 8 ...</span><br><span class="hljs-string">  ... Passed --  34.5  5  594  134594   38</span><br><span class="hljs-string">Test (2C): unreliable agreement ...</span><br><span class="hljs-string">  ... Passed --   3.8  5  237   89256  246</span><br><span class="hljs-string">Test (2C): Figure 8 (unreliable) ...</span><br><span class="hljs-string">delay time: 2325</span><br><span class="hljs-string">  ... Passed --  35.2  5 3544 5190733  350</span><br><span class="hljs-string">Test (2C): churn ...</span><br><span class="hljs-string">  ... Passed --  16.3  5 3479 3369043 1469</span><br><span class="hljs-string">Test (2C): unreliable churn ...</span><br><span class="hljs-string">  ... Passed --  16.4  5 1106  548290  291</span><br><span class="hljs-string">Test (2D): snapshots basic ...</span><br><span class="hljs-string">time used: 7296</span><br><span class="hljs-string">  ... Passed --   7.3  3  144   56814  251</span><br><span class="hljs-string">Test (2D): install snapshots (disconnect) ...</span><br><span class="hljs-string">time used: 53277</span><br><span class="hljs-string">  ... Passed --  53.3  3  871  256572  367</span><br><span class="hljs-string">Test (2D): install snapshots (disconnect+unreliable) ...</span><br><span class="hljs-string">time used: 67236</span><br><span class="hljs-string">  ... Passed --  67.2  3 1049  288318  379</span><br><span class="hljs-string">Test (2D): install snapshots (crash) ...</span><br><span class="hljs-string">time used: 41029</span><br><span class="hljs-string">  ... Passed --  41.0  3  592  180220  355</span><br><span class="hljs-string">Test (2D): install snapshots (unreliable+crash) ...</span><br><span class="hljs-string">time used: 49101</span><br><span class="hljs-string">  ... Passed --  49.1  3  701  199176  366</span><br><span class="hljs-string">PASS</span><br><span class="hljs-string">ok      6.824/raft      422.568s</span><br><span class="hljs-string"></span><br><span class="hljs-string">real    7m3.771s</span><br><span class="hljs-string">user    0m9.621s</span><br><span class="hljs-string">sys     0m7.843s</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="Lab3"><a href="#Lab3" class="headerlink" title="Lab3"></a>Lab3</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><code class="hljs sh">[root@9bd769928c32 kvraft]<span class="hljs-comment"># time go test -run Test</span><br>Test: one client (3A) ...<br>  ... Passed --  15.1  5  3495  689<br>Test: ops complete fast enough (3A) ...<br>  ... Passed --  21.4  3  3040    0<br>Test: many Clients (3A) ...<br>  ... Passed --  15.4  5  7223 3310<br>Test: unreliable net, many Clients (3A) ...<br>  ... Passed --  16.9  5  3133  608<br>Test: concurrent append to same key, unreliable (3A) ...<br>  ... Passed --   1.8  3   156   52<br>Test: progress <span class="hljs-keyword">in</span> majority (3A) ...<br>  ... Passed --   0.6  5    41    2<br>Test: no progress <span class="hljs-keyword">in</span> minority (3A) ...<br>  ... Passed --   1.1  5   104    3<br>Test: completion after heal (3A) ...<br>  ... Passed --   1.1  5    40    3<br>Test: partitions, one client (3A) ...<br>  ... Passed --  22.8  5  2734  401<br>Test: partitions, many Clients (3A) ...<br>  ... Passed --  22.5  5  6356 2272<br>Test: restarts, one client (3A) ...<br>  ... Passed --  21.2  5  3723  691<br>Test: restarts, many Clients (3A) ...<br>  ... Passed --  21.4  5  8116 3317<br>Test: unreliable net, restarts, many Clients (3A) ...<br>  ... Passed --  22.3  5  3771  612<br>Test: restarts, partitions, many Clients (3A) ...<br>  ... Passed --  27.9  5  6817 2564<br>Test: unreliable net, restarts, partitions, many Clients (3A) ...<br>  ... Passed --  29.3  5  3566  313<br>Test: unreliable net, restarts, partitions, random keys, many Clients (3A) ...<br>  ... Passed --  33.6  7  9159  856<br>Test: InstallSnapshot RPC (3B) ...<br>  ... Passed --   5.9  3   337   63<br>Test: snapshot size is reasonable (3B) ...<br>  ... Passed --  17.1  3  2434  800<br>Test: ops complete fast enough (3B) ...<br>  ... Passed --  21.6  3  3054    0<br>Test: restarts, snapshots, one client (3B) ...<br>  ... Passed --  21.1  5  3723  692<br>Test: restarts, snapshots, many Clients (3B) ...<br>  ... Passed --  21.5  5 88544 28600<br>Test: unreliable net, snapshots, many Clients (3B) ...<br>  ... Passed --  16.4  5  2864  537<br>Test: unreliable net, restarts, snapshots, many Clients (3B) ...<br>  ... Passed --  23.1  5  3801  608<br>Test: unreliable net, restarts, partitions, snapshots, many Clients (3B) ...<br>  ... Passed --  28.2  5  3368  332<br>Test: unreliable net, restarts, partitions, snapshots, random keys, many Clients (3B) ...<br>  ... Passed --  32.0  7  8083  877<br>PASS<br>ok      6.824/kvraft    462.060s<br><br>real    7m42.459s<br>user    1m42.312s<br>sys     0m10.487s<br></code></pre></td></tr></table></figure>
+
+<h4 id="Lab4"><a href="#Lab4" class="headerlink" title="Lab4"></a>Lab4</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs sh">[root@9bd769928c32 shardkv]<span class="hljs-comment"># time go test -run Test</span><br>Test: static shards ...<br>  ... Passed<br>Test: <span class="hljs-built_in">join</span> <span class="hljs-keyword">then</span> leave ...<br>  ... Passed<br>Test: snapshots, <span class="hljs-built_in">join</span>, and leave ...<br>  ... Passed<br>Test: servers miss configuration changes...<br>  ... Passed<br>Test: concurrent puts and configuration changes...<br>  ... Passed<br>Test: more concurrent puts and configuration changes...<br>  ... Passed<br>Test: concurrent configuration change and restart...<br>  ... Passed<br>Test: unreliable 1...<br>  ... Passed<br>Test: unreliable 2...<br>  ... Passed<br>Test: unreliable 3...<br>  ... Passed<br>Test: shard deletion (challenge 1) ...<br>  ... Passed<br>Test: unaffected shard access (challenge 2) ...<br>  ... Passed<br>Test: partial migration shard access (challenge 2) ...<br>  ... Passed<br>PASS<br>ok      6.824/shardkv   131.002s<br><br>real    2m12.658s<br>user    7m36.001s<br>sys     0m6.838s<br></code></pre></td></tr></table></figure>
+
+<h4 id="补充测试"><a href="#补充测试" class="headerlink" title="补充测试"></a>补充测试</h4><table>
+<thead>
+<tr>
+<th>GOMAXPROCS</th>
+<th>表头</th>
+<th>ss</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>4</td>
+<td>单元格</td>
+<td></td>
+</tr>
+<tr>
+<td>单元格</td>
+<td>单元格</td>
+<td></td>
+</tr>
+</tbody></table>
+<h3 id="其他-1"><a href="#其他-1" class="headerlink" title="其他"></a>其他</h3><p><a target="_blank" rel="noopener" href="https://github.com/golang/go/issues/44614">runtime: marked free object in span</a>遇到的一个Golang的奇怪Bug，由于代码改动后来没有复现</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%8A%80%E6%9C%AF/" class="category-chain-item">技术</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">#分布式</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>MIT6.824 Lab2 Lab3 Lab4</div>
+      <div>https://vicety.github.io/2021/12/04/mit6.824 Labs/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Beitragsautor</div>
+          <div>vicety</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Veröffentlicht am</div>
+          <div>2021年12月4日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>Urheberrechtshinweis</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/02/25/%E9%87%8D%E5%AD%A6%E6%95%B0%E6%8D%AE%E5%BA%93/" title="重学数据库">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">重学数据库</span>
+                        <span class="visible-mobile">Vorheriger</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/11/27/ZooKeeper/" title="ZooKeeper系列论文阅读与实战">
+                        <span class="hidden-mobile">ZooKeeper系列论文阅读与实战</span>
+                        <span class="visible-mobile">Nächster</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;Inhaltsverzeichnis</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Suchen</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Stichwort</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog funktioniert am besten mit aktiviertem JavaScript</div>
+  </noscript>
+</body>
+</html>

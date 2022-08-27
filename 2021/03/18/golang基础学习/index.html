@@ -1,0 +1,647 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-cn" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="vicety">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Here&#39;s something encrypted, password is required to continue reading.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="golang基础学习">
+<meta property="og:url" content="https://vicety.github.io/2021/03/18/golang%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="vicety的博客">
+<meta property="og:description" content="Here&#39;s something encrypted, password is required to continue reading.">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-03-18T13:36:42.000Z">
+<meta property="article:modified_time" content="2022-08-27T21:31:30.728Z">
+<meta property="article:author" content="vicety">
+<meta property="article:tag" content="加密">
+<meta property="article:tag" content="编程语言">
+<meta property="article:tag" content="Golang">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>golang基础学习 - vicety的博客</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"vicety.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Startseite
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archiv
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Kategorien
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Schlagwörter
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                Über
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="golang基础学习"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-03-18 14:36" pubdate>
+          2021年3月18日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.2k wörter
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          10 minuten
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">golang基础学习</h1>
+            
+            
+              
+              <div class="hbe hbe-container" id="hexo-blog-encrypt" data-wpm="Oh, this is an invalid password. Check and try again, please." data-whm="Oh, these decrypted content cannot be verified, but you can still have a look.">
+  <script id="hbeData" type="hbeData" data-hmacdigest="209153c996b8da57523ecb2c55d14eb21cebc2d545d2dc998a9410435976c32c">4724090b17589d633a1c19b9d3b8c5a5be64a3949e7393497e178fcd23bbd8915d9b7bdb36502f1ffa55d345192c9678329ebe6c7384b55156766287a20685142ce5c5aa0b09b8238ccdfe75b7f3c9676d5bc8ed29277625780af4102830d79b71f935a4213eb761c50309c1253e3fb84750f77a68d912f277f5295ba772bb356917837d389d157fb0e815d30416be8b068b02f746f7cd6de561ff8a50387ac254e67edd177d4d0da2af7a051d530c0038f8bfc84a5c884386a713faceaf822c03b42ff7c491c332bfba78fa8c64607117c70292ac9e2c7aac32763d0227113e6211d101e179ace755dfd0f27683cfecd7ac502bfa9be7aaafbb8b5aa273a5c380ea67250bbfd5133536900235711a59cea92b17d9b5c24aac106065cba4a045446f0b175c3ac3c5560a95c5f69ae5bcae744df2c71183eafc26f3d2c7750e395cafa2d1660082e275b90154ada164fe166714fabc4f45a69d244978a6ad6cede09d927f106fe8a502a1eba388c9f5ad9dd186b670f28b6438b2d0624fe74bb6b88e529d21982ee42dd27789e4c73831905ae630444e5196b99ce6e4598b2c3cefe1d30bc1407ca499b2578eeb1b1644da06567d5f75a1f775be8e846a34b705699b17d130b573b1e803c1266dd5949791eac3eaec5ba2126d3b18a6ad90547a074ad5aa4dfd55fb66b3ba6067ac6545760dea99c5b54836e5fb6004ef7d689ff54bd3f264dd7d773022ce92b6ed981f347eb668333a21dcc70c15e70d91d7e02f768ed32e26f44514e5ac8b7e9c11b1936fadf1587cb5bb13f5fdd98e12559a577b4eb01a7bfe98b819b0ff5b4b5364e61d75b6888ffd4188bd43917b71a9e9b0c9cf881b863bc119e7447619394b9968a86f615266c0197ec92c269339abc03937f22261da4b8aaac0bf5124f5e3fbc5de568e80a32313954108917476b5da6b4281fbe1dc2702a847eacca6d3350d54900017df09450777b5891df4fec022ad840a547b4a6c70ecb22a99841122886f07727dc75d31a724145bd4dc293f1c5d9bf9dbebe03f007b2c3face3ed69b464f46d1e498c371346059b4a6ddac6fcb993b35691167d72d5173161535d3eb105bb195f346ec6c5aedd2d1b4e2fa13489c1e7038b26cef6d5c26c16367781e60a39d46416d546a5070a01863ea3c8fb40e9d1e000dd451ad83a159f8e20537a34eb9bf544388fd7f322a309de8c7f86f3a27ba6fa2e94baff36449c450fd19f0933a40ed2b11a52e5cbb7e2668db60aca83a54b591e24d11f11a6bfc14b3c973674171cb48432871eb5cc67f49e05835ffa6adc29009cb8f4e4569c03c16b2418aa9511fad3ee4d7d7fb35bb9fc25873d7449c86ac89911c9d3fe4fd6d978e0a5df0dd7f8abe03b9098a3e67006157b03423f64dd5e69d27bbd928acfeda8e3b092a43637292bef02bda95f44724eae541086ca1c5f3d942f75d6a148884f2e4f8820c87e2c20213faac902aaa714e46bbda1f2eb4b31788715861c164fb0325649e0beac9fc477f8dfe8dfac819530127bd06668af5193995485ed3be2315a85059de5f13f6542bb8fa43395491766a6ed0382249b1d9dd2d526cd8bb13d3e4f0bd0d1cd09fa9b54a2e8a8036f1ee101e6f54e05d3607ade5a6ae47df0175bd01c38aeead217b37e28c4c346ec2d45b8e3670e5ba1df8309783050167f94fbf5c0bf684f5d1276e9aa2875515d2a2f36736748f8e349dc2a9745591356f600651d867e053ec0c2a976bde5ef5d667f351ffffd0360aa5c1ea03275d44fe5a6ee4b4c52af2371d05cb78435c074de588ea610b4e79dbae2e465c69707600b5f68209cc0fa52b8bb874e41b1ed2f8bb61460e1dcf2c08b9089e9e1b39ecc64160a0f93c8436eea740a83e947fc07c2093552ffa308dc78c76621ecdb1778618e58d5399c80c7141ea9c92fa49e104a519194c5454a11a81f2081e73fe36879dfd4cbb8dfe0c6071b559f1e5c38e3ab1f7ce156274b003bcd4258394bc25ce97937d684376c0fbe50b49157c1ad16236ab56aa678b27c7ad65b7bcc871f4532fa014a800d0758d8190940c50deaaeb9cfdbaad20e6bc1562aeb9d24d34d1ef442f3e3e80c501b21bbe87e48c6001f2e11ea3c71b13f85e5620c29a07959caecec18e833daa708d0a5e431e619cae719643457f4018ab004921d3b085244d5352b402da4cfa10da3dca7e9788117ec6b219cab19abdfbaebc7a9ecb3847ba5d2b5b5a4adf0e078754343aeab3d661c98fff81d9ac601ec1e715db332b03edcd8af4f826e44cfce29addc14065ee9a8eaf98013b4b238bcd09e1a3e0476185f1442c3a08d6a6200a42ab1e61e0b4a60df04233aa166d5247bb7ccd71405ce2458a3755db02d151325ffb4fa0650ded13ffe9585d586eb7fc299d8fd7b9d30d7af820847aee3a48829cd508a535d773fbe981055ea0eba98ccece9adf19d48bc64363185d629812c55fd02b9a15baec805a217cf7bfd841834a301f75f8f37cc366e09c72912a52940ff46c3a715ac22d65f2c8045b8ddec68707d209c80502289dd2aaaa43d8af026a34f914e1711a0878ee9adade40574236425bcb7f5cf9d3ba33b27fdd742348f1930a0e175973e53c356fd4fc872e3594fd594a2a016bb4b610f6d78f53291e0cd906420b44fa33b26dbaf3b044aafd305fde038093371fb11a3dee559499a1af1b31d8b9f54bd53a6e614a58481e97ac85b5e396f45336c69f4df01a4d7ac797dd94570bfda9259dad4bf003fc24f1832649472d92d84f6db6ba93318eee6d921b5ea134e20d04fb9e6d4798240cc9d3ee6aa8b6d89e69374e234c7f4734a9cb92634c39de4f38cb76f7e5bfeabb51344144efe2281dac016384181d32e867f87229455f43528bc64a16b38bd6e62b3efb54c1ffd596ccb378ee996625953f8df9984ee88408d5462e95928fd4dbb2e0b08d84e760802e11b17d59e270f4c8db0d5ebfcddc4d0ff24b248745874cce65f4c353892a74b7eb627b232c4a0f48b078fab7f526fbd442e70e136a783c66790dde106a54a8efe5d9cfbd199a7f36539320c2e9b388311a98824321b9d27efd3b9326d33e0ee816ad5f5c90460aeeae6dbd1cc752041e11f1ffd6adc64497505738a4015c96f5af9201336276ac8c091910fa19ed90d146e0a25f917166a5ecd079272b962e05502b5e5ce665f6f545d52145bb41cb11bf962fed712f824c963cf854bf80fc505f6d0e55006d0abf34765d433864abba07f45ab0dab1c4dc9eb57a151fce84728f2eb7144a778c88a55afcdcd7366f1e6632401376beb149f23011bad47c95825ba0e7b62c9ab539aa06fd2931ab70681fe8cff701489367a436b312fc551965b36665b90830eeb53feb70ea4ad78ac77b43c5fdd134fe6bd746cf36221fde73cbf0ec5d28e6788723171981d332bdee244e7afe0bbedac997fd0b66fe4a781fbb404a186e2e389f6a5e69f3a2e7801d61181efca290a9e5b01662aed3b094a7db6acc0043efe3b8f213fc018cf6faab968c8be26c607857d0efc501a194446fc6f280f785439e917a7f7779b6e092378efb7b9a5a7cb08c1b83d0b110c4628c826076c57ad0973e8d2c297748b1e249ab7523371cf28b63b60429684883d5399c7ca987f4cd09494118f29ba4ed57e8ef18059d19d551266e375be7e28be368ded56f49f67bcdf70000749f869d18e33f7540753c164c6b70888075cb490ebfb78f1442152b089773372b5b730ca8b4297117c406569d509b55455c81aa78fbd672223f90938d4c55ee54d154e391f37326a7ad9e1b79ab1a79e157b108fcf6df1e5966873ba38e3d1492b46e62ffb587332f5d8c8c6dd6721a835cf2a72e7ad97054bb8258d1b490e3208941cab6422c3f61d1ea51183a38b64ff5642c364d5467e14ce1ed76b5fb5b66477dab6bf6ea65581d1ef61a771dfedfc94b8c7a38cad438c03d2ba5559bcdc3d115162503a42f98ed2efe31d467c0bcc0a7e8248ed1190d518f30b67ee398c57ee5e80769c284cf19d720aeb83ee9914f11753232516fc8a516a9c28b34c50fd5e37ad15d28d71eae095c705edf6d499bd7faeb5f5c7f6c13453878f3e79de1ef503e90b8165fb6caad004d123ee2bed3496794ebf52e3892fa03c24d2bad49cb6cfee5c553ca942f4649c01e6857e7366f664787b24f42ffdf5210599fa3d3271366e23349a8c25e1a36d4a4850868aaec92940c388aa895531108ceef6fbec9334023e4dbd35979155ca9aaf0aeaf9a144a9e7fa73a76733e093f26008c0d1cd14d317e7a254bf0f1d996ad30416cc5b3a5a7bbf1049810eaef7b069ac19e65b9fb0a1e944a77a8ea07fa791bf37bae04b20fa65250b6ff1b8547b294218a6ce437059dd5c1b2674383e9772cc4aed3bca26318999fc89d043eb26c7b3939ab841f9147a123eed310ddc96e36efa7f90327fc5c357</script>
+  <div class="hbe hbe-content">
+    <div class="hbe hbe-input hbe-input-default">
+      <input class="hbe hbe-input-field hbe-input-field-default" type="password" id="hbePass">
+      <label class="hbe hbe-input-label hbe-input-label-default" for="hbePass">
+        <span class="hbe hbe-input-label-content hbe-input-label-content-default">Hey, password is required here.</span>
+      </label>
+    </div>
+  </div>
+</div>
+<script data-pjax src="/lib/hbe.js"></script><link href="/css/hbe.style.css" rel="stylesheet" type="text/css">
+              
+
+              
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%8A%80%E6%9C%AF/" class="category-chain-item">技术</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8A%A0%E5%AF%86/">#加密</a>
+      
+        <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">#编程语言</a>
+      
+        <a href="/tags/Golang/">#Golang</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>golang基础学习</div>
+      <div>https://vicety.github.io/2021/03/18/golang基础学习/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Beitragsautor</div>
+          <div>vicety</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Veröffentlicht am</div>
+          <div>2021年3月18日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>Urheberrechtshinweis</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/03/29/Kuberntes-client-go-informer%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" title="Kuberntes client-go informer包源码阅读">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Kuberntes client-go informer包源码阅读</span>
+                        <span class="visible-mobile">Vorheriger</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/03/18/context%E5%8C%85/" title="goalng context包">
+                        <span class="hidden-mobile">goalng context包</span>
+                        <span class="visible-mobile">Nächster</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;Inhaltsverzeichnis</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Suchen</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Stichwort</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+  <script defer>
+    if (document.getElementById('hbePass')) {
+      Fluid.utils.waitElementLoaded('hbe-prefix', function() {
+        var hbePrefix = document.querySelector('hbe-prefix');
+        hbePrefix.parentElement.classList.add('markdown-body');
+        Fluid.utils.retry(function() {
+          if (Fluid.boot && Fluid.boot.refreshPlugins) {
+            Fluid.boot.refreshPlugins();
+            return true;
+          }
+        }, 100, 10);
+      })
+    }
+  </script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog funktioniert am besten mit aktiviertem JavaScript</div>
+  </noscript>
+</body>
+</html>

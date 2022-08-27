@@ -1,0 +1,650 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-cn" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="vicety">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Here&#39;s something encrypted, password is required to continue reading.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LeetCode 395. Longest Substring with At Least K Repeating Characters">
+<meta property="og:url" content="https://vicety.github.io/2018/12/12/LeetCode%20395.%20Longest%20Substring%20with%20At%20Least%20K%20Repeating%20Characters/index.html">
+<meta property="og:site_name" content="vicety的博客">
+<meta property="og:description" content="Here&#39;s something encrypted, password is required to continue reading.">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-12-12T21:16:01.000Z">
+<meta property="article:modified_time" content="2022-08-27T21:31:30.812Z">
+<meta property="article:author" content="vicety">
+<meta property="article:tag" content="加密">
+<meta property="article:tag" content="数据结构与算法">
+<meta property="article:tag" content="刷题">
+<meta property="article:tag" content="LeetCode">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>LeetCode 395. Longest Substring with At Least K Repeating Characters - vicety的博客</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"vicety.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Startseite
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archiv
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Kategorien
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Schlagwörter
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                Über
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://cdn.jsdelivr.net/gh/vicety/Images@master/images/coding.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="LeetCode 395. Longest Substring with At Least K Repeating Characters"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2018-12-12 22:16" pubdate>
+          2018年12月12日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          862 wörter
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          8 minuten
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">LeetCode 395. Longest Substring with At Least K Repeating Characters</h1>
+            
+            
+              
+              <div class="hbe hbe-container" id="hexo-blog-encrypt" data-wpm="Oh, this is an invalid password. Check and try again, please." data-whm="Oh, these decrypted content cannot be verified, but you can still have a look.">
+  <script id="hbeData" type="hbeData" data-hmacdigest="5962935153342c19f0a6fdfab63830d7ab9397bab0542daa76e94cd11c56e588">4724090b17589d633a1c19b9d3b8c5a5670616155111c4b3e8d61983298d9b4d2d06d020ede833aa9a5aa31782b2f479a184a006d4cd4c010c89aa87e3e46b59a25009b10f6e1007f94cf81f48745d06ac1eaf276317873b7783a10d0569704b7457393a61a56e858431c930287e97614ce12078ff9b1263c62f9f8a637b912692eb993018cd437a19f8eafd60bf757b6e8b13056b6b72c76b262442720a46c118eb914807583c2d9663cd6f39b0a990fcc030024898011ef3242f73e83043167a8de5ffffebc72383108dd1689f2c878de054f91c26f8ec1e57234e7e3aec2fbe914acfdda4f2fc23af9c1751407636ddf04d455a3f50b8c2f845bb07970bfecdba57b089b5039e4f64ec964297122babf8500d74e6115e8e5f639499580eeb7b78a91ecd5e6307b53f9ad05a96cb7abd8e9a3c332559e39ada922f0977b8ac1913ae39cc5c0697cfb556c57d6250529a55a83308a561bf6d8e61302cc20cd127c7abbc85bb0dce28bf6c56d9284b1de7635a8e2a7cc4811475ee769750c59aa683b4648e4fbd492fde97c47aeae6f1ef37a552901208ab0fb715f7cab40fa04234791aaa1da50a8e10de94f26dc651eec6fd39e0a48eb949b864966d7ef44babee1cf1265d4329bd27abd20438e2323e925b8ce079b1a31e9c5716f658fc043280b930ad1c5179486d7fd64edd735ed3c84f6cf0d5b8945c4150e7b40e0012b378abc3f807834c6c3b98b6ce0138ebfd81d04df8653233d43bb3e8f6b81e97bbd51260790ac5c8ee176412097558219fbd5a4eb3d344238c4064b08614b1bebc82bfdaa3e8d77d6f906bfa81b23a853e841b2a4e57c9384f6b2c1f9003025433f58afd819dce0956a70865e353388f52f3aaedcfa38cd6bc75ffed9f4e6959848231ddd33a49c19873ea40f86b10771b8d98e7937b3985b21fe53095496026c9418cc85ea193939252a8b80cfc57aa978ecd00001fa589e55b649274bc90bf2acae0a7d1491d4d72b50f95725084842cabda58ce4a04882ac0fd4b0dad3839b5593ad22b4bf86e3ff62998c8a761adbc5189457fd63c93a66c66713063171ba71dc3dcf9ad8baacaa5f3c54e83ac7fd5aa97728bdbaf47af8d02b44ec9546e5df7fc9c7705866063766a625e8530cea73a9c935e6e28d5a7c28c421802a0df1cb833391659d4fd039f47d21a2bd7166b8ad414ec1fc9f3344fbb3e4169baf7b803a2db102033ec31ca5be9fbb8c75ecf7aed14d6c0051718ba36fa8dd5e113f7866a1920f2f6dbd46e20a07c677f0b833b9a7ebd040cc08b7af58d87f8b5d3dfb5d0eee2d349a9581607fee3c3cf60e1933ac7a6bb789992c44874b6c12bfd18bd307968e109199a14ded5129f07b33b54ae58757fa04c247bba2b80e454af4384067b255201d26d2d1534091040fe71ed269676231173ea6fad19998aa3c84c569da47490635133e2fc19a3eb9d3d876926099d1b155f5eb873d0f3c8a6d9375cbf3dbba4d160e6e174da10aac5096ef565e34dc83aec9cd446a149a8a7431892c0a5089fb6673fe16c4be3c4895eea47e1517d7cfe30b9c62037616e4d4873e7c31575759a6a92c3a69fa0aca618d0d410ed82b70b2505adee2cd09daec6b24d5d563420067eb7fae07ccd592a11369c4a105f321144ad613fc2948c1663b501f4a94eccc62f90962736963c1b50ea627b0f5827c0618c4cc68df92cf95ed340144f04b796b0590f71b8f53dfe1e8cc004efcf930afaf8d307b3c451f938b980890764fdcd592d85aebbb33433822291266a741fa0e77a02fe39331837c412480fea50b175af0c1e781441c5227cbe5a1fc591310added0369cff33500902b9e7382665d60495482a2252c7fc6a32dadadfdccd373ed559cdc978edeef70a5e1d54de7003beddedc7abfd30198c7a5203c7b385554b84be104a687b38308a0183db7658393dabb9d9508218cee23c70d24a72c74f0ff2fe043fc73fae8463e3ed89d670cc4802136eaea74cced74020e47d7a2add56c99e9b6c8eca6aa562555624deb119e575d03a25540ed2edacd295bd50073b7cf75f983046576151268d7a48360f53937d1d3d0b7fea25ade36cd560d6841b8fe730edee1ef88cf96e47d9b3445d89135b3161a8b92c8f873f114dad545bf18b80158f1648bd255d9160ec575114eb74f345a5860dd581ab91461afa6f3f130d06b8ea967f35984c2b185bc3db277e0262306ce1bdee7b096510cdb6847bd04b3158d849a8a72f04444d33e63e38e196387ee76a98b69a1453aa3adb0e6d16f934991235a9d9f44c4b25807e8f2598e63ebcdc6e252ef5704e6f1857f05f4329f1baf3978a3923d1732b43ee721b6f5f7debdb143ec2b7def863072ded4b1d638fde6c7ccbc05f85ff8f6d8a5191a873f81058259bb0434b2a8923b42da5efc68d923ab22d5e662927aefd246f53270e80406a2225868c8265ff0e4dd86bae7a92126fff81989336a182cf15fd383bf9c0154e52265ef9c5a4cb5a69255a251c8cd6af04f391583dcc9594532a67049fd510eb88bc4038748d1ba99b03c3a4d5a5a70a7ae182c368772a02b251a99655ded4d2bdb4e82eb55a1a5925476fa5fedfa1014f6ebb5a421e5e2b6d5831cbcaf63e21f3df00034ec1de51ebce351e2b4d1c991afab6b5a453273288e340c1ff972c61bed8076f829c1a89b01940f4091361c4b7387195faa88e629709697bf71daf04a350ce3528dcf152e0f06a6aedc35e9fe85f11c7f333cc654207f3ab7015bd6e2f3187a83a08e10b0a7730d4ec344242c7862f8ef71a55d75b05b4d4e061b1e09f8cdb3dcec67087b5ad2e5d8a3b7a7e95898cb6ea065d847a2337d7404e555fe46c25096b235b989bce9a0327fce13ae4c2ad1df3defb5728e0bdaca61fa363a10896e79ba69e2f5221485fc7129ab7fe63fe803a3d48c4c715c8ed139c998859be0cf10c871157fde05a6dd941e6013592910e4251de77e8236762e3428c38a1c43a1cba3522d7e75f58d382ef7482eed59e9881de068b7db01f04137f438daa861b7246e5079482db9b0135a966cac62b64696095896d7423ea133ab29cc70f81d15dc8a205ce3115db15b9b64873eb531af30b4ce74f74c33891f8b22f8a8ec66ccde644d491268bc6d0dafa76d9d7a11d5f22ee3e28844ca1b46648813f212c5d22a565a2ba1ea14b5849011aab65dec228b3c975f0ab6c6688b26af253f5df81613d654b5a32be8e9506a38265fe4425787a0c88b99510f94b90720f60fc7cfb5670d73fe00f92b633eb04ec6fcf5828cdaf8bd7ef377e43999884504f8375b4dc8b611b703a852c32ab9b335774e350a5f1b54ceccb029ee0dc7f8073e7f4d8c32ec5541c7b307d4d4a88541f621df5191996544109b4e8ed0d09867cf45b5831cfda810b41b0e5a1b110c0acf4849567b22195741aec64eef20afddf7c9d12bc4ad9bb914a7f18e720fef729d5af1ce98a17453a3521ee792516a7c1d761851c2160f4b5e876e14efad5acd639515d57600c477c747e0cc83642e766816172bcf73a6d5d9f2604b206fde75f6dc2f62a5575770817d9bfdcbdba322b7a50dc4c2fc966e6ed11bdd84f89bcea09f95dad4ac8b4a4975b7cfdda2eccc8657079162732531f686919df2e8f9ab45764601d2ae474979b030caa68a207ef3e2ebbc439c428bfb10b1636e2012370328efe9e879c92b91c9b2d5764b56fd2314634ab85b94b63eaf8907e12a423a2f388128daca00cb44df294eda8f7c94dd0b3a44cc431b02f73a9ca6609f51ef513622b48c514c1b80f568fc89b8f0ea36d300b9edcd67fa361ecaa9be39e8451fcf0ef5e1b0ed4e40801cdb8ef429b2c82cc75e2afd96434ac58ae76e9d58d7e04cffbed8cc2b2ab383fdff8e1ea098c6c73831c6ebcfb42a8d4ca92fd93669f40ea9cb89136bd4830066de12dd9aa786aaf57632b66dd39d2ae4638050a9d1539787c900ca0cc38770c52c946f2382f0d7899ab5ac</script>
+  <div class="hbe hbe-content">
+    <div class="hbe hbe-input hbe-input-default">
+      <input class="hbe hbe-input-field hbe-input-field-default" type="password" id="hbePass">
+      <label class="hbe hbe-input-label hbe-input-label-default" for="hbePass">
+        <span class="hbe hbe-input-label-content hbe-input-label-content-default">Hey, password is required here.</span>
+      </label>
+    </div>
+  </div>
+</div>
+<script data-pjax src="/lib/hbe.js"></script><link href="/css/hbe.style.css" rel="stylesheet" type="text/css">
+              
+
+              
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%8A%80%E6%9C%AF/" class="category-chain-item">技术</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%8A%A0%E5%AF%86/">#加密</a>
+      
+        <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">#数据结构与算法</a>
+      
+        <a href="/tags/%E5%88%B7%E9%A2%98/">#刷题</a>
+      
+        <a href="/tags/LeetCode/">#LeetCode</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>LeetCode 395. Longest Substring with At Least K Repeating Characters</div>
+      <div>https://vicety.github.io/2018/12/12/LeetCode 395. Longest Substring with At Least K Repeating Characters/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Beitragsautor</div>
+          <div>vicety</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Veröffentlicht am</div>
+          <div>2018年12月12日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>Urheberrechtshinweis</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/12/12/LeetCode%20397.%20Integer%20Replacement/" title="LeetCode 397. Integer Replacement">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">LeetCode 397. Integer Replacement</span>
+                        <span class="visible-mobile">Vorheriger</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/12/12/LeetCode%20437.%20Path%20Sum%20II/" title="LeetCode 437. Path Sum II">
+                        <span class="hidden-mobile">LeetCode 437. Path Sum II</span>
+                        <span class="visible-mobile">Nächster</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;Inhaltsverzeichnis</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Suchen</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Stichwort</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+  <script defer>
+    if (document.getElementById('hbePass')) {
+      Fluid.utils.waitElementLoaded('hbe-prefix', function() {
+        var hbePrefix = document.querySelector('hbe-prefix');
+        hbePrefix.parentElement.classList.add('markdown-body');
+        Fluid.utils.retry(function() {
+          if (Fluid.boot && Fluid.boot.refreshPlugins) {
+            Fluid.boot.refreshPlugins();
+            return true;
+          }
+        }, 100, 10);
+      })
+    }
+  </script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog funktioniert am besten mit aktiviertem JavaScript</div>
+  </noscript>
+</body>
+</html>
