@@ -16,22 +16,26 @@
   <meta name="author" content="vicety">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Here&#39;s something encrypted, password is required to continue reading.">
+    <meta name="description" content="MillWheel 论文阅读">
 <meta property="og:type" content="article">
-<meta property="og:title" content="计算机科学文章收藏">
-<meta property="og:url" content="https://vicety.github.io/2022/05/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6%E6%96%87%E7%AB%A0%E6%94%B6%E8%97%8F/index.html">
+<meta property="og:title" content="MillWheel: Fault-Tolerant Stream Processing at Internet Scale">
+<meta property="og:url" content="https://vicety.github.io/2022/09/27/MillWheel/index.html">
 <meta property="og:site_name" content="vicety的博客">
-<meta property="og:description" content="Here&#39;s something encrypted, password is required to continue reading.">
+<meta property="og:description" content="MillWheel 论文阅读">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-05-11T21:42:00.000Z">
-<meta property="article:modified_time" content="2022-08-27T21:31:31.003Z">
+<meta property="og:image" content="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7d755b277a0b4b039e9e2718f61a689c~tplv-k3u1fbpfcp-zoom-in-crop-mark:3969:0:0:0.awebp">
+<meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20220927213452.png">
+<meta property="article:published_time" content="2022-09-27T16:16:00.000Z">
+<meta property="article:modified_time" content="2022-09-27T20:36:49.992Z">
 <meta property="article:author" content="vicety">
-<meta property="article:tag" content="加密">
+<meta property="article:tag" content="论文阅读">
+<meta property="article:tag" content="分布式">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7d755b277a0b4b039e9e2718f61a689c~tplv-k3u1fbpfcp-zoom-in-crop-mark:3969:0:0:0.awebp">
   
   
   
-  <title>计算机科学文章收藏 - vicety的博客</title>
+  <title>MillWheel: Fault-Tolerant Stream Processing at Internet Scale - vicety的博客</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -190,13 +194,13 @@
   
 
 <div id="banner" class="banner" parallax=true
-     style="background: url('https://raw.githubusercontent.com/vicety/Images/master/images84301164_p0.png') no-repeat center center; background-size: cover;">
+     style="background: url('https://raw.githubusercontent.com/vicety/Images/master/imageswallhaven-5dwvl7.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="计算机科学文章收藏"></span>
+            <span id="subtitle" data-typed-text="MillWheel: Fault-Tolerant Stream Processing at Internet Scale"></span>
           
         </div>
 
@@ -207,8 +211,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2022-05-11 23:42" pubdate>
-          2022年5月11日 晚上
+        <time datetime="2022-09-27 18:16" pubdate>
+          2022年9月27日 晚上
         </time>
       </span>
     
@@ -219,7 +223,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          254 字
+          2.7k 字
         
       </span>
     
@@ -230,7 +234,7 @@
         
         
         
-          3 分钟
+          23 分钟
         
       </span>
     
@@ -282,25 +286,82 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">计算机科学文章收藏</h1>
+            <h1 style="display: none">MillWheel: Fault-Tolerant Stream Processing at Internet Scale</h1>
             
             
-              
-              <div class="hbe hbe-container" id="hexo-blog-encrypt" data-wpm="Oh, this is an invalid password. Check and try again, please." data-whm="Oh, these decrypted content cannot be verified, but you can still have a look.">
-  <script id="hbeData" type="hbeData" data-hmacdigest="5983b442c5d8b03f46ec173eaeabd23aa5dbaf201e48675d34c41078281d585f">4724090b17589d633a1c19b9d3b8c5a5f1271189aa073a0edb6189b097c4e8eb76e813b65b064b1874e7f31ad404bf1e67e6a77e9f04913ca7088a68cc6f853a47c498af0b14cd7137a6cc964faf73d0c4e3accd9ce4eec24e45252036407003442673c9dc3afa3e2579082c30dd9a9b4004b8dc2aa9fc81a36bf99a34cf0c680111803b23f4936178c72e30527ab57b1b4055d73a1944e75c60bb9d66e0966de0df0e19e6bdd62689f336d9e4476fc02f62ce3ce29865e9005b7d490e4c1533dc062864ae4f27c01dfddfcfc2df045d53ffeadea3e006c7740d6c574c26a59f32f9bd1e7ae1afde3230289e93bd629f3084ccdd178c953840201d530e23fa1025a96f25575c9d897477e285c4ac85537f8f21229b6cce7153e5de0141386d33bbc65dc70b1b6a230053b5bfbc9fb7614228c4311c6165901dabe374128fd768f4bf48e90861fb712db1b223d4ed4b36805ce09fbfe0df560818abd7a592d64d66bcccebb1b7bc78dbf28c8be32acefc2a4ad7bfa026a732131481caf90017a6d11bddac5798217a8d427e02ff1e28a987b506cac6eea38dbe5ad0d7005c7d8f0cbab223f021baadd0622182fc90c922055d9387baca9eb64f8515f160c86011e100dfe67be7d609195168b47c643241fd1787cafbefc51acde89e99e38f9f63553921b5b342dda325d7081b64dc76dbea000cf0425becc05d6d04a3ea8f478ddb39faeb79faaabd8c5aedc1335672f1f757147ed0689056651922f1b44856065a82b92695d2357c15b95655bf798568177238462350745b3b8283a8844b24b4528046ae0d8b4b174c4ab7ce7847b80ab6dd281fa4e2efe5c62681276ae6e00804968c12a774ddb32568c9768db32239d4e8835a37148514a99e35c5020c06ad7ca74b4a7816c18ba07d4f41391366ce24dc41211c24e291ccb7f761545f96823cafcf051af56efe4f9868da4361d8bf849543a8d337d00c9226e7998d1677cd29884637691a62dc2b9d31fc23f00d2d</script>
-  <div class="hbe hbe-content">
-    <div class="hbe hbe-input hbe-input-default">
-      <input class="hbe hbe-input-field hbe-input-field-default" type="password" id="hbePass">
-      <label class="hbe hbe-input-label hbe-input-label-default" for="hbePass">
-        <span class="hbe hbe-input-label-content hbe-input-label-content-default">Hey, password is required here.</span>
-      </label>
-    </div>
-  </div>
-</div>
-<script data-pjax src="/lib/hbe.js"></script><link href="/css/hbe.style.css" rel="stylesheet" type="text/css">
-              
+              <div class="markdown-body">
+                
+                <p>看完文章后最大的问题其实是 “水位线是如何生成的”，参考[1]大致得到了解答</p>
+<h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><ul>
+<li>文章贡献：提出了一个流处理的编程模型，应用到生产环境并进行分析</li>
+<li>用例：Google Zeitgeist，用于获得实时的搜索趋势（也包含某关键词热度的异常下降，文章中叫 dipping）。对每分钟的搜索数据进行聚合，与模型预测进行对比，同时将聚合数据喂给模型使其更新。</li>
+<li>使用低水位（low watermark）这一概念表示系统可以接受 “先于 lwm 的任何消息都不会再到达” 这一结果<ul>
+<li>或者可以理解为，允许乱序 ingest，使得系统实现简单，但需要使用 lwm 尽量减少乱序带来的问题（尽量确保 lwm 以前的数据到齐）</li>
+</ul>
+</li>
+<li>提供 exactly-once</li>
+<li>保证不丢数据</li>
+<li>提供良好的扩展性</li>
+</ul>
+<h3 id="系统设计"><a href="#系统设计" class="headerlink" title="系统设计"></a>系统设计</h3><ul>
+<li><p>文章中叫 <code>computation</code>，实际上就是 DAG 中的节点，节点的输入输出格式为 <code>(key, value, timestamp)</code></p>
+<ul>
+<li>对每个 input stream 可以配置 Key Extractor 从输入中提取 key，根据业务需要选择这个 key，如 Query。也可以对同一个 stream 使用不同的 key extractor，当成多个 stream 来用</li>
+<li>timestamp 字段也是由用户指定的（除 source，我的理解）</li>
+</ul>
+</li>
+<li><p>每个 computation 中的用户代码能够访问到自己的 per-key state，这对实现按 key 聚合的操作是很有用的。单 key 数据的处理是串行的，但不同 key 的处理可以并行</p>
+</li>
+<li><p>状态的存储也是 per-key 的，后端是 Bigtable 或 Spanner</p>
+</li>
+<li><p>水位线</p>
+<ul>
+<li>（非 source node 的）水位线等于 <code>min(cur_node.lwm, upstream_node))</code>，而当前节点的 lwm 是根据当前节点尚未处理完成（未收到下游 ACK）的最早 event 的时间戳决定的。从表达式也可以看出下游需要订阅上游节点的 lwm 变化事件</li>
+<li>source node 的水位线是通过 <code>injector</code> 实现的，论文给出了一个例子：某个 injector 正在读一些文件，那么可以将 lwm 设置为这些文件的创建时间中最早的那个（假设使用文件的创建爱你时间作为 event timestamp，这使得下游基于 lwm 的 timer 能够等到所有文件全部处理完后才触发 handler（开始聚合））</li>
+<li>node 由于事件到来而更新水位线后，会将这一更新通知中心化的 <code>central authority</code> 做持久化，（我的理解）node 的 lwm 更新后会将更新后的值同步到订阅的下游节点</li>
+<li>对于迟到的数据根据配置可以丢弃或单独处理，但无论如何 lwm 总是单调递增的</li>
+<li>用户在对产生的 event 赋的 timestamp 应当不早于这个 event 基于的 source event 的最大 timestamp</li>
+<li>关于分片服务上报的水位线如何影响整个 DAG node 的水位线见下图（不是论文的内容，来自 Flink）</li>
+</ul>
+<p><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7d755b277a0b4b039e9e2718f61a689c~tplv-k3u1fbpfcp-zoom-in-crop-mark:3969:0:0:0.awebp" srcset="/img/loading.gif" lazyload alt="图源：[1]"></p>
+</li>
+<li><p>Timer：根据 wall time 或 lwm 触发的一个 handler，比如说检测 spike 不用等完一个窗口，但检测 dip 需要等完一个窗口，再根据窗口内的数据数量与模型预测比较判断是否是一个 dip，这就用到了 Timer</p>
+</li>
+<li><p>算子间通过 RPC 通信</p>
+</li>
+</ul>
+<h3 id="Fault-Tolerance"><a href="#Fault-Tolerance" class="headerlink" title="Fault Tolerance"></a>Fault Tolerance</h3><ul>
+<li>exactly-once<ul>
+<li>产生 event 时会对其赋 UID 用于判重</li>
+<li>node 收到的事件会先根据内存中维护的布隆过滤器 fast path 判断是否是新事件（filter miss），对于 hit 的情况则需要查存储判断是新数据还是旧数据。当 node 可以确定所有 sender 都不再 retry 时（猜测是 retry 有最大时间），可以在 Bloom Filter 中 GC 这个数据（Bloom Filter 有版本是支持删除操作的）</li>
+<li>如果是新数据，处理后，可能发生变化的 timer、state、production（即输出的 event）都需要持久化</li>
+<li>随后向上游 ACK（上游未收到会永久重试）</li>
+<li>随后向下游发送</li>
+</ul>
+</li>
+<li>strong-production：在向下游发送前，对状态（timer、state、production）变化做原子的持久化。考虑如下场景：向下游发送后没有持久化，尚未收到下游 ACK，挂掉，重启后向下游重新发送，但发送前到来了这个窗口内的新数据，导致向下游发送的数据有变，下游无法简单地判断它是否是新数据。这就是为什么向下游发送前需要持久化</li>
+<li>weak-production and idempotency：如果业务层不需要exactly-once、strong-prediction（业务层有相关机制，或业务层本身没有 strong-production中说的问题，并且是幂等的），也可以关掉这些特性。前者在 ingest event 时不过滤即可，后者在向下游发送 event 前不做持久化即可。但为了保证数据不丢，仍然需要收到来自下游的 ACK 后，才能回复给上游一个 ACK，这相当于把整个 DAG 偶合起来了，端到端的 event 传递会放大错误概率与时延。虽然减少了同步落盘，反而使得性能变差。解决方案是，如果向下游的请求 pending 太久，那么还是会做一次持久化，持久化后就可以不管下游是否 ACK，而直接向上游回复 ACK，从而解除上游阻塞，释放资源。</li>
+<li>状态管理：<ul>
+<li>user state、timers、production checkpoints（就是上面提到的 outbound event 持久化）这些单个 event 导致的状态变化的持久化需要被包装为一个原子操作</li>
+<li>由于 load balance、failure，算子以及状态可能被迁移到其他机器上去运行，带来的一个问题是，旧机器（比如假设它与存储以外的网络断开）可能仍然在写存储，导致脏写问题，或者新机器的内存 cache 与存储不一致的问题。MillWheel 采用 lease 机制确保任何时间段只有一台机器允许写入。<strong>上文提到的 lwm 更新也需要类似机制确保 single writer[2]</strong></li>
+</ul>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/vicety/Images/master/images20220927213452.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6857503495365509127">第十篇|Flink的时间与watermarks详解</a></li>
+<li><a target="_blank" rel="noopener" href="https://codingstory.com/2013/10/02/millwheel%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">MillWheel学习笔记</a></li>
+</ol>
+<h3 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h3><ul>
+<li>source node 如何计算 低水位？<br>参考[1]，对 ingest 的 event 维护最晚时间戳，将低水位设置为最晚时间戳 减 固定值（如一分钟）<br>TODO Flink 似乎是将低水位作为 event 发送给下游的</li>
+</ul>
+<p>TODO Flink 是如何计算低水位的？<br><a target="_blank" rel="noopener" href="https://nightlies.apache.org/flink/flink-docs-master/docs/dev/datastream/event-time/generating_watermarks/">https://nightlies.apache.org/flink/flink-docs-master/docs/dev/datastream/event-time/generating_watermarks/</a></p>
+<blockquote>
+<p>it is computed as the minimum over all the different parallel watermarks.</p>
+</blockquote>
 
-              
+                
+              </div>
             
             <hr/>
             <div>
@@ -316,7 +377,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E6%9D%82%E8%B0%88/" class="category-chain-item">杂谈</a>
+  <a href="/categories/%E6%8A%80%E6%9C%AF/" class="category-chain-item">技术</a>
   
   
 
@@ -331,7 +392,9 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/%E5%8A%A0%E5%AF%86/">#加密</a>
+        <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">#分布式</a>
       
     </div>
   
@@ -343,8 +406,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>计算机科学文章收藏</div>
-      <div>https://vicety.github.io/2022/05/11/计算机科学文章收藏/</div>
+      <div>MillWheel: Fault-Tolerant Stream Processing at Internet Scale</div>
+      <div>https://vicety.github.io/2022/09/27/MillWheel/</div>
     </div>
     <div class="license-meta">
       
@@ -356,7 +419,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2022年5月11日</div>
+          <div>2022年9月27日</div>
         </div>
       
       
@@ -386,18 +449,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2022/05/21/Rust%20%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/" title="Rust 生命周期">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Rust 生命周期</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2022/04/26/Java%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81/" title="Java字符编码">
-                        <span class="hidden-mobile">Java字符编码</span>
+                      <a href="/2022/09/26/Kafka%E8%AE%BA%E6%96%87/" title="Kafka: a Distributed Messaging System for Log Processing">
+                        <span class="hidden-mobile">Kafka: a Distributed Messaging System for Log Processing</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -596,23 +653,6 @@
     }
   });
 </script>
-
-
-  
-  <script defer>
-    if (document.getElementById('hbePass')) {
-      Fluid.utils.waitElementLoaded('hbe-prefix', function() {
-        var hbePrefix = document.querySelector('hbe-prefix');
-        hbePrefix.parentElement.classList.add('markdown-body');
-        Fluid.utils.retry(function() {
-          if (Fluid.boot && Fluid.boot.refreshPlugins) {
-            Fluid.boot.refreshPlugins();
-            return true;
-          }
-        }, 100, 10);
-      })
-    }
-  </script>
 
 
   <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
