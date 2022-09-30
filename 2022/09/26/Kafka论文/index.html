@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20220926162658.png">
 <meta property="article:published_time" content="2022-09-26T16:17:00.000Z">
-<meta property="article:modified_time" content="2022-09-27T20:36:49.987Z">
+<meta property="article:modified_time" content="2022-09-30T06:50:32.378Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="论文阅读">
 <meta property="article:tag" content="分布式">
@@ -222,7 +222,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.3k 字
+          3.4k 字
         
       </span>
     
@@ -233,7 +233,7 @@
         
         
         
-          28 分钟
+          29 分钟
         
       </span>
     
@@ -304,7 +304,7 @@
 </ul>
 </li>
 <li>存储格式：仅支持通过 partition 内的逻辑 offset 定位消息</li>
-<li>读流程：来自 consumer 的 pull 会携带 offset 与可接受的消息长度，broder 会从内存维护的 offset -&gt; segment file 映射中找到文件并返回数据。Consumer 负责维护准确的当前消费 offset（下文会提到，这一数据会定时同步到 zk）<br>读 offset 意味着已经收到前面的</li>
+<li>读流程：来自 consumer 的 pull 会携带 offset 与可接受的消息长度，broder 会从内存维护的 offset -&gt; segment file 映射中找到文件并返回数据。Consumer 负责维护准确的当前消费 offset（下文会提到，这一数据会定时同步到 zk），Consumer 读某个 offset 意味着此 offset 前的数据已经全部收到。同一个 Consumer 对单个 Partition 拉取的数据确保有序<br>TODO Consumer 是如何从多个 parition 拉数据的？维护多个连接吗？</li>
 <li>写流程：文章没提，但是猜测会根据消息内容路由到某个 parition，然后对 partition 追加写即可</li>
 <li>消费者主动从 broker 拉数据（而不是使用推）</li>
 <li>支持两种消费模式，第一种：每条数据只到达某一个消费者；第二种：每条数据会到达所有消费者</li>
