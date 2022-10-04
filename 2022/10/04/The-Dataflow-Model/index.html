@@ -26,7 +26,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221004212057.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221004212403.png">
 <meta property="article:published_time" content="2022-10-04T19:26:00.000Z">
-<meta property="article:modified_time" content="2022-10-04T19:36:40.397Z">
+<meta property="article:modified_time" content="2022-10-04T19:42:15.544Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="论文阅读">
 <meta property="article:tag" content="大数据">
@@ -327,7 +327,7 @@
 <li>AssignWindows：将数据加入某些 windows，需要复制一份数据</li>
 <li>MergeWindows：合并 windows</li>
 </ul>
-<p>为了实现 event-time windowing 数据采用 (k, v, event_time, window) 四元组，新来的数据默认被分给 global window<br>文章之后介绍了 GroupByKeyAndWindow 的实现：</p>
+<p>为了实现 event-time windowing 数据使用 (k, v, event_time, window) 四元组表示，新来的数据默认被分给 global window<br>文章之后介绍了 GroupByKeyAndWindow 的实现：</p>
 <ul>
 <li>默认已经被 assign 给某个 window</li>
 <li>丢弃时间戳（其作用是 assign window，在前一步已经做了）</li>
@@ -345,12 +345,12 @@
 <li>wm 太快：可能有迟到的数据</li>
 <li>wm 太慢：如果我们等待迟到数据太久，那么会伤害实时性</li>
 </ul>
-<p>Lambda Architecture 在 streaming 中采用引入最低时延的 wm，通过之后执行的 batch 处理实现最终一致，但这需要维护两套（stream 和 batch）pipeline。这里引入 trigger 尝试使用一套 pipeline 解决这一问题</p>
+<p>Lambda Architecture 在 streaming 中采用引入最低时延的 watermark 策略，通过稍后执行的 batch 处理实现最终的正确性，但这需要维护两套（stream 和 batch）pipeline。论文引入 trigger 的概念，尝试使用一套 pipeline 解决上面提到的 window 过快&#x2F;过慢 的问题</p>
 <ul>
 <li>windowing 决定<strong>event time 维度上</strong>数据会被如何分组</li>
 <li>triggering 决定<strong>process time 维度上</strong> group 后的数据何时被 emit</li>
 </ul>
-<p>文章介绍了相同 window 可能多次 emit 的数据间的关联关系：</p>
+<p>相同 window 可能发生多次 emit，Dataflow 提供如下几种 emit 数据间的关系：</p>
 <ul>
 <li>discarding：window emit 后清空 buffer，适用于下游希望多次 emit 的数据是独立的情况</li>
 <li>accumulating：emit 后不清空 buffer，下次 emit 视为覆盖上次 emit</li>
@@ -361,13 +361,13 @@
 <li>开始以经典 batch 系统作为后续 examples baseline，在 streaming 系统中相当于 global window，在收到所有数据后 emit 一次，wm 可以看做从负无穷跳变到正无穷</li>
 <li>例1 要求数据是 bounded 的，对于 unbounded 的情况，Dataflow 的默认 triggering 是<strong>当 wm 超过 window 结束边界时</strong> emit window，但这一规则对于无界的 global window 是无效的，Dataflow 提供了 processing time 维度的定时 trigger API</li>
 </ol>
-<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">PCollection&lt;KV&lt;String, <span class="hljs-type">Integer</span>&gt;&gt; output = <span class="hljs-keyword">input</span><br>    .apply(<span class="hljs-keyword">Window</span>.<span class="hljs-keyword">trigger</span>(Repeat(AtPeriod(<span class="hljs-number">1</span>, MINUTE))) // 可修改为基于 event count 的 <span class="hljs-keyword">trigger</span><br>        .accumulating()) // 也可修改为 discarding<br>    .apply(Sum.integersPerKey());<br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java">PCollection&lt;KV&lt;String, Integer&gt;&gt; output = input<br>    .apply(Window.trigger(Repeat(AtPeriod(<span class="hljs-number">1</span>, MINUTE))) <span class="hljs-comment">// 可修改为基于 event count 的 trigger</span><br>        .accumulating()) <span class="hljs-comment">// 也可修改为 discarding</span><br>    .apply(Sum.integersPerKey());<br></code></pre></td></tr></table></figure>
 
 <ol start="3">
 <li>对于不使用 global window 的情况（其实就是 streaming 的场景），可以配置 event time 维度的 window 划分，上面提到过，默认的 trigger 策略是当 wm 越过 window 结束边界时 emit。文章给出了 window + batch &#x2F; micro-batch &#x2F; streaming 的 API</li>
 <li>对于 window + streaming、对于给定的 wm 曲线，发现 streaming 的实时性相比于 micro-batch 下降了（矩形高度相对于 micro-batch 的变高了），Dataflow 也支持在 streaming 模式下添加基于 processing time 的定时 trigger 来提高实时性</li>
 </ol>
-<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">PCollection&lt;KV&lt;String, <span class="hljs-type">Integer</span>&gt;&gt; output = <span class="hljs-keyword">input</span> <br>    .apply(<span class="hljs-keyword">Window</span>.<span class="hljs-keyword">into</span>(FixedWindows.<span class="hljs-keyword">of</span>(<span class="hljs-number">2</span>, MINUTES)) <br>        .<span class="hljs-keyword">trigger</span>(SequenceOf(<br>            RepeatUntil(<br>                AtPeriod(<span class="hljs-number">1</span>, MINUTE), // processing <span class="hljs-type">time</span> 定时 <span class="hljs-keyword">trigger</span> 直到 watermark 边界<br>                AtWatermark()),<br>            Repeat(AtWatermark()))) // 默认策略<br>        .accumulating()) <br>    .apply(Sum.integersPerKey()); <br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java">PCollection&lt;KV&lt;String, Integer&gt;&gt; output = input <br>    .apply(Window.into(FixedWindows.of(<span class="hljs-number">2</span>, MINUTES)) <br>        .trigger(SequenceOf(<br>            RepeatUntil(<br>                AtPeriod(<span class="hljs-number">1</span>, MINUTE), <span class="hljs-comment">// processing time 定时 trigger 直到 watermark 边界</span><br>                AtWatermark()),<br>            Repeat(AtWatermark()))) <span class="hljs-comment">// 默认策略</span><br>        .accumulating()) <br>    .apply(Sum.integersPerKey()); <br></code></pre></td></tr></table></figure>
 
 <p><img src="https://raw.githubusercontent.com/vicety/Images/master/images20221004212057.png" srcset="/img/loading.gif" lazyload alt="wm 到达 window 边界触发 + wm 未到达边界期间定时触发"></p>
 <ol start="5">
