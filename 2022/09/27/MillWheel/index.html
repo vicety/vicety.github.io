@@ -26,7 +26,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20220927224259.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20220927213452.png">
 <meta property="article:published_time" content="2022-09-27T16:16:00.000Z">
-<meta property="article:modified_time" content="2022-10-04T19:42:15.537Z">
+<meta property="article:modified_time" content="2022-10-06T22:18:57.183Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="论文阅读">
 <meta property="article:tag" content="大数据">
@@ -223,7 +223,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.1k 字
+          3.2k 字
         
       </span>
     
@@ -234,7 +234,7 @@
         
         
         
-          26 分钟
+          27 分钟
         
       </span>
     
@@ -317,7 +317,7 @@
 <li><p>水位线</p>
 <ul>
 <li>（非 source node 的）水位线等于 <code>min(cur_node.lwm, upstream_node))</code>，而当前节点的 lwm 是根据当前节点尚未处理完成（未收到下游 ACK）的最早 event 的时间戳决定的。从表达式也可以看出下游需要订阅上游节点的 lwm 变化事件</li>
-<li>source node 的水位线是通过 <code>injector</code> 实现的，论文给出了一个例子：某个 injector 正在读一些文件，那么可以将 lwm 设置为这些文件的创建时间中最早的那个（假设使用文件的创建爱你时间作为 event timestamp，这使得下游基于 lwm 的 timer 能够等到所有文件全部处理完后才触发 handler（开始聚合））</li>
+<li>source node 的水位线是通过 <code>injector</code> 实现的，论文给出了<strong>一个例子</strong>：某个 injector 正在读一些文件，那么可以将 lwm 设置为这些文件的创建时间中最早的那个（假设使用文件的创建时间作为 event timestamp，这使得下游基于 lwm 的 timer 能够等到所有文件全部处理完后才触发 handler（开始聚合））</li>
 <li>node 由于事件到来而更新水位线后，会将这一更新通知中心化的 <code>central authority</code> 做持久化，（我的理解）node 的 lwm 更新后会将更新后的值同步到订阅的下游节点</li>
 <li>对于迟到的数据根据配置可以丢弃或单独处理，但无论如何 lwm 总是单调递增的</li>
 <li>用户在对产生的 event 赋的 timestamp 应当不早于这个 event 基于的 source event 的最大 timestamp</li>
@@ -339,8 +339,8 @@
 <li>随后向下游发送</li>
 </ul>
 </li>
-<li>strong-production：在向下游发送前，对状态（timer、state、production）变化做原子的持久化。考虑如下场景：向下游发送后没有持久化，尚未收到下游 ACK，挂掉，重启后向下游重新发送，但发送前到来了这个窗口内的新数据，导致向下游发送的数据有变，下游无法简单地判断它是否是新数据。这就是为什么向下游发送前需要持久化</li>
-<li>weak-production and idempotency：如果业务层不需要exactly-once、strong-prediction（业务层有相关机制，或业务层本身没有 strong-production中说的问题，并且是幂等的），也可以关掉这些特性。前者在 ingest event 时不过滤即可，后者在向下游发送 event 前不做持久化即可。但为了保证数据不丢，仍然需要收到来自下游的 ACK 后，才能回复给上游一个 ACK，这相当于把整个 DAG 偶合起来了，端到端的 event 传递会放大错误概率与时延。虽然减少了同步落盘，反而使得性能变差。解决方案是，如果向下游的请求 pending 太久，那么还是会做一次持久化，持久化后就可以不管下游是否 ACK，而直接向上游回复 ACK，从而解除上游阻塞，释放资源。</li>
+<li>strong-production：在向下游发送前，对状态（timer、state、production）变化做原子的持久化。考虑如下场景：某个算子执行<strong>窗口</strong>操作向下游发送后没有持久化，尚未收到下游 ACK，挂掉，重启后向下游重新发送，但发送前到来了这个窗口内的新数据，导致向下游发送的数据有变，下游无法简单地判断它是否是新数据。这就是为什么向下游发送前需要持久化<br>NOTE: 猜测加上 strong-production 后还需要向 Dataflow model 中的撤销操作才能解决上面 case 的问题</li>
+<li>weak-production and idempotency：如果业务层不需要exactly-once、strong-production（业务层有相关机制，或业务层本身没有 strong-production 中说的问题，并且是幂等的），也可以关掉这些特性。要关闭 exactly-once 在 ingest event 时不过滤即可（减少维护布隆过滤器的成本），关闭 strong-production 在向下游发送 event 前不做持久化即可。但为了保证数据不丢，仍然需要收到来自下游的 ACK 后，才能回复给上游一个 ACK，这相当于把整个 DAG 偶合起来了，端到端的 event 传递会放大错误概率与时延。虽然减少了同步落盘，反而使得性能变差。解决方案是，如果向下游的请求 pending 太久，那么还是会做一次持久化，持久化后就可以不管下游是否 ACK，而直接向上游回复 ACK，从而解除上游阻塞，释放资源。</li>
 <li>状态管理：<ul>
 <li>user state、timers、production checkpoints（就是上面提到的 outbound event 持久化）这些单个 event 导致的状态变化的持久化需要被包装为一个原子操作</li>
 <li>由于 load balance、failure，算子以及状态可能被迁移到其他机器上去运行，带来的一个问题是，旧机器（比如假设它与存储以外的网络断开）可能仍然在写存储，导致脏写问题，或者新机器的内存 cache 与存储不一致的问题。MillWheel 采用 lease 机制确保任何时间段只有一台机器允许写入。<strong>上文提到的 lwm 更新也需要类似机制确保 single writer[2]</strong></li>
