@@ -26,7 +26,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221004212057.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221004212403.png">
 <meta property="article:published_time" content="2022-10-04T19:26:00.000Z">
-<meta property="article:modified_time" content="2022-10-06T22:18:57.187Z">
+<meta property="article:modified_time" content="2022-10-06T22:20:46.538Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="论文阅读">
 <meta property="article:tag" content="大数据">
@@ -301,7 +301,7 @@
 <li>认为 unbounded datasets 的处理可以看做通过多次 batch 操作实现</li>
 <li>提供与下层执行引擎（batch or stream）无关的编程模型</li>
 <li>定时 punctuation 等价于 micro-batch，仍然有时延问题，引入 trigger 做数据驱动的 window emit</li>
-<li>（我的理解，待确认）整合 MillWheel 和 FlumeJava 暴露一套流批一体的 API</li>
+<li>整合仅支持 streaming 的 MillWheel 和仅支持 batching 的 FlumeJava 暴露一套流批一体的 API</li>
 </ul>
 <p>常见的几种窗口：</p>
 <ul>
