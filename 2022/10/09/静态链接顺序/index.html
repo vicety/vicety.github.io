@@ -16,26 +16,24 @@
   <meta name="author" content="vicety">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Google DataFlow 论文阅读">
+    <meta name="description" content="静态链接的参数顺序可能会影响程序的执行结果">
 <meta property="og:type" content="article">
-<meta property="og:title" content="The Dataflow Model: A Practical Approach to Balancing Correctness, Latency, and Cost in Massive-Scale, Unbounded, Out-of-Order Data Processing">
-<meta property="og:url" content="https://vicety.github.io/2022/10/04/The-Dataflow-Model/index.html">
+<meta property="og:title" content="静态链接的链接顺序">
+<meta property="og:url" content="https://vicety.github.io/2022/10/09/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E9%A1%BA%E5%BA%8F/index.html">
 <meta property="og:site_name" content="vicety的博客">
-<meta property="og:description" content="Google DataFlow 论文阅读">
+<meta property="og:description" content="静态链接的参数顺序可能会影响程序的执行结果">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221004212057.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221004212403.png">
-<meta property="article:published_time" content="2022-10-04T19:26:00.000Z">
-<meta property="article:modified_time" content="2022-10-09T01:21:17.716Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/imagescircdep2.png">
+<meta property="article:published_time" content="2022-10-09T08:17:00.000Z">
+<meta property="article:modified_time" content="2022-10-09T01:23:01.219Z">
 <meta property="article:author" content="vicety">
-<meta property="article:tag" content="论文阅读">
-<meta property="article:tag" content="大数据">
+<meta property="article:tag" content="编译原理">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221004212057.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/vicety/Images/master/imagescircdep2.png">
   
   
   
-  <title>The Dataflow Model: A Practical Approach to Balancing Correctness, Latency, and Cost in Massive-Scale, Unbounded, Out-of-Order Data Processing - vicety的博客</title>
+  <title>静态链接的链接顺序 - vicety的博客</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -194,13 +192,13 @@
   
 
 <div id="banner" class="banner" parallax=true
-     style="background: url('https://raw.githubusercontent.com/vicety/Images/master/imageswallhaven-o59gvl.jpg') no-repeat center center; background-size: cover;">
+     style="background: url('https://raw.githubusercontent.com/vicety/Images/master/images68656805_p0.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="The Dataflow Model: A Practical Approach to Balancing Correctness, Latency, and Cost in Massive-Scale, Unbounded, Out-of-Order Data Processing"></span>
+            <span id="subtitle" data-typed-text="静态链接的链接顺序"></span>
           
         </div>
 
@@ -211,8 +209,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2022-10-04 21:26" pubdate>
-          2022年10月4日 晚上
+        <time datetime="2022-10-09 10:17" pubdate>
+          2022年10月9日 上午
         </time>
       </span>
     
@@ -223,7 +221,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.5k 字
+          2.6k 字
         
       </span>
     
@@ -234,7 +232,7 @@
         
         
         
-          30 分钟
+          22 分钟
         
       </span>
     
@@ -286,101 +284,54 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">The Dataflow Model: A Practical Approach to Balancing Correctness, Latency, and Cost in Massive-Scale, Unbounded, Out-of-Order Data Processing</h1>
+            <h1 style="display: none">静态链接的链接顺序</h1>
             
             
               <div class="markdown-body">
                 
-                <p>wallhaven o59gvl</p>
-<p>对大数据了解不多，文章的理解可能不全正确</p>
-<p>贡献：</p>
-<ul>
-<li>windowing model，支持 unaligned event-time windows</li>
-<li>triggering model</li>
-<li>增量的处理模型</li>
-<li>认为 unbounded datasets 的处理可以看做通过多次 batch 操作实现</li>
-<li>提供与下层执行引擎（batch or stream）无关的编程模型</li>
-<li>定时 punctuation 等价于 micro-batch，仍然有时延问题，引入 trigger 做数据驱动的 window emit</li>
-<li>整合仅支持 streaming 的 MillWheel 和仅支持 batching 的 FlumeJava 暴露一套流批一体的 API</li>
+                <p>pid&#x3D;68656805</p>
+<p>本文翻译自[1]</p>
+<h2 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h2><ol>
+<li>调用链接器时传入的 文件&#x2F;库 的顺序就是链接顺序，链接器按顺序处理这些 文件&#x2F;库</li>
+<li>链接器会维护当前已经遇到的符号，包括已定义的符号，与未定义的符号</li>
+<li>当遇到 object file 时<ul>
+<li>对于 object file export 的符号，检查其是否已经出现过，若否，则加入已定义符号集合</li>
+<li>对于 object file import 的符号，如果其不存在于 已定义符号集合，那么加入 未定义符号集合</li>
 </ul>
-<p>常见的几种窗口：</p>
-<ul>
-<li>aligned window：应用于窗口时间内的所有数据</li>
-<li>unaligned window: 应用窗口时间内的部分数据（如 per-key 的）</li>
-<li>fixed windows &#x2F; tumbling windows: 定长、通常 aligned、不重合的窗口</li>
-<li>sliding windows: 定长、定滑动距离、通常 aligned、存在重合的窗口</li>
-<li>session windows: 通常在一个 timeout 内的、相同 key 的事件 group 到同一个窗口，通常是 unaligned 的</li>
-</ul>
-<p>两个时间概念：</p>
-<ul>
-<li>event time: 事件在事件源的发生时间</li>
-<li>processing time: 从我们的系统中观察到此事件的时间</li>
-</ul>
-<p>processing time 总是大于等于 event time</p>
-<p>经典 batch 模型对于 (k, v) 数据的转换提供两个核心 API：</p>
-<ul>
-<li>ParDo (ParallelDo)：对应 map 或 flatMap</li>
-<li>GroupByKey：顾名思义</li>
-</ul>
-<p>对于 unbounded data，ParDo 照样处理，但对于 GroupByKey，我们不知道何时数据结束（可以开始 group），常见的办法是引入 windowing<br>支持 group、window 的系统通常都将 GroupByKey 实现为 GroupByKeyAndWindow<br>对于任何 windowing 策略，通常都涉及两个 API：</p>
-<ul>
-<li>AssignWindows：将数据加入某些 windows，需要复制一份数据</li>
-<li>MergeWindows：合并 windows</li>
-</ul>
-<p>为了实现 event-time windowing 数据使用 (k, v, event_time, window) 四元组表示，新来的数据默认被分给 global window<br>文章之后介绍了 GroupByKeyAndWindow 的实现：</p>
-<ul>
-<li>默认已经被 assign 给某个 window</li>
-<li>丢弃时间戳（其作用是 assign window，在前一步已经做了）</li>
-<li>合并相同 key 的 event（k1 v1 w1, k1 v2 w2 -&gt; k1[v1w1, v2w2]）</li>
-<li>按 key 合并 window（k1[v1w3, v2w3]）</li>
-<li>合并相同 window 的 value（k1w3[v1, v2]）</li>
-<li>恢复到四元组格式 (k1, [v1,v2], w3.end, w3)</li>
-</ul>
-<p>Question: 原文保证 wm 的正确性的这句话是为什么？</p>
-<blockquote>
-<p>we set the timestamp to the end of the window, but any timestamp greater than or equal to the timestamp of the earliest event in the window is valid with<br>respect to watermark correctness.</p>
-</blockquote>
-<p>创建窗口后还需要 emit 窗口，通常使用 watermark 来推理 window 是否 complete，但有如下问题：</p>
-<ul>
-<li>wm 太快：可能有迟到的数据</li>
-<li>wm 太慢：如果我们等待迟到数据太久，那么会伤害实时性</li>
-</ul>
-<p>Lambda Architecture 在 streaming 中采用引入最低时延的 watermark 策略，通过稍后执行的 batch 处理实现最终的正确性，但这需要维护两套（stream 和 batch）pipeline。论文引入 trigger 的概念，尝试使用一套 pipeline 解决上面提到的 window 过快&#x2F;过慢 的问题</p>
-<ul>
-<li>windowing 决定 <strong>event time 维度上</strong> 数据会被如何分组</li>
-<li>triggering 决定 <strong>process time 维度上</strong> group 后的数据何时被 emit</li>
-</ul>
-<p>相同 window 可能发生多次 emit，Dataflow 提供如下几种 emit 数据间的关系：</p>
-<ul>
-<li>discarding：window emit 后清空 buffer，适用于下游希望多次 emit 的数据是独立的情况</li>
-<li>accumulating：emit 后不清空 buffer，下次 emit 视为覆盖上次 emit</li>
-<li>accumulating &amp; retracting: 当多个 groupByKeyAndWindow 算子相连接时，上游多次 emit 的 window 可能在下游被 window merge 到不同的 window（原文是说在下游可能会被 group 到不同的 key，不太理解，也许是下游采用了不同的 key 视角？），因此需要先回退之前的 emit，再 apply 新的 emit，实现上维护上次 emit 的值即可</li>
-</ul>
-<p>文章给出了一系列 Dataflow Model 的 output pattern 作为 example（疑惑 example 中给的 watermark 是按什么规则画的，不过不影响理解其他部分）</p>
-<ol>
-<li>开始以经典 batch 系统作为后续 examples baseline，在 streaming 系统中相当于 global window，在收到所有数据后 emit 一次，wm 可以看做从负无穷跳变到正无穷</li>
-<li>例1 要求数据是 bounded 的，对于 unbounded 的情况，Dataflow 的默认 triggering 是<strong>当 wm 超过 window 结束边界时</strong> emit window，但这一规则对于无界的 global window 是无效的，Dataflow 提供了 processing time 维度的定时 trigger API</li>
+</li>
+<li>当遇到 库 时，遍历所有其包含的 object 文件，对每个文件，首先会获得其 export 的符号。如果 当前 object 文件的 export 符号集合 交 当前维护的 未定义符号集合 不为空，那么将当前 object 文件像步骤三一样处理（收集其未定义符号）。</li>
+<li>如果在库中任何 object file 找到了未定义符号的定义，那么由于这个 object file 也会走第三部，可能会引入新的 未定义符号，且这些未定义符号可能已经在库内其他文件定义，因此在这种情况下会对这个库重新走一遍步骤四</li>
+<li>对于库中那些对于填补未定义符号没有帮助的 object file，不会被链接到最终的 executable。这也是为什么 libc 中每个函数都表示为一个 object file，这使得最终的 executable 尽量小</li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java">PCollection&lt;KV&lt;String, Integer&gt;&gt; output = input<br>    .apply(Window.trigger(Repeat(AtPeriod(<span class="hljs-number">1</span>, MINUTE))) <span class="hljs-comment">// 可修改为基于 event count 的 trigger</span><br>        .accumulating()) <span class="hljs-comment">// 也可修改为 discarding</span><br>    .apply(Sum.integersPerKey());<br></code></pre></td></tr></table></figure>
+<h2 id="练习"><a href="#练习" class="headerlink" title="练习"></a>练习</h2><h3 id="例1"><a href="#例1" class="headerlink" title="例1"></a>例1</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">cat</span> simplefunc.c<br>int func(int i) &#123;<br>    <span class="hljs-built_in">return</span> i + 21;<br>&#125;<br><br>$ <span class="hljs-built_in">cat</span> simplemain.c<br>int func(int);<br><br>int main(int argc, const char* argv[])<br>&#123;<br>    <span class="hljs-built_in">return</span> func(argc);<br>&#125;<br><br>$ gcc -c simplefunc.c<br>$ gcc -c simplemain.c<br><br><span class="hljs-comment"># 任意顺序链接都 ok</span><br>$ gcc simplefunc.o simplemain.o<br>$ ./a.out ; <span class="hljs-built_in">echo</span> $?<br>22<br>$ gcc simplemain.o simplefunc.o<br>$ ./a.out ; <span class="hljs-built_in">echo</span> $?<br>22<br></code></pre></td></tr></table></figure>
 
-<ol start="3">
-<li>对于不使用 global window 的情况（其实就是 streaming 的场景），可以配置 event time 维度的 window 划分，上面提到过，默认的 trigger 策略是当 wm 越过 window 结束边界时 emit。文章给出了 window + batch &#x2F; micro-batch &#x2F; streaming 的 API</li>
-<li>对于 window + streaming、对于给定的 wm 曲线，发现 streaming 的实时性相比于 micro-batch 下降了（矩形高度相对于 micro-batch 的变高了），Dataflow 也支持在 streaming 模式下添加基于 processing time 的定时 trigger 来提高实时性</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java">PCollection&lt;KV&lt;String, Integer&gt;&gt; output = input <br>    .apply(Window.into(FixedWindows.of(<span class="hljs-number">2</span>, MINUTES)) <br>        .trigger(SequenceOf(<br>            RepeatUntil(<br>                AtPeriod(<span class="hljs-number">1</span>, MINUTE), <span class="hljs-comment">// processing time 定时 trigger 直到 watermark 边界</span><br>                AtWatermark()),<br>            Repeat(AtWatermark()))) <span class="hljs-comment">// 默认策略</span><br>        .accumulating()) <br>    .apply(Sum.integersPerKey()); <br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ ar r libsimplefunc.a simplefunc.o<br>$ ranlib libsimplefunc.a<br>$ gcc  simplemain.o -L. -lsimplefunc<br>$ ./a.out ; <span class="hljs-built_in">echo</span> $?<br>22<br><br><span class="hljs-comment"># 将 simplemain.o 放在后面导致 libsimplefunc 中的 object file 未能被添加到链接器，因此导致 linker 报错：func 未定义</span><br>$ gcc  -L. -lsimplefunc  simplemain.o<br>simplemain.o: In <span class="hljs-keyword">function</span> <span class="hljs-string">&#x27;main&#x27;</span>:<br>simplemain.c:(.text+0x15): undefined reference to <span class="hljs-string">&#x27;func&#x27;</span><br>collect2: ld returned 1 <span class="hljs-built_in">exit</span> status<br></code></pre></td></tr></table></figure>
 
-<p><img src="https://raw.githubusercontent.com/vicety/Images/master/images20221004212057.png" srcset="/img/loading.gif" lazyload alt="wm 到达 window 边界触发 + wm 未到达边界期间定时触发"></p>
-<ol start="5">
-<li>最后给了一个复杂的例子，采用 session window，window 长度一分钟，如果与其他 window 重合，那么会合并，同时这个例子采用 accumulate &amp; retract 的策略</li>
-</ol>
-<p><img src="https://raw.githubusercontent.com/vicety/Images/master/images20221004212403.png" srcset="/img/loading.gif" lazyload alt="9 的迟迟到来导致了外侧最大 window 的合并，8 同理，合并时需要维护被合并 window 的 value（7、10），后期 retract 阶段需要用到"></p>
-<p>文章最后给出了一系列 motivating experiences，也就是根据哪些事例启发了本系统的某个 feature，略</p>
-<h2 id="可以参考但没有参考的文章"><a href="#可以参考但没有参考的文章" class="headerlink" title="可以参考但没有参考的文章"></a>可以参考但没有参考的文章</h2><ol>
-<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/54739130">现代流式计算的基石：Google DataFlow</a></li>
-</ol>
-<p>TODO 根据这篇文章拓展一下，放在一起讲了 FlumeJava、MillWheel、Dataflow Model 和 Beam<br><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1459617">BigData | Apache Beam的诞生与发展</a></p>
-<p>flink 对于 session window 提供哪些配置，或者说需要考虑哪些问题<br><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1539537">https://cloud.tencent.com/developer/article/1539537</a></p>
+<p>结论：如果 A 需要来自 B 的符号定义，那么链接顺序中 A 需要放到 B 前</p>
+<h3 id="例2"><a href="#例2" class="headerlink" title="例2"></a>例2</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">cat</span> func_dep.c<br>int bar(int);<br><br>int func(int i) &#123;<br>    <span class="hljs-built_in">return</span> bar(i + 1);<br>&#125;<br>$ <span class="hljs-built_in">cat</span> bar_dep.c<br>int func(int);<br><br>int bar(int i) &#123;<br>    <span class="hljs-keyword">if</span> (i &gt; 3)<br>        <span class="hljs-built_in">return</span> i;<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">return</span> func(i);<br>&#125;<br><br>gcc -c func_dep.c<br>gcc -c bar_dep.c<br>ar r libfunc_dep.a func_dep.o<br>ar r libbar_dep.a bar_dep.o<br><br><span class="hljs-comment"># main 需要 func，bar_dep 没有 func，跳过，func_dep 有 func，加入，但 func_dep 依赖 bar，寄</span><br>gcc  simplemain.o -L.  -lbar_dep -lfunc_dep<br><span class="hljs-comment"># 反过来可以正常工作</span><br></code></pre></td></tr></table></figure>
 
+<h3 id="例3"><a href="#例3" class="headerlink" title="例3"></a>例3</h3><p>再看一个调换顺序也无法解决的问题</p>
+<p><img src="https://raw.githubusercontent.com/vicety/Images/master/imagescircdep2.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">cat</span> bar_dep.c<br>int func(int);<br>int frodo(int);<br><br>int bar(int i) &#123;<br>    <span class="hljs-keyword">if</span> (i &gt; 3)<br>        <span class="hljs-built_in">return</span> frodo(i);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">return</span> func(i);<br>&#125;<br><br>$ <span class="hljs-built_in">cat</span> frodo_dep.c<br>int frodo(int i) &#123;<br>    <span class="hljs-built_in">return</span> 6 * i;<br>&#125;<br><br><span class="hljs-comment"># 对于这种情况，可以多次 link 相同的库</span><br>$ gcc  -L. simplemain.o -lfunc_dep -lbar_dep -lfunc_dep<br>$ ./a.out ; <span class="hljs-built_in">echo</span> $?<br>24<br><span class="hljs-comment"># 但这样肯定是不行的</span><br>$ gcc  -L. simplemain.o -lbar_dep -lfunc_dep -lbar_dep<br></code></pre></td></tr></table></figure>
+
+<p>链接器也有相关的 Flag 用于解决这一问题，解决的方法和我们上面的做法类似，因此会造成性能下降，细节见原文末尾。实践中应该避免写出循环依赖的代码。</p>
+<h3 id="例4"><a href="#例4" class="headerlink" title="例4"></a>例4</h3><p>考虑两个分开的文件</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">volatile</span> <span class="hljs-type">char</span> src[] = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>&#125;;<br><span class="hljs-keyword">volatile</span> <span class="hljs-type">char</span> dst[<span class="hljs-number">50</span>] = &#123;<span class="hljs-number">0</span>&#125;;<br><br><span class="hljs-type">void</span>* <span class="hljs-title function_">memcpy</span><span class="hljs-params">(<span class="hljs-type">void</span>* dst, <span class="hljs-type">void</span>* src, <span class="hljs-type">int</span> len)</span>;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">const</span> <span class="hljs-type">char</span>* argv[])</span><br>&#123;<br>    <span class="hljs-built_in">memcpy</span>(dst, src, <span class="hljs-keyword">sizeof</span>(src));<br>    <span class="hljs-keyword">return</span> dst[<span class="hljs-number">4</span>];<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">memcpy</span><span class="hljs-params">(<span class="hljs-type">char</span>* aa, <span class="hljs-type">char</span>* bb, <span class="hljs-type">char</span>* cc)</span> &#123;<br>    <span class="hljs-type">int</span> i;<br>    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">100</span>; ++i) &#123;<br>        cc[i] = aa[i] + bb[i];<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ gcc  -L. main_using_memcpy.o -lstray_memcpy<br>$ ./a.out<br>Segmentation fault (core dumped)<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 先提供的 lstray_memcpy 被忽略了，能运行的原因是 gcc 自动帮我们链接了 libc，可以通过 -### 选项验证</span><br>$ gcc  -L. -lstray_memcpy main_using_memcpy.o<br>$ ./a.out ; <span class="hljs-built_in">echo</span> $?<br>5<br></code></pre></td></tr></table></figure>
+
+<p>Question：什么情况下会发生默认的链接？</p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://eli.thegreenplace.net/2013/07/09/library-order-in-static-linking">Library order in static linking</a></li>
+</ol>
+<!-- TODO libc 与 glibc 的关系
+好像说 libc 是 glibc 的一部分
+POSIX 是 操作系统 + libc 共同实现的，不是所有 POSIX API 都对应 system call，对于那些 API 对应一个 system call的，kernel 的表现也未必符合 POSIX 的约定
+<https://stackoverflow.com/questions/11372872/what-is-the-role-of-libcglibc-in-our-linux-app> -->
                 
               </div>
             
@@ -413,9 +364,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
-      
-        <a href="/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/">#大数据</a>
+        <a href="/tags/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/">#编译原理</a>
       
     </div>
   
@@ -427,8 +376,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>The Dataflow Model: A Practical Approach to Balancing Correctness, Latency, and Cost in Massive-Scale, Unbounded, Out-of-Order Data Processing</div>
-      <div>https://vicety.github.io/2022/10/04/The-Dataflow-Model/</div>
+      <div>静态链接的链接顺序</div>
+      <div>https://vicety.github.io/2022/10/09/静态链接顺序/</div>
     </div>
     <div class="license-meta">
       
@@ -440,7 +389,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2022年10月4日</div>
+          <div>2022年10月9日</div>
         </div>
       
       
@@ -470,18 +419,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2022/10/09/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E9%A1%BA%E5%BA%8F/" title="静态链接的链接顺序">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">静态链接的链接顺序</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2022/09/27/MillWheel/" title="MillWheel: Fault-Tolerant Stream Processing at Internet Scale">
-                        <span class="hidden-mobile">MillWheel: Fault-Tolerant Stream Processing at Internet Scale</span>
+                      <a href="/2022/10/04/The-Dataflow-Model/" title="The Dataflow Model: A Practical Approach to Balancing Correctness, Latency, and Cost in Massive-Scale, Unbounded, Out-of-Order Data Processing">
+                        <span class="hidden-mobile">The Dataflow Model: A Practical Approach to Balancing Correctness, Latency, and Cost in Massive-Scale, Unbounded, Out-of-Order Data Processing</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
