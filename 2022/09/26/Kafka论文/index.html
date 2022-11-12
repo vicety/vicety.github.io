@@ -26,8 +26,11 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20220926162658.png">
 <meta property="og:image" content="https://www.conduktor.io/kafka/_next/image?url=https://images.ctfassets.net/o12xgu4mepom/YeG6HfAi9e8pWslz9rmQl/aaa8432f79c247d9fee37b4d7da598d0/Adv_Producer_Acks_DD_3.png&w=3840&q=75">
 <meta property="og:image" content="https://cwiki.apache.org/confluence/download/attachments/67634337/Screen%20Shot%202018-08-01%20at%2016.56.34.png?version=1&modificationDate=1533157038000&api=v2">
+<meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221112073724.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221112075648.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221112080952.png">
 <meta property="article:published_time" content="2022-09-26T16:17:00.000Z">
-<meta property="article:modified_time" content="2022-11-07T07:36:32.585Z">
+<meta property="article:modified_time" content="2022-11-12T07:27:22.198Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="论文阅读">
 <meta property="article:tag" content="大数据">
@@ -224,7 +227,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          11k 字
+          12k 字
         
       </span>
     
@@ -235,7 +238,7 @@
         
         
         
-          89 分钟
+          102 分钟
         
       </span>
     
@@ -293,7 +296,7 @@
               <div class="markdown-body">
                 
                 <p>pid&#x3D;84327200</p>
-<p>本文结合论文与文档对 Kafka 进行介绍</p>
+<p>本文结合论文与相关文档对 Kafka 进行介绍</p>
 <h2 id="论文"><a href="#论文" class="headerlink" title="论文"></a>论文</h2><blockquote>
 <p>We have built a novel messaging system for log processing called Kafka [18] that combines the benefits of traditional log aggregators and messaging systems.</p>
 </blockquote>
@@ -302,7 +305,7 @@
 <li>Topic：用于表示一类数据，支持 partition 为分片单位的读写</li>
 <li>Broker：存储 partition 的一个节点，一个 Kafka 系统通常有多个 Broker</li>
 <li>Partition: 同一个 broker 可以存多个 partition，producer 的 append 与 consumer 的 消费 实际上是以 partition（而不是 topic）为基本单位进行的。每个 partition 物理上对应了多个 segment file。Partition 逻辑上是只 append 的，实际上就是往逻辑上最后的 segment file append。可配置落盘间隔（定时、每多少条消息）。一个 partition 实际上对应多个副本。Partition 是 Kafka 的最小并行单元。<br>Question：数据是如何分片的呢？按 key（但是数据不一定有 key）还是按数据数量动态调整分片数量？所有分片都承载写请求吗？那读也要与多个 partition leader 同时维护多个连接，按顺序交付给应用？<br>Answer: 如果写入的数据无 key，那么 round robin 写入，如果有 key，根据 hash(key) 决定发往哪个 parition leader，任何相同 key 的消息总会存在于相同 partition，仅在同一 partition 下的数据保证按顺序读取，parittion 间无此保证;[5所在列表的 第九节]<br>Answer: partition 数量可以在创建 partition 时指定 [5 的下一节]<br>Question：partition 如何动态调整？</li>
-<li>Record &#x3D; <code>timestamp</code>, <code>key: byteArray</code>, <code>value: byteArray</code>, <code>Headers</code><br>value &#x3D; payload<br>key for enforcing ordering, colocating data, key retention </li>
+<li>Record &#x3D; <code>timestamp</code>, <code>key: byteArray</code>, <code>value: byteArray</code>, <code>Headers</code><br>value &#x3D; payload<br>key for enforcing ordering, colocating data, key retention</li>
 <li>Consumer Group：消费端也需要 scale out，因此引入 Consumer Group，topic 下的 partition 会被分配给 group 中的各个 consumer，但保证一个 partition 只可能被一个 consumer 消费，这是出减少加锁的考虑。同时也意味着 consumer 数量无法超过 partition 数量<br>NOTE：这么说由于每个 partition 可以被多个 producer 写入，看来写入是要加锁的</li>
 <li>存储格式：仅支持通过 partition 内的逻辑 offset 定位消息</li>
 <li>读流程：来自 consumer 的 pull 会携带 offset 与可接受的消息长度，broder 会从内存维护的 offset -&gt; segment file 映射中找到文件并返回数据。Consumer 负责维护准确的当前消费 offset（下文会提到，这一数据会定时同步到 zk），Consumer 读某个 offset 意味着此 offset 前的数据已经全部收到。同一个 Consumer 对单个 Partition 拉取的数据确保有序<br>TODO Consumer 是如何从多个 parition 拉数据的？维护多个连接吗？</li>
@@ -315,7 +318,7 @@
 <li>客户端每次取一个 batch，通常几百K</li>
 <li>仅依赖磁盘的 page cache，进程挂掉不影响 cache，没有应用层 cache 能减少很多 GC，使得如果使用 VM 语言实现 Kafka 会有更高效率</li>
 <li>使用 sendFile 系统调用，数据从磁盘 DMA 到内核，再直接到网卡，仅需 一次系统调用 与 两次数据拷贝。对比 read + write 是 两次系统调用 + 四次数据拷贝（DMA * 2 + CPU 拷贝 * 2）<br>TODO 发包从 内核内存 到 网卡也是 DMA 吗？</li>
-<li>消费进度在消费者维护，使得 broder 无状态，但给持久化的数据的 GC 带来麻烦，因此采用可配置的超时清理策略实现 GC<ul>
+<li>消费进度在消费者维护，使得 broker 无状态，但给持久化的数据的 GC 带来麻烦，因此采用可配置的超时清理策略实现 GC<ul>
 <li>另一个值得一提的优势是，尽管降低了 GC 的精确性，但也使得消费者可以实现“时间回溯”，重新消费已经消费过的数据。考虑场景：消费者定期将消费进度持久化，挂掉后需要从最近的一次 checkpoint 重新开始</li>
 </ul>
 </li>
@@ -393,10 +396,15 @@
 <p>TODO 这里提到 Kafka 目前（2016）还没有 exactly-once producer，所以我们说的 exactly-once 都是 consumer？现在有 exactly-once 的 producer 了吗？<br><a target="_blank" rel="noopener" href="https://www.confluent.io/blog/apache-flink-apache-kafka-streams-comparison-guideline-users/#:~:text=Kafka%20does%20not%20provide%20an%20exactly%2Donce%20producer%20yet">https://www.confluent.io/blog/apache-flink-apache-kafka-streams-comparison-guideline-users/#:~:text=Kafka%20does%20not%20provide%20an%20exactly%2Donce%20producer%20yet</a></p>
 <h3 id="Consumer"><a href="#Consumer" class="headerlink" title="Consumer"></a>Consumer</h3><p>Consumer 主动向各个 partition leader 拉数据，指定</p>
 <h3 id="推还是拉（Consumer-与-Leader，Leader-与-follower）"><a href="#推还是拉（Consumer-与-Leader，Leader-与-follower）" class="headerlink" title="推还是拉（Consumer 与 Leader，Leader 与 follower）"></a>推还是拉（Consumer 与 Leader，Leader 与 follower）</h3><p>TODO</p>
-<h3 id="Exactly-Once"><a href="#Exactly-Once" class="headerlink" title="Exactly-Once"></a>Exactly-Once</h3><p>TODO</p>
+<h3 id="Static-Membership"><a href="#Static-Membership" class="headerlink" title="Static Membership"></a>Static Membership</h3><p><a target="_blank" rel="noopener" href="https://www.conduktor.io/kafka/consumer-incremental-rebalance-and-static-group-membership#Consumer-Static-Group-Membership-2">https://www.conduktor.io/kafka/consumer-incremental-rebalance-and-static-group-membership#Consumer-Static-Group-Membership-2</a></p>
+<p>Consumer Eager Rebalancing<br>Consumer Cooperative Rebalance (Incremental Rebalance)<br>Consumer Static Group Membership</p>
+<h3 id="Exactly-Once"><a href="#Exactly-Once" class="headerlink" title="Exactly-Once"></a>Exactly-Once</h3><p>Kafka 仅当向 client 返回 commit 的数据安全时，为这些数据提供 Exactly-once 语义，换句话说需要将配置设置为 <code>ack=-1</code>, <code>unclean=false</code>, <code>insync</code> 越大越好</p>
+<p>接下来分为两块进行讨论：发布时与消费时</p>
+<p>发布时，0.11 以前的 Kafka 提供 at-least-once，0.11 开始为每个 producer 发送的消息携带 seq id 实现去重，从而实现 exactly-once。也是从 0.11 开始，Kafka 支持 producer 以事务语义向多个 topic 发送消息（猜测是个两阶段提交）</p>
+<p>消费时，<br>TODO 需要进一步补充</p>
 <h3 id="数据复制"><a href="#数据复制" class="headerlink" title="数据复制"></a>数据复制</h3><p>论文发表时还没有数据复制相关的方案，这块内容在文档[3]中做了详细描述</p>
 <p>Kafka <strong>为每个 partition 选主</strong>，通常 partition 比 broder 数量多很多，parition 的 leader 在 broder 间均匀分布（类似于 GFS 的 chunk 与 chunk server 方案）</p>
-<p>Kafka 引入了 <strong>ISR 机制</strong>：ISR 是一个节点集合，集合内的节点走同步复制，其余节点走异步复制。选主仅从 ISR 集合选（由于是同步复制，任意 ISR 都可以成为 Leader）（有选项可以从任意节点选，下面会介绍）<br>TODO：似乎不是同步复制，而是 follower 主动拉取的流程</p>
+<p>Kafka 引入了 <strong>ISR 机制</strong>：ISR 是一个节点集合，集合内的节点走同步复制，其余节点走异步复制。选主仅从 ISR 集合选（由于是同步复制，任意 ISR 都可以成为 Leader）（有选项可以从任意节点选，下面会介绍）</p>
 <p>Motivation：认为类似 Raft 的 majority vote 复制太重了，只适合 metadata 的维护（etcd、zk、consul）。具体来说，支持至多 2 节点宕机需要 5 节点。而对于上述方案，能够使用 f+1 replica 承受 f 个副本的宕机。但这是以<strong>可用性换来的持久性</strong>（或者叫数据安全），并且实现它需要设置一些参数：</p>
 <ol>
 <li>ack&#x3D;1&#x2F;0&#x2F;-1，分别代表：</li>
@@ -461,7 +469,7 @@
 <li><a target="_blank" rel="noopener" href="https://t1mek1ller.github.io/2020/02/15/kafka-leader-epoch/">为什么Kafka需要Leader Epoch？</a></li>
 <li><a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-101+-+Alter+Replication+Protocol+to+use+Leader+Epoch+rather+than+High+Watermark+for+Truncation">KIP-101 - Alter Replication Protocol to use Leader Epoch rather than High Watermark for Truncation</a></li>
 </ol>
-<h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><h5 id="Question：ISR-数量是手动配的还是通过某种-Failure-Detector-动态维护的？"><a href="#Question：ISR-数量是手动配的还是通过某种-Failure-Detector-动态维护的？" class="headerlink" title="Question：ISR 数量是手动配的还是通过某种 Failure Detector 动态维护的？"></a>Question：ISR 数量是手动配的还是通过某种 Failure Detector 动态维护的？</h5><p>是动态的</p>
+<h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><h5 id="Question：ISR-数量是手动配的还是通过某种-Failure-Detector-动态维护的？"><a href="#Question：ISR-数量是手动配的还是通过某种-Failure-Detector-动态维护的？" class="headerlink" title="Question：ISR 数量是手动配的还是通过某种 Failure Detector 动态维护的？"></a>Question：ISR 数量是手动配的还是通过某种 Failure Detector 动态维护的？</h5><p>Answer: 是动态的</p>
 <blockquote>
 <p>Kafka dynamically maintains a set of in-sync replicas (ISR) that are caught-up to the leader. Only members of this set are eligible for election as leader. A write to a Kafka partition is not considered committed until all in-sync replicas have received the write. This ISR set is persisted in the cluster metadata<br>whenever it changes.</p>
 </blockquote>
@@ -469,7 +477,7 @@
 <li><code>replica.lag.time.max.ms</code>，最多容忍这么长时间进度未跟上 master，默认是 10000</li>
 <li>ISR 挂掉（zk 后端通过 ephemeral node 实现）<br>  Question：这个 check 是怎么实现的？<br>  TODO 可能要看源码了，让我设计的话，master 同步复制时携带进度，每次跟上进度时重置定时器，到达时间后主动向 zk 汇报落后信息（如果与 zk 的连接不同，由于使用 ephemeral node，仍然能检测到）</li>
 </ol>
-<h5 id="Question：ISR-机制这么好，为什么-Raft-不用？"><a href="#Question：ISR-机制这么好，为什么-Raft-不用？" class="headerlink" title="Question：ISR 机制这么好，为什么 Raft 不用？"></a>Question：ISR 机制这么好，为什么 Raft 不用？</h5><p>因为 ISR 集合的维护还需要额外的服务支持，在 Kafka 中是 ZK 或 KRaft。也就是说你没法用依赖 Raft 的设计实现 Raft。</p>
+<h5 id="Question：ISR-机制这么好，为什么-Raft-不用？"><a href="#Question：ISR-机制这么好，为什么-Raft-不用？" class="headerlink" title="Question：ISR 机制这么好，为什么 Raft 不用？"></a>Question：ISR 机制这么好，为什么 Raft 不用？</h5><p>Answer: 因为 ISR 集合的维护还需要额外的服务支持，在 Kafka 中是 ZK 或 KRaft。也就是说你没法用依赖 Raft 的设计实现 Raft。</p>
 <p>文档[3]中提到：Quorum 系统适合维护配置，但需要 2f + 1 节点来保证 f 节点宕机情况下的强一致性 + 可用性</p>
 <blockquote>
 <p>doing every write five times, with 5x the disk space requirements and 1&#x2F;5th the throughput, is not very practical for large volume data problems. This is likely why quorum algorithms more commonly appear for shared cluster configuration such as ZooKeeper but are less common for primary data storage.</p>
@@ -482,8 +490,43 @@
 </blockquote>
 <h2 id="Confluent-Kafka-Courses"><a href="#Confluent-Kafka-Courses" class="headerlink" title="Confluent Kafka Courses"></a>Confluent Kafka Courses</h2><p>Producer 调优：linger miliseconds &amp; batch size（flush 前的 最大等待时间、最大消息数量，默认 0 16KB）<br>调优这两个参数做的一些实验 <a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/producer-hands-on/">https://developer.confluent.io/learn-kafka/architecture/producer-hands-on/</a></p>
 <p>TODO ksqlDB internals <a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/inside-ksqldb/streaming-architecture/">https://developer.confluent.io/learn-kafka/inside-ksqldb/streaming-architecture/</a></p>
-<h2 id="思考与总结"><a href="#思考与总结" class="headerlink" title="思考与总结"></a>思考与总结</h2><p>对 Consumer 与 Broker 的 watch 使得 Parition 与 Consumer 的关系能够随着 Consumer 的加入&#x2F;挂掉、Broker 的加入&#x2F;挂掉 实现自动调整，从而实现 scale out</p>
-<p>TODO 读写流程 <a target="_blank" rel="noopener" href="https://yangyangmm.cn/2021/10/24/Kafka%E7%9A%84%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B/">https://yangyangmm.cn/2021/10/24/Kafka%E7%9A%84%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B/</a></p>
+<h3 id="读写流程"><a href="#读写流程" class="headerlink" title="读写流程"></a>读写流程</h3><p>本节参考 <a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/broker/">Inside the Apache Kafka Broker</a></p>
+<p>TODO 补充参考中缺少的 client 找 broker 的过程</p>
+<p>client 发送消息过程：</p>
+<ol>
+<li><code>linger.ms</code> <code>batch.size</code> 任一作为触发批量发送的条件</li>
+<li>可配置消息压缩类型</li>
+<li>（猜测）图中 ack 消息中的 record_set 指的是 offset</li>
+</ol>
+<p>关于 ack 消息格式可参考<a target="_blank" rel="noopener" href="https://kafka.apache.org/23/javadoc/index.html?org/apache/kafka/clients/producer/KafkaProducer.html">这个类</a>，其暴露了获得 offset、partition 的方法</p>
+<p><img src="https://raw.githubusercontent.com/vicety/Images/master/images20221112073724.png" srcset="/img/loading.gif" lazyload></p>
+<p>Broker 处理 producer 请求流程：</p>
+<ol>
+<li>Network thread 的收发与client 绑定（连接复用）</li>
+<li>Request Queue 是全局的，Response Queue 是 per thread 的</li>
+<li>（猜测）用的是 TCP，用于保证 in flight 消息间的顺序</li>
+<li>磁盘维护 segment，存真正的数据，以及一个 index，维护 offset 与 byte range 的对应关系。</li>
+<li>IO thread 阻塞到系统调用结束，后续的同步复制不再阻塞 IO thread，而是使用 Purgatory （一个 map）维护这一 pending replication，同步复制完成后，根据此 map 找到 pending replication 的相关信息，构造 response，根据 connection 推入对应 thread 的队列，等待 thread 消费</li>
+</ol>
+<p><img src="https://raw.githubusercontent.com/vicety/Images/master/images20221112075648.png" srcset="/img/loading.gif" lazyload></p>
+<p>Broker 处理 consumer 请求流程与写请求类似，值得一提的点：</p>
+<ol>
+<li>类似于 producer 以 batch 推消息，Broker 发给 consumer 也有类似的参数 <code>fetch.min.bytes</code>(default 1) 与 <code>fetch.max.wait.ms</code>(default 500)</li>
+<li>较新的数据可能还在 page cache，较老的数据也会走 sendfile 零拷贝，两条路径都是效率优化过的</li>
+<li>（未验证）<code>consumer.poll(long)</code> 指定的是客户端 timeout，注意与上面的 <code>fetch.max.wait.ms</code> 区分，<a target="_blank" rel="noopener" href="https://www.cnblogs.com/huxi2b/p/10773559.html">参考</a></li>
+</ol>
+<p><img src="https://raw.githubusercontent.com/vicety/Images/master/images20221112080952.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="调优"><a href="#调优" class="headerlink" title="调优"></a>调优</h2><p>参考</p>
+<p>如何学习kafka？ - 腾讯技术工程的回答 - 知乎<br><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/456093354/answer/2754225999">https://www.zhihu.com/question/456093354/answer/2754225999</a></p>
+<h2 id="思考与总结"><a href="#思考与总结" class="headerlink" title="思考与总结"></a>思考与总结</h2><ol>
+<li>对 Consumer 与 Broker 的 watch 使得 Parition 与 Consumer 的关联关系能够随着 Consumer 的加入&#x2F;挂掉、Broker 的加入&#x2F;挂掉 实现自动调整，从而实现 scale out<br>TODO 需要修改 broder 为啥会挂</li>
+<li>为什么 producer 推，consumer 拉</li>
+<li>消费进度的维护</li>
+<li>提供何种保证 exactly-once ？</li>
+<li>数据复制<br>TODO</li>
+<li>运行效率（Kafka 为什么快）</li>
+</ol>
+<h2 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h2><p>TODO 读写流程 <a target="_blank" rel="noopener" href="https://yangyangmm.cn/2021/10/24/Kafka%E7%9A%84%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B/">https://yangyangmm.cn/2021/10/24/Kafka%E7%9A%84%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B/</a></p>
 <p>TODO Future Work 部分提到 相同 key 走到相同 partition，Kafka 有相关机制来实现吗？<br>TODO 另一个常见八股是 Kafka 为什么快，有空整理一下</p>
 <p>TODO 看下 Kafka 的设计文档中的：<br>Geo-Replication<br>多租户<br>监控<br>真实的读写流程</p>
 <p>TODO Kafka 两阶段提交<br><a target="_blank" rel="noopener" href="https://www.confluent.io/blog/transactions-apache-kafka/">https://www.confluent.io/blog/transactions-apache-kafka/</a></p>
