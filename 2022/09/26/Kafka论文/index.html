@@ -30,7 +30,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221112075648.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221112080952.png">
 <meta property="article:published_time" content="2022-09-26T16:17:00.000Z">
-<meta property="article:modified_time" content="2022-11-13T17:33:27.379Z">
+<meta property="article:modified_time" content="2022-11-23T13:10:06.256Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="论文阅读">
 <meta property="article:tag" content="大数据">
@@ -238,7 +238,7 @@
         
         
         
-          108 分钟
+          109 分钟
         
       </span>
     
@@ -307,7 +307,7 @@
 <li>Broker：存储 partition 的一个节点，一个 Kafka 系统通常有多个 Broker</li>
 <li>Partition: 同一个 broker 可以存多个 partition，producer 的 append 与 consumer 的 消费 实际上是以 partition（而不是 topic）为基本单位进行的。每个 partition 物理上对应了多个 segment file。Partition 逻辑上是只 append 的，实际上就是往逻辑上最后的 segment file append。可配置落盘间隔（定时、每多少条消息）。一个 partition 实际上对应多个副本。Partition 是 Kafka 的最小并行单元。<br>Question：数据是如何分片的呢？按 key（但是数据不一定有 key）还是按数据数量动态调整分片数量？所有分片都承载写请求吗？那读也要与多个 partition leader 同时维护多个连接，按顺序交付给应用？<br>Answer: 如果写入的数据无 key，那么 round robin 写入，如果有 key，根据 hash(key) 决定发往哪个 parition leader，任何相同 key 的消息总会存在于相同 partition，仅在同一 partition 下的数据保证按顺序读取，parittion 间无此保证;[5所在列表的 第九节]<br>Answer: partition 数量可以在创建 partition 时指定 [5 的下一节]<br>Question：partition 如何动态调整？</li>
 <li>Record &#x3D; <code>timestamp</code>, <code>key: byteArray</code>, <code>value: byteArray</code>, <code>Headers</code><br>value &#x3D; payload<br>key for enforcing ordering, colocating data, key retention</li>
-<li>Consumer Group：消费端也需要 scale out，因此引入 Consumer Group，topic 下的 partition 会被分配给 group 中的各个 consumer，但保证一个 partition 只可能被一个 consumer 消费，这是出减少加锁的考虑。同时也意味着 consumer 数量无法超过 partition 数量<br>NOTE：这么说由于每个 partition 可以被多个 producer 写入，看来写入是要加锁的</li>
+<li>Consumer Group：消费端也需要 scale out，因此引入 Consumer Group，topic 下的 partition 会被分配给 group 中的各个 consumer，但保证一个 partition 只可能被一个 consumer 消费，这是出减少加锁的考虑。同时也意味着 consumer 数量无法超过 partition 数量<br>NOTE：这么说由于每个 partition 可以被多个 producer 写入，看来写入是要加锁的<br>Question: Consumer Group 支持订阅多个 topic 吗？内部的 Consumer 会因为 partition 的重新分配而收到来自不同 topic 的消息吗？<br>Answer：支持订阅多个 topic，不会，consumer 只可能收到自己声明订阅的 topic 的消息，见[9]</li>
 <li>存储格式：仅支持通过 partition 内的逻辑 offset 定位消息</li>
 <li>读流程：来自 consumer 的 pull 会携带 offset 与可接受的消息长度，broder 会从内存维护的 offset -&gt; segment file 映射中找到文件并返回数据。Consumer 负责维护准确的当前消费 offset（下文会提到，这一数据会定时同步到 zk），Consumer 读某个 offset 意味着此 offset 前的数据已经全部收到。同一个 Consumer 对单个 Partition 拉取的数据确保有序<br>TODO Consumer 是如何从多个 parition 拉数据的？维护多个连接吗？</li>
 <li>写流程：文章没提，但是猜测会根据消息内容路由到某个 parition，然后对 partition 追加写即可</li>
@@ -556,6 +556,7 @@
 <li><a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/get-started/">COURSE: APACHE KAFKA® INTERNAL ARCHITECTURE: The Fundamentals</a></li>
 <li><a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/data-replication/">Data Plane: Replication Protocol</a></li>
 <li><a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/control-plane/">The Apache Kafka Control Plane</a></li>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/q/67466262/8454039">Using same consumer group for different kafka topics</a></li>
 </ol>
 
                 
