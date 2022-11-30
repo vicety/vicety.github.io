@@ -31,7 +31,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221112075648.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221112080952.png">
 <meta property="article:published_time" content="2022-09-26T16:17:00.000Z">
-<meta property="article:modified_time" content="2022-11-30T01:06:11.871Z">
+<meta property="article:modified_time" content="2022-11-30T01:20:15.884Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="论文阅读">
 <meta property="article:tag" content="大数据">
@@ -239,7 +239,7 @@
         
         
         
-          127 分钟
+          125 分钟
         
       </span>
     
@@ -298,6 +298,7 @@
                 
                 <p>pid&#x3D;84327200</p>
 <p>本文结合论文与相关文档对 Kafka 进行介绍，文档主要来源于 Apache Kafka，少部分来源于 Confluent Kafka</p>
+<p>论文中介绍的是较早期 Kafka 的系统实现，与当前实现有差别，但对于第一次学习此系统仍然是有价值的。（论文部分提出的 Q&amp;A 仍然是基于现有版本的 Kafka 进行讨论）</p>
 <h2 id="论文"><a href="#论文" class="headerlink" title="论文"></a>论文</h2><blockquote>
 <p>We have built a novel messaging system for log processing called Kafka [18] that combines the benefits of traditional log aggregators and messaging systems.</p>
 </blockquote>
@@ -306,7 +307,7 @@
 <h3 id="概念定义与系统设计"><a href="#概念定义与系统设计" class="headerlink" title="概念定义与系统设计"></a>概念定义与系统设计</h3><ul>
 <li>Topic：用于表示一类数据，支持 partition 为分片单位的读写</li>
 <li>Broker：存储 partition 的一个节点，一个 Kafka 系统通常有多个 Broker</li>
-<li>Partition: 同一个 broker 可以存多个 partition，producer 的 append 与 consumer 的 消费 实际上是以 partition（而不是 topic）为基本单位进行的。每个 partition 物理上对应了多个 segment file。Partition 逻辑上是只 append 的，实际上就是往逻辑上最后的 segment file append。可配置落盘间隔（定时、每多少条消息）。一个 partition 实际上对应多个副本。Partition 是 Kafka 的最小并行单元。<br>Question：数据是如何分片的呢？按 key（但是数据不一定有 key）还是按数据数量动态调整分片数量？所有分片都承载写请求吗？那读也要与多个 partition leader 同时维护多个连接，按顺序交付给应用？<br>Answer: 如果写入的数据无 key，那么 round robin 写入，如果有 key，根据 hash(key) 决定发往哪个 parition leader，任何相同 key 的消息总会存在于相同 partition，<strong>仅在同一 partition 下的数据保证按顺序读取</strong>，parittion 间无此保证;[5所在列表的 第九节]<br>Answer: partition 数量可以在创建 partition 时指定 [5 的下一节]<br>Question：partition 如何动态调整？</li>
+<li>Partition: 同一个 broker 可以存多个 partition，producer 的 append 与 consumer 的 消费 实际上是以 partition（而不是 topic）为基本单位进行的。每个 partition 物理上对应了多个 segment file。Partition 逻辑上是只 append 的，实际上就是往逻辑上最后的 segment file append。可配置落盘间隔（定时、每多少条消息）。一个 partition 实际上对应多个副本。Partition 是 Kafka 的最小并行单元。<br>Question：数据是如何分片的呢？按 key（但是数据不一定有 key）还是按数据数量动态调整分片数量？所有分片都承载写请求吗？那读也要与多个 partition leader 同时维护多个连接，按顺序交付给应用？<br>Answer: 如果写入的数据无 key，那么 round robin 写入，如果有 key，根据 hash(key) 决定发往哪个 parition leader，任何相同 key 的消息总会存在于相同 partition，<strong>仅在同一 partition 下的数据保证按顺序读取</strong>，parittion 间无此保证;[5所在列表的 第九节]<br>Answer: partition 数量可以在创建 partition 时指定 [5 的下一节]<br>Question：partition 是否支持动态调整？<br>不支持，见<a target="_blank" rel="noopener" href="https://stackoverflow.com/a/32794994/8454039">此处</a></li>
 <li>Record &#x3D; <code>timestamp</code>, <code>key: byteArray</code>, <code>value: byteArray</code>, <code>Headers</code><br>value &#x3D; payload<br>key for enforcing ordering, colocating data, key retention</li>
 <li>Consumer Group：消费端也需要 scale out，因此引入 Consumer Group，topic 下的 partition 会被分配给 group 中的各个 consumer，但保证一个 partition 只可能被一个 consumer 消费，这是出减少加锁的考虑。同时也意味着 consumer 数量无法超过 partition 数量<br>NOTE：这么说由于每个 partition 可以被多个 producer 写入，看来写入是要加锁的<br>Question: Consumer Group 支持订阅多个 topic 吗？内部的 Consumer 会因为 partition 的重新分配而收到来自不同 topic 的消息吗？<br>Answer：支持;不会，consumer 只可能收到自己声明订阅的 topic 的消息，见[9]<br>TODO 学习 Consumer Group <a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/consumer-group-protocol/">https://developer.confluent.io/learn-kafka/architecture/consumer-group-protocol/</a><br>TODO 关注问题：Broder 中的 Group Coordinator 和 CG 中的 Group Leader 分别起了什么作用</li>
 <li>存储格式：仅支持通过 partition 内的逻辑 offset 定位消息</li>
@@ -389,17 +390,16 @@
 <li>生产者、Broker、消费者间一致的数据格式：数据不需要在应用层做转换，能够直接用 sendfile 系统调用避免 context switch 与 数据拷贝到用户态。<br>如果消费者能够跟上生产者，那么就能够在 pagecache 有效期间完成读取，不走磁盘读，是高效的过程<br>如果与消费者建立的是 TLS&#x2F;SSL 连接，对应需要使用 SSL_sendfile 系统调用，但 Kafka 目前还不支持</li>
 <li>消息压缩：在生产者压缩（文档没说，我的猜测），在消费者解压缩。这是出于网络带宽瓶颈的一项优化</li>
 </ul>
-<h3 id="Producer"><a href="#Producer" class="headerlink" title="Producer"></a>Producer</h3><p>直接向 Leader Broder 发送请求。任何 Kafka node 都能够回答某个 topic 的某个 parition 的 leader 是谁（我的猜测，作为代理查下 ZK 即可）。写入支持用户对数据提取 key，根据 key 决定写入哪个分片，这使得消费方能够对读取的值做 locality assumption.</p>
-<p>Question：可以指定发往哪个 partition 我理解了，那怎么指定 partition leader，或者 partition 内的节点放在哪个地理位置呢？</p>
+<h3 id="Producer"><a href="#Producer" class="headerlink" title="Producer"></a>Producer</h3><p>TODO 找 Leader 的过程合并到下文的 <a href="#%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B">读写流程</a></p>
+<p>直接向 Leader Broder 发送请求。任何 Kafka node 都能够回答某个 topic 的某个 parition 的 leader 是谁（我的猜测，作为代理查下 ZK 即可）。写入支持用户对数据提取 key，根据 key 决定写入哪个分片，这使得消费方能够对读取的值做 locality assumption.</p>
+<p>Question：可以指定发往哪个 partition 我理解了，那怎么指定 partition leader，或者 partition 内的节点放在哪个地理位置呢？<br>TODO</p>
 <p>Producer 的发送是异步的，积累到一定消息数量或积累消息达到一定时间后发送，是吞吐量与时延的 trade off</p>
-<p>TODO 这里提到 Kafka 目前（2016）还没有 exactly-once producer，所以我们说的 exactly-once 都是 consumer？现在有 exactly-once 的 producer 了吗？<br><a target="_blank" rel="noopener" href="https://www.confluent.io/blog/apache-flink-apache-kafka-streams-comparison-guideline-users/#:~:text=Kafka%20does%20not%20provide%20an%20exactly%2Donce%20producer%20yet">https://www.confluent.io/blog/apache-flink-apache-kafka-streams-comparison-guideline-users/#:~:text=Kafka%20does%20not%20provide%20an%20exactly%2Donce%20producer%20yet</a></p>
-<h3 id="Consumer"><a href="#Consumer" class="headerlink" title="Consumer"></a>Consumer</h3><p>Consumer 主动向各个 partition leader 拉数据，指定</p>
-<h3 id="推还是拉（Consumer-与-Leader，Leader-与-follower）"><a href="#推还是拉（Consumer-与-Leader，Leader-与-follower）" class="headerlink" title="推还是拉（Consumer 与 Leader，Leader 与 follower）"></a>推还是拉（Consumer 与 Leader，Leader 与 follower）</h3><p>TODO</p>
+<h3 id="推还是拉（Consumer-与-Leader，Leader-与-follower）"><a href="#推还是拉（Consumer-与-Leader，Leader-与-follower）" class="headerlink" title="推还是拉（Consumer 与 Leader，Leader 与 follower）"></a>推还是拉（Consumer 与 Leader，Leader 与 follower）</h3><p>TODO 为什么这么设计</p>
 <h3 id="Static-Membership"><a href="#Static-Membership" class="headerlink" title="Static Membership"></a>Static Membership</h3><p>TODO <a target="_blank" rel="noopener" href="https://www.conduktor.io/kafka/consumer-incremental-rebalance-and-static-group-membership#Consumer-Static-Group-Membership-2">https://www.conduktor.io/kafka/consumer-incremental-rebalance-and-static-group-membership#Consumer-Static-Group-Membership-2</a></p>
 <p>Consumer Eager Rebalancing<br>Consumer Cooperative Rebalance (Incremental Rebalance)<br>Consumer Static Group Membership</p>
 <h3 id="Exactly-Once-amp-Ordering-Guarantee"><a href="#Exactly-Once-amp-Ordering-Guarantee" class="headerlink" title="Exactly-Once &amp; Ordering Guarantee"></a>Exactly-Once &amp; Ordering Guarantee</h3><p>Kafka 仅当向 client 返回 commit 的数据安全时，为这些数据提供 Exactly-once 语义，换句话说需要将配置设置为 <code>ack=-1</code>, <code>unclean=false</code>, <code>insync</code> 越大越好</p>
 <p>接下来分为两块进行讨论：发布侧与消费侧</p>
-<h4 id="发布侧"><a href="#发布侧" class="headerlink" title="发布侧"></a>发布侧</h4><p>发布时，0.11 以前的 Kafka 提供 at-least-once，0.11 开始为每个 producer 发送的消息携带 seq id 实现去重，从而实现 exactly-once。也是从 0.11 开始，Kafka 支持 producer 以事务语义向多个 topic 发送消息<br>TODO（猜测是个两阶段提交）</p>
+<h4 id="发布侧"><a href="#发布侧" class="headerlink" title="发布侧"></a>发布侧</h4><p>发布时，0.11 以前的 Kafka 提供 at-least-once，0.11 开始为每个 producer 发送的消息携带 seq id 实现去重，从而实现 exactly-once。也是从 0.11 开始，Kafka 支持 producer 以事务语义向多个 topic 发送消息（下文 Transaction 小节会继续介绍）</p>
 <h5 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h5><p>见下图，图源指出这也是 非幂等 Producer 可能导致顺序错乱的一个 case（猜测不在 replication 时将 batch 看做原子的原因是因为性能）</p>
 <p>图中向 ISR leader 发一个 batch，但 replication 不是以一个 batch 为单位进行的，这会存在如下图的问题，leader 挂掉，replication 不完整，新 leader 接受了完整的重传数据，破坏了消息顺序 与 exactly-once。打开 <code>enable.idempotence=true</code> 选项后会在消息上附带 (producer id, seq num) 来唯一标记一条消息，broder 侧则为每个 prducer id 维护 last seen seq num，从而解决这一问题</p>
 <p><img src="https://raw.githubusercontent.com/vicety/Images/master/images20221129221350.png" srcset="/img/loading.gif" lazyload alt="图源[6 course 8]"></p>
@@ -408,7 +408,7 @@
 <p>Note that enabling idempotence requires max.in.flight.requests.per.connection to be less than or equal to 5 (with message ordering preserved for any allowable value), retries to be greater than 0, and acks must be ‘all’.</p>
 </blockquote>
 <p>所以 producer 侧就我看到的配置而言是 at-most-once 的，配置 retries 为 <code>MAX_VALUE</code> 后是 exactly-once 的（网上看到一些说法默认是 at-least-once）</p>
-<h3 id="消费侧"><a href="#消费侧" class="headerlink" title="消费侧"></a>消费侧</h3><p>拉数据、处理数据、存进度对应着 at-least-once<br>拉数据、存进度、处理数据对应着 at-most-once</p>
+<h4 id="消费侧"><a href="#消费侧" class="headerlink" title="消费侧"></a>消费侧</h4><p>拉数据、处理数据、存进度对应着 at-least-once<br>拉数据、存进度、处理数据对应着 at-most-once</p>
 <p>如果消息幂等，那么可以直接采用 at-least-once 的方案，否则若要实现 exactly-once，重点在于如何实现<strong>同时更新 A.消费方消费进度 与 B.消费方因本次消费产生的副作用</strong>。方案一是对AB做二阶段提交；方案二，原子地把AB写入存储</p>
 <p>如果消费者是 kafka 的 topic，那么可以利用 Transactional Producer。同时需要设置 isolation_level 为 read_committed<br>TODO 这个原理和二阶段提交是否一样？</p>
 <p>Question：尝试与 TCP 的 exactly-once 进行对比？</p>
@@ -588,7 +588,7 @@
 <li><a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/data-replication/">Data Plane: Replication Protocol</a></li>
 <li><a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/control-plane/">The Apache Kafka Control Plane</a></li>
 <li><a target="_blank" rel="noopener" href="https://stackoverflow.com/q/67466262/8454039">Using same consumer group for different kafka topics</a></li>
-<li><a href="">Kafka 文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://kafka.apache.org/documentation/#design">Kafka 文档 第四章 Design</a></li>
 </ol>
 
                 
