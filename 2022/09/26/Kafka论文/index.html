@@ -31,7 +31,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221112075648.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221112080952.png">
 <meta property="article:published_time" content="2022-09-26T16:17:00.000Z">
-<meta property="article:modified_time" content="2022-11-30T01:20:15.884Z">
+<meta property="article:modified_time" content="2022-12-14T22:47:10.527Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="论文阅读">
 <meta property="article:tag" content="大数据">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          15k 字
+          22k 字
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          125 分钟
+          180 分钟
         
       </span>
     
@@ -305,16 +305,26 @@
 <!-- 当时的其他 message systems 的问题：提供的功能多但用不到、吞吐量优化做得不够、对分布式的支持不好、消息堆积后性能下降严重，对于离线任务不友好 -->
 
 <h3 id="概念定义与系统设计"><a href="#概念定义与系统设计" class="headerlink" title="概念定义与系统设计"></a>概念定义与系统设计</h3><ul>
-<li>Topic：用于表示一类数据，支持 partition 为分片单位的读写</li>
-<li>Broker：存储 partition 的一个节点，一个 Kafka 系统通常有多个 Broker</li>
-<li>Partition: 同一个 broker 可以存多个 partition，producer 的 append 与 consumer 的 消费 实际上是以 partition（而不是 topic）为基本单位进行的。每个 partition 物理上对应了多个 segment file。Partition 逻辑上是只 append 的，实际上就是往逻辑上最后的 segment file append。可配置落盘间隔（定时、每多少条消息）。一个 partition 实际上对应多个副本。Partition 是 Kafka 的最小并行单元。<br>Question：数据是如何分片的呢？按 key（但是数据不一定有 key）还是按数据数量动态调整分片数量？所有分片都承载写请求吗？那读也要与多个 partition leader 同时维护多个连接，按顺序交付给应用？<br>Answer: 如果写入的数据无 key，那么 round robin 写入，如果有 key，根据 hash(key) 决定发往哪个 parition leader，任何相同 key 的消息总会存在于相同 partition，<strong>仅在同一 partition 下的数据保证按顺序读取</strong>，parittion 间无此保证;[5所在列表的 第九节]<br>Answer: partition 数量可以在创建 partition 时指定 [5 的下一节]<br>Question：partition 是否支持动态调整？<br>不支持，见<a target="_blank" rel="noopener" href="https://stackoverflow.com/a/32794994/8454039">此处</a></li>
-<li>Record &#x3D; <code>timestamp</code>, <code>key: byteArray</code>, <code>value: byteArray</code>, <code>Headers</code><br>value &#x3D; payload<br>key for enforcing ordering, colocating data, key retention</li>
-<li>Consumer Group：消费端也需要 scale out，因此引入 Consumer Group，topic 下的 partition 会被分配给 group 中的各个 consumer，但保证一个 partition 只可能被一个 consumer 消费，这是出减少加锁的考虑。同时也意味着 consumer 数量无法超过 partition 数量<br>NOTE：这么说由于每个 partition 可以被多个 producer 写入，看来写入是要加锁的<br>Question: Consumer Group 支持订阅多个 topic 吗？内部的 Consumer 会因为 partition 的重新分配而收到来自不同 topic 的消息吗？<br>Answer：支持;不会，consumer 只可能收到自己声明订阅的 topic 的消息，见[9]<br>TODO 学习 Consumer Group <a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/consumer-group-protocol/">https://developer.confluent.io/learn-kafka/architecture/consumer-group-protocol/</a><br>TODO 关注问题：Broder 中的 Group Coordinator 和 CG 中的 Group Leader 分别起了什么作用</li>
-<li>存储格式：仅支持通过 partition 内的逻辑 offset 定位消息</li>
-<li>读流程：来自 consumer 的 pull 会携带 offset 与可接受的消息长度，broder 会从内存维护的 offset -&gt; segment file 映射中找到文件并返回数据。Consumer 负责维护准确的当前消费 offset（下文会提到，这一数据会定时同步到 zk），Consumer 读某个 offset 意味着此 offset 前的数据已经全部收到。同一个 Consumer 对单个 Partition 拉取的数据确保有序<br>TODO Consumer 是如何从多个 parition 拉数据的？维护多个连接吗？</li>
-<li>写流程：文章没提，但是猜测会根据消息内容路由到某个 parition，然后对 partition 追加写即可</li>
-<li>消费者主动从 broker 拉数据（而不是使用推）</li>
-<li>支持两种消费模式，第一种：每条数据只到达某一个消费者；第二种：每条数据会到达所有消费者<br>Question：如果只到达一个消费者，那么在有多个消费者订阅同一个 topic 的情况下，某些消费者的 offset 是跳跃的吗？</li>
+<li><p>Topic：用于表示一类数据，支持 partition 为分片单位的读写</p>
+</li>
+<li><p>Broker：存储 partition 的一个节点，一个 Kafka 系统通常有多个 Broker</p>
+</li>
+<li><p>Partition: 同一个 broker 可以存多个 partition，producer 的 append 与 consumer 的 消费 实际上是以 partition（而不是 topic）为基本单位进行的。每个 partition 物理上对应了多个 segment file。Partition 逻辑上是只 append 的，实际上就是往逻辑上最后的 segment file append。可配置落盘间隔（定时、每多少条消息）。一个 partition 实际上对应多个副本。Partition 是 Kafka 的最小并行单元。<br>Question：数据是如何分片的呢？按 key（但是数据不一定有 key）还是按数据数量动态调整分片数量？所有分片都承载写请求吗？那读也要与多个 partition leader 同时维护多个连接，按顺序交付给应用？<br>Answer: 如果写入的数据无 key，那么 round robin 写入，如果有 key，根据 hash(key) 决定发往哪个 parition leader，任何相同 key 的消息总会存在于相同 partition，<strong>仅在同一 partition 下的数据保证按顺序读取</strong>，parittion 间无此保证;[5所在列表的 第九节]<br>Answer: partition 数量可以在创建 partition 时指定 [5 的下一节]<br>Question：partition 是否支持动态调整？<br>不支持，见<a target="_blank" rel="noopener" href="https://stackoverflow.com/a/32794994/8454039">此处</a></p>
+</li>
+<li><p>Record &#x3D; <code>timestamp</code>, <code>key: byteArray</code>, <code>value: byteArray</code>, <code>Headers</code><br>value &#x3D; payload<br>key for enforcing ordering, colocating data, key retention</p>
+</li>
+<li><p>Consumer Group：消费端也需要 scale out，因此引入 Consumer Group，topic 下的 partition 会被分配给 group 中的各个 consumer，但保证一个 partition 只可能被一个 consumer 消费，这是出减少加锁的考虑。同时也意味着 consumer 数量无法超过 partition 数量<br>NOTE：这么说由于每个 partition 可以被多个 producer 写入，看来写入是要加锁的<br>Question: Consumer Group 支持订阅多个 topic 吗？内部的 Consumer 会因为 partition 的重新分配而收到来自不同 topic 的消息吗？<br>Answer：支持;不会，consumer 只可能收到自己声明订阅的 topic 的消息，见[9]</p>
+</li>
+<li><p>存储格式：仅支持通过 partition 内的逻辑 offset 定位消息</p>
+</li>
+<li><p>读流程：来自 consumer 的 pull 会携带 offset 与可接受的消息长度，broder 会从内存维护的 offset -&gt; segment file 映射中找到文件并返回数据。Consumer 负责维护准确的当前消费 offset（下文会提到，这一数据会定时同步到 zk），Consumer 读某个 offset 意味着此 offset 前的数据已经全部收到。同一个 Consumer 对单个 Partition 拉取的数据确保有序<br>TODO Consumer 是如何从多个 parition 拉数据的？维护多个连接吗？</p>
+</li>
+<li><p>写流程：文章没提，但是猜测会根据消息内容路由到某个 parition，然后对 partition 追加写即可</p>
+</li>
+<li><p>消费者主动从 broker 拉数据（而不是使用推）</p>
+</li>
+<li><p>支持两种消费模式，第一种：每条数据只到达某一个消费者；第二种：每条数据会到达所有消费者<br>Question：如果只到达一个消费者，那么在有多个消费者订阅同一个 topic 的情况下，某些消费者的 offset 是跳跃的吗？</p>
+</li>
 </ul>
 <p><img src="https://raw.githubusercontent.com/vicety/Images/master/images20220926162658.png" srcset="/img/loading.gif" lazyload></p>
 <h3 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h3><ul>
@@ -398,19 +408,56 @@
 <h3 id="Static-Membership"><a href="#Static-Membership" class="headerlink" title="Static Membership"></a>Static Membership</h3><p>TODO <a target="_blank" rel="noopener" href="https://www.conduktor.io/kafka/consumer-incremental-rebalance-and-static-group-membership#Consumer-Static-Group-Membership-2">https://www.conduktor.io/kafka/consumer-incremental-rebalance-and-static-group-membership#Consumer-Static-Group-Membership-2</a></p>
 <p>Consumer Eager Rebalancing<br>Consumer Cooperative Rebalance (Incremental Rebalance)<br>Consumer Static Group Membership</p>
 <h3 id="Exactly-Once-amp-Ordering-Guarantee"><a href="#Exactly-Once-amp-Ordering-Guarantee" class="headerlink" title="Exactly-Once &amp; Ordering Guarantee"></a>Exactly-Once &amp; Ordering Guarantee</h3><p>Kafka 仅当向 client 返回 commit 的数据安全时，为这些数据提供 Exactly-once 语义，换句话说需要将配置设置为 <code>ack=-1</code>, <code>unclean=false</code>, <code>insync</code> 越大越好</p>
-<p>接下来分为两块进行讨论：发布侧与消费侧</p>
-<h4 id="发布侧"><a href="#发布侧" class="headerlink" title="发布侧"></a>发布侧</h4><p>发布时，0.11 以前的 Kafka 提供 at-least-once，0.11 开始为每个 producer 发送的消息携带 seq id 实现去重，从而实现 exactly-once。也是从 0.11 开始，Kafka 支持 producer 以事务语义向多个 topic 发送消息（下文 Transaction 小节会继续介绍）</p>
+<p>接下来分为 Kafka 被写入时 与 Kafka 被消费时 两块进行讨论：</p>
+<h4 id="Kafka-被写入时"><a href="#Kafka-被写入时" class="headerlink" title="Kafka 被写入时"></a>Kafka 被写入时</h4><p>发布时，0.11 以前的 Kafka 提供 at-least-once，0.11 开始为每个 producer 向 Kafka 发送的消息携带 seq id 实现去重（Kafka 侧变为幂等），从而实现 exactly-once。也是从 0.11 开始，Kafka 支持 producer 以事务语义向多个 topic 发送消息（下文 Transaction 小节会继续介绍）</p>
+<p>Question: 上述实现可以对抗重传带来的 at-least-once 问题，但 seq id 在 session 间（或者说 Producer 挂掉后）是如何保证持久性的？<br>我们先列出不同的 session 可能会导致什么问题，再讨论我们可能该处的解决方案，最后看 Kafka 是如何解决的</p>
+<ol>
+<li>如果写入方是数据源（如传感器），我们可以有怎样的保证？<br>对要向 Kafka 写入的数据先写日志（event + seq id），这样在新的 session 我们能够重新发送上一个 session 未收到 ack 的消息，而 Kafka 侧能够对重复的 seq id 做过滤。<strong>我们对以下情况无能为力：如果数据源生成的消息在写日志前（或者写日志是非原子的），Kafka 写入方 crash。因为我们已经是消息源，没有任何上游提供跨 session 的保证</strong>。</li>
+<li>如果写入方是 中间节点（如 如一个微服务），对消息做某种转换后写入 Kafka，我们可以有怎样的保证？<ol>
+<li>类似 Kafka，上游可能发生重传，我们需要做幂等处理，收到请求后将 event + seq id 持久化，此时，若本节点无副作用，可以向上游返回 ACK；若本节点有副作用 <code>B, SideEffect = ImpureF(A)</code>，需要等待 <code>ImpureF</code> 计算完成，将 event + seqId + B + SideEffect 持久化后，方可向上游返回 ACK。至此，上游发来的消息确保持久化，确保不受重传影响，接下来的思考不用再考虑上游。<br> NOTE：无副作用的消息可以在更早的时间点持久化，从而在更早的时间点通知上游 已收到<br> TODO 如何定义 无副作用？如果 ImpureF 调用了 外部服务，如何讨论？</li>
+<li>当收到某条消息 M 写入 Kafka 的 ack 后，在 M 的持久化信息中标记为 已完成向下游的发送，向上游返回 ACK。仅当确定上游收到这个 ACK 后（比如通过收到上游的下一个消息来证明），可以将 M 持久化占用的空间回收</li>
+<li>若我们挂掉，上游发来的消息中<br> 消息 + 副作用 已持久化但未确认 Kafka 已收到的部分：可以主动向 Kafka 发起重试<br> 消息 + 无副作用 已持久化但未确认 Kafka 已收到的部分：重新计算后写 Kafaka<br> 消息未来得及持久化，意味着在下个 session 已经丢失：需要依赖上游重新发起请求，本节点才能意识到这一情况<br> TODO <strong>Flink sink 也是这种情况，讨论下它是如何实现的</strong><br> TODO FlinkKafkaProducer <a target="_blank" rel="noopener" href="https://github.com/apache/flink/blob/master/flink-connectors/flink-connector-kafka/src/main/java/org/apache/flink/streaming/connectors/kafka/FlinkKafkaProducer.java">https://github.com/apache/flink/blob/master/flink-connectors/flink-connector-kafka/src/main/java/org/apache/flink/streaming/connectors/kafka/FlinkKafkaProducer.java</a><br> TODO TwoPhaseCommitSinkFunction<br> TODO Akka zhihu<br> TODO END-TO-END ARGUMENTS IN SYSTEM DESIGN <a target="_blank" rel="noopener" href="https://web.mit.edu/Saltzer/www/publications/endtoend/endtoend.pdf">https://web.mit.edu/Saltzer/www/publications/endtoend/endtoend.pdf</a><br> TODO An Overview of End-to-End Exactly-Once Processing in Apache Flink <a target="_blank" rel="noopener" href="https://flink.apache.org/features/2018/03/01/end-to-end-exactly-once-apache-flink.html">https://flink.apache.org/features/2018/03/01/end-to-end-exactly-once-apache-flink.html</a></li>
+</ol>
+</li>
+<li>是否对于 数据源 与 是中间节点 的情况、处理逻辑有无状态的情况，Producer 实现 guarantee 需要有不同的实现？是否有成熟的方案？<br>TODO 可以对比下 Flink StateFun</li>
+<li>Kafka Idempotent Producer 通过对消息附加版本号实现去重，前文提到的通过持久化应对 session 间丢失状态的方案无法接触这个被封装的逻辑，使得跨 session 的重试在下游 Kafaka 看来则是一条新消息的写入，或者说无法区分消息是重试或是新消息。<br><a target="_blank" rel="noopener" href="https://stackoverflow.com/a/57322671/8454039">这里</a>也提到，Idempotent Producer 仅在 session 内保证 exactly-once</li>
+</ol>
+<blockquote>
+<p>The idempotent producer only guarantees Exactly once semantics at a per partition level and within the lifetime of the producer.</p>
+</blockquote>
+<p>这种情况下的解决方案是在业务层携带 id 对请求进行区分，但仍然会存在相同 id 多次写入 Kafka 的问题，需要在 Kafka 的下游过滤<br>如果考虑改造 Kafka 的 Idempotent Producer，在前面提到的持久化方案中，应当将 Producer 生成的 id 一并持久化，也可以解决这一问题</p>
+<p>NOTE：总结，Kafka Idempotent Producer 未对跨 session 的场景保证 exactly-once，需要通过额外的持久化逻辑实现</p>
+<p>TODO Flink 多个 sink 间会需要同步吗？有办法同步吗？</p>
+<p>TODO 下面是 Kafka 给出的 exactly-once 解释<br><a target="_blank" rel="noopener" href="https://www.confluent.io/blog/transactions-apache-kafka/">https://www.confluent.io/blog/transactions-apache-kafka/</a></p>
+<blockquote>
+<p>More formally, if a stream processing application consumes message A and produces message B such that B &#x3D; F(A), then exactly-once processing means that A is considered consumed if and only if B is successfully produced, and vice versa.</p>
+</blockquote>
+<p>Question: 这个 seq id 如何初始化？<br>TODO <a target="_blank" rel="noopener" href="https://www.waitingforcode.com/apache-kafka/apache-kafka-idempotent-producer/read#:~:text=What%20if%20my%20producer%20fails%3F">https://www.waitingforcode.com/apache-kafka/apache-kafka-idempotent-producer/read#:~:text=What%20if%20my%20producer%20fails%3F</a></p>
 <h5 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h5><p>见下图，图源指出这也是 非幂等 Producer 可能导致顺序错乱的一个 case（猜测不在 replication 时将 batch 看做原子的原因是因为性能）</p>
 <p>图中向 ISR leader 发一个 batch，但 replication 不是以一个 batch 为单位进行的，这会存在如下图的问题，leader 挂掉，replication 不完整，新 leader 接受了完整的重传数据，破坏了消息顺序 与 exactly-once。打开 <code>enable.idempotence=true</code> 选项后会在消息上附带 (producer id, seq num) 来唯一标记一条消息，broder 侧则为每个 prducer id 维护 last seen seq num，从而解决这一问题</p>
 <p><img src="https://raw.githubusercontent.com/vicety/Images/master/images20221129221350.png" srcset="/img/loading.gif" lazyload alt="图源[6 course 8]"></p>
 <h5 id="现在的-Kafka-默认是-exactly-once-吗？"><a href="#现在的-Kafka-默认是-exactly-once-吗？" class="headerlink" title="现在的 Kafka 默认是 exactly-once 吗？"></a>现在的 Kafka 默认是 exactly-once 吗？</h5><p><a target="_blank" rel="noopener" href="https://kafka.apache.org/documentation/#producerconfigs_acks">acks 默认为 all (-1)</a><br><a target="_blank" rel="noopener" href="https://kafka.apache.org/documentation/#producerconfigs_enable.idempotence">enable.idempotence 默认为 true</a><br>类似的，<code>max.in.flight.requests.per.connection</code> 默认为 5<br><code>retries</code> 默认为 0</p>
+<p>TODO 为什么默认为 5<br><a target="_blank" rel="noopener" href="https://www.waitingforcode.com/apache-kafka/apache-kafka-idempotent-producer/read">https://www.waitingforcode.com/apache-kafka/apache-kafka-idempotent-producer/read</a></p>
 <blockquote>
 <p>Note that enabling idempotence requires max.in.flight.requests.per.connection to be less than or equal to 5 (with message ordering preserved for any allowable value), retries to be greater than 0, and acks must be ‘all’.</p>
 </blockquote>
 <p>所以 producer 侧就我看到的配置而言是 at-most-once 的，配置 retries 为 <code>MAX_VALUE</code> 后是 exactly-once 的（网上看到一些说法默认是 at-least-once）</p>
-<h4 id="消费侧"><a href="#消费侧" class="headerlink" title="消费侧"></a>消费侧</h4><p>拉数据、处理数据、存进度对应着 at-least-once<br>拉数据、存进度、处理数据对应着 at-most-once</p>
-<p>如果消息幂等，那么可以直接采用 at-least-once 的方案，否则若要实现 exactly-once，重点在于如何实现<strong>同时更新 A.消费方消费进度 与 B.消费方因本次消费产生的副作用</strong>。方案一是对AB做二阶段提交；方案二，原子地把AB写入存储</p>
-<p>如果消费者是 kafka 的 topic，那么可以利用 Transactional Producer。同时需要设置 isolation_level 为 read_committed<br>TODO 这个原理和二阶段提交是否一样？</p>
+<h4 id="Kafka-被消费时"><a href="#Kafka-被消费时" class="headerlink" title="Kafka 被消费时"></a>Kafka 被消费时</h4><p>拉数据、处理数据、存进度对应着 at-least-once<br>拉数据、存进度、处理数据对应着 at-most-once</p>
+<p>如果消息幂等，那么可以直接采用 at-least-once 的方案，消费方只需要偶尔持久化一下消费进度，使得恢复不至于太慢即可。否则若要实现 exactly-once，重点在于如何实现<strong>同时更新 A.消费方消费进度 与 B.消费方因本次消费产生的副作用</strong>。方案一是对AB做二阶段提交；方案二，原子地把AB写入存储</p>
+<p>TODO consumer 挂掉重启后如何获知上次的消费进度<br><a target="_blank" rel="noopener" href="https://kafka.apache.org/22/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html">https://kafka.apache.org/22/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html</a></p>
+<blockquote>
+<p>The committed position is the last offset that has been stored securely. Should the process fail and restart, this is the offset that the consumer will recover to.<br><a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/consumer-group-protocol/">https://developer.confluent.io/learn-kafka/architecture/consumer-group-protocol/</a><br>When a consumer group instance is restarted, it will send an OffsetFetchRequest to the group coordinator to retrieve the last committed offset for its assigned partition. Once it has the offset, it will resume the consumption from that point. If this consumer instance is starting for the very first time and there is no saved offset position for this consumer group, then the auto.offset.reset configuration will determine whether it begins consuming from the earliest offset or the latest.<br>TODO 关于如何 commit 消费进度<br><a target="_blank" rel="noopener" href="https://kafka.apache.org/22/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html">https://kafka.apache.org/22/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html</a><br>（似乎文档里也有这句话）<br>The consumer application need not use Kafka’s built-in offset storage, it can store offsets in a store of its own choosing. The primary use case for this is allowing the application to store both the offset and the results of the consumption in the same system in a way that both the results and offsets are stored atomically. This is not always possible, but when it is it will make the consumption fully atomic and give “exactly once” semantics that are stronger than the default “at-least once” semantics you get with Kafka’s offset commit functionality.</p>
+</blockquote>
+<p>TODO 问题，那么往 topic 写入的消费进度是如何支持读取的呢</p>
+<blockquote>
+<p>Kafka store the offset commits in a topic, when consumer commit the offset, kafka publish an commit offset message to an “commit-log” topic and keep an in-memory structure that mapped group&#x2F;topic&#x2F;partition to the latest offset for fast retrieval.<br>大意是在内存维护了一份，可以直接拿到（而不用消费那个 topic，这个 topic 估计也不是用来消费的），看下面这个例子</p>
+</blockquote>
+<p>NOTE: 虽然只是一个 proposal</p>
+<blockquote>
+<p>All replicas will keep the in-memory lookup structure for offsets. This could just be a simple hashmap. This will contain only committed offsets to ensure we never need to undo updates.</p>
+</blockquote>
+<p>如果消费者是 kafka 的 topic，那么可以利用 Transactional Producer，Transaction 除了会写 target topic，还会在一个专门的 topic 记录消费 offset，也就是解决了上面说的同时更新的问题。注意使用此特性需要设置 isolation_level 为 read_committed<br>TODO 这个原理和二阶段提交是否一样？</p>
+<p>Question：partition 数量是否支持运行时变更？consumer group 是否支持运行时扩缩容？<br>TODO</p>
 <p>Question：尝试与 TCP 的 exactly-once 进行对比？</p>
 <ul>
 <li>TCP 的 ACK 需要携带 ack num 作为参数，因为它支持多个请求 on-the-fly，需要辨别是谁的 ACK</li>
@@ -421,7 +468,10 @@
 <blockquote>
 <p>[10 ch4.6] Also beginning with 0.11.0.0, the producer supports the ability to send messages to multiple topic partitions using transaction-like semantics: i.e. either all messages are successfully written or none of them are. <strong>The main use case for this is exactly-once processing between Kafka topics</strong> (described<br>below).</p>
 </blockquote>
-<h4 id="Transaction-实现"><a href="#Transaction-实现" class="headerlink" title="Transaction 实现"></a>Transaction 实现</h4><p>TODO 感觉是个很大的话题，还需要看下[6]以外的其他材料</p>
+<p>再举一个实际一些的例子，Flink 单个 sink 向 Kafka 的 exactly-once 写入在前文已经讨论过，对于多个 sink 的情况（无论它们写入一个或多个 Kafka Topic），问题在于</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs applescript">sink1 <span class="hljs-built_in">write</span> topic1<br>crash, revert <span class="hljs-keyword">from</span> <span class="hljs-keyword">last</span> <span class="hljs-keyword">transaction</span><br><br></code></pre></td></tr></table></figure>
+
+<h4 id="Transaction-实现"><a href="#Transaction-实现" class="headerlink" title="Transaction 实现"></a>Transaction 实现</h4><p>TODO 感觉是个很大的话题，还需要看下[6]以外的其他材料<br>TODO 可以参考这篇 <a target="_blank" rel="noopener" href="https://www.confluent.io/blog/transactions-apache-kafka/">https://www.confluent.io/blog/transactions-apache-kafka/</a></p>
 <ol>
 <li>找到 txn coordinator（使用与 consumer coordinator 相同的策略决定，下文用 tc 代替），这个 broker 会维护一个 internal topic</li>
 <li>请求 tc 分配一个 txn id</li>
@@ -520,7 +570,38 @@
 <blockquote>
 <p><a target="_blank" rel="noopener" href="https://cs61.seas.harvard.edu/site/2019/Storage/">https://cs61.seas.harvard.edu/site/2019/Storage/</a><br>We cannot build a storage system from a single type of digital technology that is simultaneously big, fast, and cheap. So instead, our goal is to create a storage system made up of layers of different storage technologies that gives the appearance of being big and fast. It will cost a bit more than a big and slow storage system, but it will also cost a lot less than a big and fast one.</p>
 </blockquote>
-<h2 id="Confluent-Kafka-Courses"><a href="#Confluent-Kafka-Courses" class="headerlink" title="Confluent Kafka Courses"></a>Confluent Kafka Courses</h2><h3 id="读写流程"><a href="#读写流程" class="headerlink" title="读写流程"></a>读写流程</h3><p>本节参考 <a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/broker/">Inside the Apache Kafka Broker</a></p>
+<h2 id="Confluent-Kafka-Courses"><a href="#Confluent-Kafka-Courses" class="headerlink" title="Confluent Kafka Courses"></a>Confluent Kafka Courses</h2><h3 id="Consumer-Group"><a href="#Consumer-Group" class="headerlink" title="Consumer Group"></a>Consumer Group</h3><p>本节引用：<a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/consumer-group-protocol/">https://developer.confluent.io/learn-kafka/architecture/consumer-group-protocol/</a></p>
+<p>省流：__consumer_offsets topic 的 replica leader 被称为 <strong>Group Coordinator</strong>，Consumer Group 中第一个向 Group Coordinator 发送 JoinGroupRequest 的会被指定为 <strong>Group Leader</strong>，后者负责根据相应策略在本地完成 parition-consumer 的分配，并将此分配同步到 Group Coordinator，其余 consumer 也会从 Group Coordinator 同步获知这个分配</p>
+<p>请求流程：</p>
+<ol>
+<li>consumer 向任意节点发送 <code>FindCoordinator(group.id)</code> 请求，返回 consumer group 对应的 Group Coordinator。<br>注：<code>hash(group.id) mod partition_num(__consumer_offsets topic)</code> 决定此 consumer group 的 metadata （我理解主要也就是 offset）向 <code>__consumer_offsets</code> 的哪个 partition 写入，<strong>Group Coordinator 就是这个 partition 的 leader</strong></li>
+<li>consumer 向 Group Coordinator 发送 <code>JoinGroup</code> 请求，GC 会将第一个请求来源的 consumer 指定为 group leader。这一请求的 response 总是包含 group 内的 member id，对于 leader 会额外返回 all members and the subscription info</li>
+<li>Group leader 在本地根据策略分配 partition，并通过 <code>SyncGroupRequest</code> 将分配传给 GC，其他 consumer 也会发送这一请求，用于获知自己的分配</li>
+</ol>
+<p>此外，<code>OffsetFetchRequest</code> 请求用于获得已提交消费进度，如果没有相关信息，那么会根据 <code>auto.offset.reset</code> 确定初始的消费位置</p>
+<p>相关段落</p>
+<blockquote>
+<p>The broker that hosts the leader replica for that partition will take on the role of group coordinator for the new consumer group.</p>
+</blockquote>
+<blockquote>
+<p>The coordinator will choose one consumer, usually the first one to send the JoinGroup request, as the group leader. The coordinator will return a memberId to each consumer, but it will also return a list of all members and the subscription info to the group leader. The reason for this is so that the group leader can do the actual partition assignment using a configurable partition assignment strategy.</p>
+</blockquote>
+<p>消费期间，consumer 可以通过 <code>CommitOffsetRequest</code> 向 Kafka 持久化消费进度</p>
+<p>通过 <code>Map&lt;TopicPartition, OffsetAndMetadata&gt; committed(final Set&lt;TopicPartition&gt; partitions)</code> 可以获得 partition 的已提交 offset<br>通过 <code>long position(TopicPartition partition)</code> 可以获得 partition 的消费进度<br>（position 与 committed 区别参考 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/47548737/8454039">https://stackoverflow.com/a/47548737/8454039</a>）</p>
+<h4 id="分配策略"><a href="#分配策略" class="headerlink" title="分配策略"></a>分配策略</h4><p>Round Robin 平均分配<br>Sticky Partition 同上，但 rebalance 时尽量保证原有分配不变</p>
+<h4 id="Rebalance"><a href="#Rebalance" class="headerlink" title="Rebalance"></a>Rebalance</h4><p>触发条件</p>
+<ul>
+<li>consumer 心跳超时</li>
+<li>group 加入 consumer</li>
+<li>topic partition 变动</li>
+<li>wildcard 订阅，topic 加入</li>
+<li>group startup</li>
+</ul>
+<blockquote>
+<p>The rebalance process begins with the coordinator notifying the consumer instances that a rebalance has begun. It does this by piggybacking on the HeartbeatResponse or the OffsetFetchResponse.</p>
+</blockquote>
+<p>TODO</p>
+<h3 id="读写流程"><a href="#读写流程" class="headerlink" title="读写流程"></a>读写流程</h3><p>本节参考 <a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/broker/">Inside the Apache Kafka Broker</a></p>
 <p>TODO 补充参考中缺少的 client 找 broker 的过程<br>TODO 读不能从 follower 读吗？按 index 读相比于读状态机应当是有优化空间的</p>
 <p>client 发送消息过程：</p>
 <ol>
