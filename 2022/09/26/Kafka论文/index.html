@@ -31,7 +31,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221112075648.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221112080952.png">
 <meta property="article:published_time" content="2022-09-26T16:17:00.000Z">
-<meta property="article:modified_time" content="2022-12-14T22:47:10.527Z">
+<meta property="article:modified_time" content="2023-01-11T12:26:41.278Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="论文阅读">
 <meta property="article:tag" content="大数据">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          22k 字
+          26k 字
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          180 分钟
+          213 分钟
         
       </span>
     
@@ -395,9 +395,13 @@
 </ul>
 <h2 id="文档"><a href="#文档" class="headerlink" title="文档"></a>文档</h2><h3 id="Efficiency（Kafka-为什么快）"><a href="#Efficiency（Kafka-为什么快）" class="headerlink" title="Efficiency（Kafka 为什么快）"></a>Efficiency（Kafka 为什么快）</h3><p>文档中提到的点：</p>
 <ul>
-<li>磁盘：顺序写 + 异步刷盘</li>
+<li>磁盘：<ul>
+<li>顺序写 + 异步刷盘</li>
+<li>[11]读近期写入的数据直接从 OS buffer 取而不读磁盘，即使需要读磁盘也走零拷贝，数据不进入用户态</li>
+</ul>
+</li>
 <li>批量处理：与消费者交互时尽量合并请求，结果上产生了更大的网络报文、更长的顺序读、更多的连续内存占用</li>
-<li>生产者、Broker、消费者间一致的数据格式：数据不需要在应用层做转换，能够直接用 sendfile 系统调用避免 context switch 与 数据拷贝到用户态。<br>如果消费者能够跟上生产者，那么就能够在 pagecache 有效期间完成读取，不走磁盘读，是高效的过程<br>如果与消费者建立的是 TLS&#x2F;SSL 连接，对应需要使用 SSL_sendfile 系统调用，但 Kafka 目前还不支持</li>
+<li>生产者、Broker、消费者间一致的数据格式：<strong>数据从不在 Kafka 做转换</strong>，因此能够直接用 sendfile 系统调用避免 context switch 与 数据拷贝到用户态。<br>如果消费者能够跟上生产者，那么就能够在 pagecache 有效期间完成读取，不走磁盘读，是高效的过程<br>如果与消费者建立的是 TLS&#x2F;SSL 连接，对应需要使用 SSL_sendfile 系统调用，但 Kafka 目前还不支持</li>
 <li>消息压缩：在生产者压缩（文档没说，我的猜测），在消费者解压缩。这是出于网络带宽瓶颈的一项优化</li>
 </ul>
 <h3 id="Producer"><a href="#Producer" class="headerlink" title="Producer"></a>Producer</h3><p>TODO 找 Leader 的过程合并到下文的 <a href="#%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B">读写流程</a></p>
@@ -433,6 +437,23 @@
 <p>More formally, if a stream processing application consumes message A and produces message B such that B &#x3D; F(A), then exactly-once processing means that A is considered consumed if and only if B is successfully produced, and vice versa.</p>
 </blockquote>
 <p>Question: 这个 seq id 如何初始化？<br>TODO <a target="_blank" rel="noopener" href="https://www.waitingforcode.com/apache-kafka/apache-kafka-idempotent-producer/read#:~:text=What%20if%20my%20producer%20fails%3F">https://www.waitingforcode.com/apache-kafka/apache-kafka-idempotent-producer/read#:~:text=What%20if%20my%20producer%20fails%3F</a></p>
+<p>NOTE: 20230111 补充，需要和上述内容合并一下<br>关于跨 session 的 exactly-once，[14] 给出了一个解决方案，Kafka 能够支持，但需要额外的业务逻辑，Kafka can’t help you with that：</p>
+<ol>
+<li>producer 侧有持久化逻辑存要写入但未 ACK 的消息</li>
+<li>重启后需要通过 consumer 重新读此 partition 最后成功写入的 消息，来确定新 session 开始时的正确 offset</li>
+</ol>
+<p>Question：目前默认 keyBy 似乎是放到下游的流处理系统来做，如果在 kafka 做，会导致一个 producer 写多个 partition，那如何保证同一个 producer 的消息能够被按顺序消费呢？<br><a target="_blank" rel="noopener" href="https://youtu.be/twgbAL_EaQw?t=1900">https://youtu.be/twgbAL_EaQw?t=1900</a><br>Answer：同 producer 对需要有序的消息需要加上相同的 key</p>
+<blockquote>
+<p>ref: <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/46128819/8454039">https://stackoverflow.com/a/46128819/8454039</a><br>So, if you have more than one partition in the topic, you’ll need to set the same partition key for messages that you require to appear in order.</p>
+</blockquote>
+<p>同时单个 producer 发送的消息若要确保有序，还需要将 <code>max.in.flight.requests.per.connection</code> 设为 1，否则可能引发 request 级别的重排序</p>
+<blockquote>
+<p>ref: <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/62169214/8454039">https://stackoverflow.com/a/62169214/8454039</a></p>
+</blockquote>
+<blockquote>
+<p>ref: <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/53490942/8454039">https://stackoverflow.com/a/53490942/8454039</a><br>To avoid this problem you should always use the same key for the messages that you need the order.</p>
+</blockquote>
+<p>Question：决定发往哪个 partitioner 函数是什么，在哪里计算？<br>我理解应当是在 producer 计算，否则在 broker 还需要额外的转发。具体使用的算法是 murmur2</p>
 <h5 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h5><p>见下图，图源指出这也是 非幂等 Producer 可能导致顺序错乱的一个 case（猜测不在 replication 时将 batch 看做原子的原因是因为性能）</p>
 <p>图中向 ISR leader 发一个 batch，但 replication 不是以一个 batch 为单位进行的，这会存在如下图的问题，leader 挂掉，replication 不完整，新 leader 接受了完整的重传数据，破坏了消息顺序 与 exactly-once。打开 <code>enable.idempotence=true</code> 选项后会在消息上附带 (producer id, seq num) 来唯一标记一条消息，broder 侧则为每个 prducer id 维护 last seen seq num，从而解决这一问题</p>
 <p><img src="https://raw.githubusercontent.com/vicety/Images/master/images20221129221350.png" srcset="/img/loading.gif" lazyload alt="图源[6 course 8]"></p>
@@ -486,7 +507,7 @@
 <h3 id="数据复制"><a href="#数据复制" class="headerlink" title="数据复制"></a>数据复制</h3><p>论文发表时还没有数据复制相关的方案，这块内容在文档[3]中做了详细描述，此外也强烈推荐[7]</p>
 <p>Kafka <strong>为每个 partition 选主</strong>，通常 partition 比 broder 数量多很多，parition 的 leader 在 broder 间均匀分布（类似于 GFS 的 chunk 与 chunk server 方案）</p>
 <p>Kafka 引入了 <strong>ISR 机制</strong>：ISR (in-sync replicas) 是一个节点集合，集合内的节点走同步复制（Confluent Kafka 的同步复制时通过 follower 向 leader 拉实现的，Apache 没看），其余节点走异步复制。选主仅从 ISR 集合选（由于是同步复制，任意 ISR 都可以成为 Leader）（有选项可以从任意节点选，下面会介绍），<strong>当同步复制使得消息扩散到所有 ISR 的时刻开始，只要 ISR 任意节点存活，消息可以视为 commit</strong></p>
-<p>Motivation：认为类似 Raft 的 majority vote 复制太重了，只适合 metadata 的维护（etcd、zk、consul）。具体来说，支持至多 2 节点宕机需要 5 节点。而对于上述方案，能够使用 f+1 replica 承受 f 个副本的宕机。但这是以<strong>可用性换来的持久性</strong>（或者叫数据安全），并且实现它需要设置一些参数：</p>
+<p>Motivation：认为类似 Raft 的 majority vote 复制太重了，只适合 metadata 的维护（etcd、zk、consul）。具体来说，支持至多 2 节点宕机需要 5 节点。而对于上述方案，能够使用 f+1 replica 承受 f 个副本的宕机。但这是以<strong>可用性换来的一致性</strong>（ISR 不可用时选择整个系统不可用，而不是允许往非 ISR 节点写入，牺牲一致性来换取此场景下的可用性），并且实现它需要设置一些参数：</p>
 <ol>
 <li>ack&#x3D;1&#x2F;0&#x2F;-1，分别代表：</li>
 </ol>
@@ -565,18 +586,38 @@
 <p>doing every write five times, with 5x the disk space requirements and 1&#x2F;5th the throughput, is not very practical for large volume data problems. This is likely why quorum algorithms more commonly appear for shared cluster configuration such as ZooKeeper but are less common for primary data storage.</p>
 </blockquote>
 <p>（我的理解）ISR 机制是一种 控制与数据分离的设计，控制数据（ISR 集合）使用 Quorum 系统（ZK）实现，而业务数据则可以根据配置获得不同的 写可用性、节点容错数量（min.insync）。举个例子，min.insync&#x3D;6, replication factor&#x3D;7，使得容错为 5，而 Raft 在相同的 replication factor 容错为 3（当然代价是写可用性下降）</p>
-<h5 id="Question：ISR-是如何动态维护的？ISR-的维护有延迟会有问题吗？"><a href="#Question：ISR-是如何动态维护的？ISR-的维护有延迟会有问题吗？" class="headerlink" title="Question：ISR 是如何动态维护的？ISR 的维护有延迟会有问题吗？"></a>Question：ISR 是如何动态维护的？ISR 的维护有延迟会有问题吗？</h5><p>ISR 的维护不需要强一致 如果未同步的 follower 持续存在于 ISR，会影响可用性，但由于 HW 不会前进，因此不会对一致性造成影响 如果已同步的 follower 暂时未被加入 ISR，同样会影响可用性，但是是反映在 Leader 挂掉后有多少 ISR 可选这一层面上的</p>
+<p>Question：考虑 7 节点挂 6 个，剩下的属于 ISR，背后的 Raft 肯定已经不可用了，难道不影响数据写入吗？<br>TODO 有 dedicated 节点用来部署 KRaft 的方案，应该还是基于这个方案思考的。x 个数据面节点，最多容忍 x-1 节点宕机，不重合的 2y+1 个控制面节点（即 KRaft）容忍最多 y 节点宕机，上一个问题中提到的优势只是对于数据面节点而言的</p>
+<h5 id="Question：ISR-是如何动态维护的？ISR-的维护有延迟会有问题吗？"><a href="#Question：ISR-是如何动态维护的？ISR-的维护有延迟会有问题吗？" class="headerlink" title="Question：ISR 是如何动态维护的？ISR 的维护有延迟会有问题吗？"></a>Question：ISR 是如何动态维护的？ISR 的维护有延迟会有问题吗？</h5><p>ISR 的维护不需要强一致<br>server 侧<br>  如果未同步的 follower 持续存在于 ISR，会影响可用性，但由于其会阻塞 HW 的前进，任何未同步到所有 ISR 的日志都不会向 client 返回 ACK（即尚未向 client 做出任何关于这条消息的承诺），因此不会对一致性造成影响<br>  如果已同步的 follower 暂时未被加入 ISR，同样会影响可用性，但是是反映在 Leader 挂掉后有多少 ISR 可选这一层面上的<br>client 侧<br>  如果向非 ISR 节点发送请求，且它也认为自己是 ISR</p>
+<h5 id="Question：如果消息发给-ISR，在任何-ISR-将其从-OS-buffer-刷盘前-ISR-挂掉（比如-sizeof-ISR-x3D-1-的情况），是否意味着数据丢失？"><a href="#Question：如果消息发给-ISR，在任何-ISR-将其从-OS-buffer-刷盘前-ISR-挂掉（比如-sizeof-ISR-x3D-1-的情况），是否意味着数据丢失？" class="headerlink" title="Question：如果消息发给 ISR，在任何 ISR 将其从 OS buffer 刷盘前 ISR 挂掉（比如 sizeof ISR &#x3D; 1 的情况），是否意味着数据丢失？"></a>Question：如果消息发给 ISR，在任何 ISR 将其从 OS buffer 刷盘前 ISR 挂掉（比如 sizeof ISR &#x3D; 1 的情况），是否意味着数据丢失？</h5><blockquote>
+<p>[3]<br>With this ISR model and f+1 replicas, a Kafka topic can tolerate f failures without losing committed messages.</p>
+<p>Note that Kafka’s guarantee with respect to data loss is predicated on at least one replica remaining in sync. If all the nodes replicating a partition die, this guarantee no longer holds.</p>
+</blockquote>
+<p>[12]是的，但当配置较大的 min ISR 时，这个概率会很小，只要在 ISR 中任何一台机器完成 flush 前没有出现 ISR 内所有机器挂掉，就不会有问题<br>TODO os buffer flush 一般要多久呢？<br>（os flush 耗时是否比同步复制的延迟要短？是的话这个概率会进一步缩小）</p>
+<h5 id="Question-如何保证-Producer-不会将数据写入过时-leader-并得到-ACK？如何保证-Producer-获知的-Leader-即使是过时的也不会有问题？比如说，Leader-挂，选出新-Leader，旧-Leader-复活，怎么保证-Producer-无法写入旧-Leader，或写入旧-Leader-一定无法成功？"><a href="#Question-如何保证-Producer-不会将数据写入过时-leader-并得到-ACK？如何保证-Producer-获知的-Leader-即使是过时的也不会有问题？比如说，Leader-挂，选出新-Leader，旧-Leader-复活，怎么保证-Producer-无法写入旧-Leader，或写入旧-Leader-一定无法成功？" class="headerlink" title="Question: 如何保证 Producer 不会将数据写入过时 leader 并得到 ACK？如何保证 Producer 获知的 Leader 即使是过时的也不会有问题？比如说，Leader 挂，选出新 Leader，旧 Leader 复活，怎么保证 Producer 无法写入旧 Leader，或写入旧 Leader 一定无法成功？"></a>Question: 如何保证 Producer 不会将数据写入过时 leader 并得到 ACK？如何保证 Producer 获知的 Leader 即使是过时的也不会有问题？比如说，Leader 挂，选出新 Leader，旧 Leader 复活，怎么保证 Producer 无法写入旧 Leader，或写入旧 Leader 一定无法成功？</h5><p>TODO 我的猜测，leader 更换会从原有的 ISR 中选一个，假设为 A，选完后（已经在 Raft 集群持久化），若原有 leader 复活，client 继续往它写入，可以确保的是 A 一定能够拒绝来自原 leader 的复制，且 A 一定在原 leader 的 metadata 中，若原 leader 更新 metadata，也能够发现自己已经不再是 leader（用类似 epoch 的机制）</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://qr.ae/pr27Xu">https://qr.ae/pr27Xu</a><br>The producer sends a Metadata request with a list of topics to one of the brokers in the broker-list you supplied when configuring the producer.<br>The broker responds with a list of partitions in those topics and the leader for each partition. The producer caches this information and knows where to redirect its produce messages.</p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://stackoverflow.com/a/64832726/8454039">https://stackoverflow.com/a/64832726/8454039</a><br>Kafka clients are receiving the necessary meta information from the cluster automatically on each request when reading from or writing to a topic in case of a leadership change.<br>Each individual broker contains all meta information for the entire cluster, meaning also having the knowledge on the partition leader of other brokers.<br>Now, if one of your broker goes down and the leadership of a topic partition switches, your producer will get notified about it through that mechanism.</p>
+</blockquote>
+<p>可能相关</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/63451849/does-kafka-broker-always-check-if-its-the-leader-while-responding-to-read-write">https://stackoverflow.com/questions/63451849/does-kafka-broker-always-check-if-its-the-leader-while-responding-to-read-write</a><br>So if metadeta which producer fetches every 5 mins is the only validation in kafka for which broker is the leader. Then kafka producer should be able to produce the message at a non-leader broker, if a leader change happens in those 5 mins. Is this understanding correct?</p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://kafka.apache.org/08/documentation.html">https://kafka.apache.org/08/documentation.html</a><br>retry.backoff.ms<br>Before each retry, the producer refreshes the metadata of relevant topics to see if a new leader has been elected.</p>
+</blockquote>
 <p>TODO 无关问题，有空移走<br>Question：为什么计算机存储结构不是单层的，而是需要 cache memory disk (even distributed fs) 这么多层?</p>
 <blockquote>
 <p><a target="_blank" rel="noopener" href="https://cs61.seas.harvard.edu/site/2019/Storage/">https://cs61.seas.harvard.edu/site/2019/Storage/</a><br>We cannot build a storage system from a single type of digital technology that is simultaneously big, fast, and cheap. So instead, our goal is to create a storage system made up of layers of different storage technologies that gives the appearance of being big and fast. It will cost a bit more than a big and slow storage system, but it will also cost a lot less than a big and fast one.</p>
 </blockquote>
 <h2 id="Confluent-Kafka-Courses"><a href="#Confluent-Kafka-Courses" class="headerlink" title="Confluent Kafka Courses"></a>Confluent Kafka Courses</h2><h3 id="Consumer-Group"><a href="#Consumer-Group" class="headerlink" title="Consumer Group"></a>Consumer Group</h3><p>本节引用：<a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/consumer-group-protocol/">https://developer.confluent.io/learn-kafka/architecture/consumer-group-protocol/</a></p>
-<p>省流：__consumer_offsets topic 的 replica leader 被称为 <strong>Group Coordinator</strong>，Consumer Group 中第一个向 Group Coordinator 发送 JoinGroupRequest 的会被指定为 <strong>Group Leader</strong>，后者负责根据相应策略在本地完成 parition-consumer 的分配，并将此分配同步到 Group Coordinator，其余 consumer 也会从 Group Coordinator 同步获知这个分配</p>
+<p>省流：__consumer_offsets topic 中 group id 关联的 partition leader 被称为 <strong>Group Coordinator</strong>，Consumer Group 中第一个向 Group Coordinator 发送 JoinGroupRequest 的会被指定为 <strong>Group Leader</strong>，后者负责根据相应策略在本地完成 parition-consumer 的分配，并将此分配同步到 Group Coordinator，其余 consumer 也会从 Group Coordinator 同步获知这个分配</p>
 <p>请求流程：</p>
 <ol>
 <li>consumer 向任意节点发送 <code>FindCoordinator(group.id)</code> 请求，返回 consumer group 对应的 Group Coordinator。<br>注：<code>hash(group.id) mod partition_num(__consumer_offsets topic)</code> 决定此 consumer group 的 metadata （我理解主要也就是 offset）向 <code>__consumer_offsets</code> 的哪个 partition 写入，<strong>Group Coordinator 就是这个 partition 的 leader</strong></li>
-<li>consumer 向 Group Coordinator 发送 <code>JoinGroup</code> 请求，GC 会将第一个请求来源的 consumer 指定为 group leader。这一请求的 response 总是包含 group 内的 member id，对于 leader 会额外返回 all members and the subscription info</li>
-<li>Group leader 在本地根据策略分配 partition，并通过 <code>SyncGroupRequest</code> 将分配传给 GC，其他 consumer 也会发送这一请求，用于获知自己的分配</li>
+<li>consumer 向 Group Coordinator 发送 <code>JoinGroupRequest</code> 请求，GC 会将第一个请求来源的 consumer 指定为 group leader。这一请求的 response 总是包含 group 内的 member id，对于 leader 会额外返回 all members and the subscription info</li>
+<li>Group leader 在本地根据策略分配 partition，并通过 <code>SyncGroupRequest</code> 将分配传给 GC，其他 consumer 也会发送这一相同请求，但用于获知自己的分配</li>
 </ol>
 <p>此外，<code>OffsetFetchRequest</code> 请求用于获得已提交消费进度，如果没有相关信息，那么会根据 <code>auto.offset.reset</code> 确定初始的消费位置</p>
 <p>相关段落</p>
@@ -588,6 +629,10 @@
 </blockquote>
 <p>消费期间，consumer 可以通过 <code>CommitOffsetRequest</code> 向 Kafka 持久化消费进度</p>
 <p>通过 <code>Map&lt;TopicPartition, OffsetAndMetadata&gt; committed(final Set&lt;TopicPartition&gt; partitions)</code> 可以获得 partition 的已提交 offset<br>通过 <code>long position(TopicPartition partition)</code> 可以获得 partition 的消费进度<br>（position 与 committed 区别参考 <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/47548737/8454039">https://stackoverflow.com/a/47548737/8454039</a>）</p>
+<p>Question：如何检测 Consumer 宕机？检测到后会发生什么？<br>Consumer 与 Group Coordinator 会维护心跳</p>
+<blockquote>
+<p>[14] An instance fails to send a heartbeat to the coordinator before the timeout and is removed from the group<br>（便于理解的基础版本，[14]中指出了它的问题）GC 检测到后收回所有原先的分配，所有 consumer 重新走 JoinGroupRequest 与 SyncGroupRequest 的流程<br>Question：如何检测 Broker 宕机？检测到后会发生什么？<br>这里指维护数据的 topic 而非维护 metadata 的 topic<br>TODO</p>
+</blockquote>
 <h4 id="分配策略"><a href="#分配策略" class="headerlink" title="分配策略"></a>分配策略</h4><p>Round Robin 平均分配<br>Sticky Partition 同上，但 rebalance 时尽量保证原有分配不变</p>
 <h4 id="Rebalance"><a href="#Rebalance" class="headerlink" title="Rebalance"></a>Rebalance</h4><p>触发条件</p>
 <ul>
@@ -635,30 +680,22 @@
 </ol>
 <h2 id="调优"><a href="#调优" class="headerlink" title="调优"></a>调优</h2><p>Producer 调优：linger miliseconds &amp; batch size（flush 前的 最大等待时间、最大消息数量，默认 0 16KB）<br>调优这两个参数做的一些实验 <a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/producer-hands-on/">https://developer.confluent.io/learn-kafka/architecture/producer-hands-on/</a></p>
 <p>TODO 补充下方文章中的内容<br>如何学习kafka？ - 腾讯技术工程的回答 - 知乎<br><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/456093354/answer/2754225999">https://www.zhihu.com/question/456093354/answer/2754225999</a></p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>TODO partition 数量可以一开始指定，之后可变吗？变化涉及的数据迁移有什么优化吗？</p>
-<ol>
-<li>Producer 如何 scale</li>
-<li>Consumer 如何 scale</li>
-<li>存储如何 scale</li>
-<li>Kafka 提高效率的手段？<br>  sendfile、consumer&#x2F;broder batching、依赖 page cache、ISR Raft 数据、控制面分离的设计、无锁 consume</li>
-<li>Exactly-once、Transaction、顺序保证</li>
-<li>推 or 拉？</li>
-<li>消费进度如何维护</li>
-<li>服务可用性、数据安全性、一致性如何实现、如何权衡</li>
-</ol>
-<hr>
-<ol>
-<li>对 Consumer 与 Broker 的 watch 使得 Parition 与 Consumer 的关联关系能够随着 Consumer 的加入&#x2F;挂掉、Broker 的加入&#x2F;挂掉 实现自动调整，从而实现 scale out<br>TODO 需要修改 broder 为啥会挂</li>
-<li>为什么 producer 推，consumer 拉</li>
-<li>消费进度的维护</li>
-<li>提供何种保证 exactly-once ？</li>
-<li>数据复制<br>TODO</li>
-<li>运行效率（Kafka 为什么快）</li>
-</ol>
-<h2 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h2><p>TODO 读写流程 <a target="_blank" rel="noopener" href="https://yangyangmm.cn/2021/10/24/Kafka%E7%9A%84%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B/">https://yangyangmm.cn/2021/10/24/Kafka%E7%9A%84%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B/</a></p>
-<p>TODO Future Work 部分提到 相同 key 走到相同 partition，Kafka 有相关机制来实现吗？<br>TODO 另一个常见八股是 Kafka 为什么快，有空整理一下</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>Producer 如何 scale？Consumer 如何 scale？<ul>
+<li>Producer 侧允许 Partition 级别多 Producer 并发写入[13]，由 partition leader 作为 sequencer 决定消息顺序，因此 Partition 的 scale out 相对简单<br>（但 consumer 侧不支持，这使得单 consumer 总能在 partition 上有序消费）</li>
+<li>对 Consumer 与 Broker 的 watch 使得 Parition 与 Consumer 的关联关系能够随着 Consumer 的加入&#x2F;挂掉、Broker 的加入&#x2F;挂掉 实现自动调整，从而实现 scale out</li>
+</ul>
+</li>
+<li>Kafka 自身如何 scale？<br>增加节点即可，partition 会分散在不同的 broker 上</li>
+<li>Kafka 提供哪些 Guarantee，为什么需要这样它们？是如何提供的？<br>TODO Exactly-once、Transaction、顺序保证</li>
+<li>为什么 producer 推，consumer 拉<br>TODO</li>
+<li>消费进度的维护<br>TODO</li>
+<li>数据复制：ISR 内同步复制，其余异步复制</li>
+<li>运行效率（Kafka 为什么快），关键词：Producer Batch、写 OS Buffer 能够利用缓存，利用不上的情况下零拷贝、报文压缩</li>
+</ul>
+<h2 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h2><p>TODO：broker 挂后，如何影响 producer？如何影响 consumer？</p>
+<p>TODO partition 数量可以一开始指定，之后可变吗？变化涉及的数据迁移有什么优化吗？<br>TODO 读写流程 <a target="_blank" rel="noopener" href="https://yangyangmm.cn/2021/10/24/Kafka%E7%9A%84%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B/">https://yangyangmm.cn/2021/10/24/Kafka%E7%9A%84%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B/</a></p>
 <p>TODO 看下 Kafka 的设计文档中的：<br>Geo-Replication<br>多租户<br>监控</p>
-<p>TODO 课件上说，Broker 是 无状态的，确认下</p>
 <h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><ol>
 <li>论文 Kafka: a Distributed Messaging System for Log Processing</li>
 <li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/ee6e9de6a376">zookeeper（四）watcher</a></li>
@@ -670,6 +707,11 @@
 <li><a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/control-plane/">The Apache Kafka Control Plane</a></li>
 <li><a target="_blank" rel="noopener" href="https://stackoverflow.com/q/67466262/8454039">Using same consumer group for different kafka topics</a></li>
 <li><a target="_blank" rel="noopener" href="https://kafka.apache.org/documentation/#design">Kafka 文档 第四章 Design</a></li>
+<li><a target="_blank" rel="noopener" href="https://andriymz.github.io/kafka/kafka-disk-write-performance/#resources">How Kafka Is so Performant If It Writes to Disk?</a></li>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/a/57989096/8454039">Can a message loss occur in Kafka even if producer gets acknowledgement for it?</a></li>
+<li><a target="_blank" rel="noopener" href="https://qr.ae/pr2pDS">Can multiple kafka producers produce the same topic with the same partition at the same time?</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/consumer-group-protocol/">COURSE: APACHE KAFKA® INTERNAL ARCHITECTURE: Consumer Group Protocol</a></li>
+<li><a target="_blank" rel="noopener" href="https://youtu.be/twgbAL_EaQw?t=1192">Kafka - Exactly once semantics with Matthias J. Sax - What happens when the producer crashes</a></li>
 </ol>
 
                 
