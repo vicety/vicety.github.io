@@ -31,7 +31,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221112075648.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221112080952.png">
 <meta property="article:published_time" content="2022-09-26T16:17:00.000Z">
-<meta property="article:modified_time" content="2023-01-11T12:26:41.278Z">
+<meta property="article:modified_time" content="2023-01-13T10:09:30.289Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="论文阅读">
 <meta property="article:tag" content="大数据">
@@ -239,7 +239,7 @@
         
         
         
-          213 分钟
+          215 分钟
         
       </span>
     
@@ -465,6 +465,7 @@
 <p>所以 producer 侧就我看到的配置而言是 at-most-once 的，配置 retries 为 <code>MAX_VALUE</code> 后是 exactly-once 的（网上看到一些说法默认是 at-least-once）</p>
 <h4 id="Kafka-被消费时"><a href="#Kafka-被消费时" class="headerlink" title="Kafka 被消费时"></a>Kafka 被消费时</h4><p>拉数据、处理数据、存进度对应着 at-least-once<br>拉数据、存进度、处理数据对应着 at-most-once</p>
 <p>如果消息幂等，那么可以直接采用 at-least-once 的方案，消费方只需要偶尔持久化一下消费进度，使得恢复不至于太慢即可。否则若要实现 exactly-once，重点在于如何实现<strong>同时更新 A.消费方消费进度 与 B.消费方因本次消费产生的副作用</strong>。方案一是对AB做二阶段提交；方案二，原子地把AB写入存储</p>
+<p>TODO Kafka 是不是可以通过 txn 实现？<br>TODO consumer 挂了会发生什么，待总结<br><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/49916055/kafka-behaviour-if-consumer-fail">https://stackoverflow.com/questions/49916055/kafka-behaviour-if-consumer-fail</a></p>
 <p>TODO consumer 挂掉重启后如何获知上次的消费进度<br><a target="_blank" rel="noopener" href="https://kafka.apache.org/22/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html">https://kafka.apache.org/22/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html</a></p>
 <blockquote>
 <p>The committed position is the last offset that has been stored securely. Should the process fail and restart, this is the offset that the consumer will recover to.<br><a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/consumer-group-protocol/">https://developer.confluent.io/learn-kafka/architecture/consumer-group-protocol/</a><br>When a consumer group instance is restarted, it will send an OffsetFetchRequest to the group coordinator to retrieve the last committed offset for its assigned partition. Once it has the offset, it will resume the consumption from that point. If this consumer instance is starting for the very first time and there is no saved offset position for this consumer group, then the auto.offset.reset configuration will determine whether it begins consuming from the earliest offset or the latest.<br>TODO 关于如何 commit 消费进度<br><a target="_blank" rel="noopener" href="https://kafka.apache.org/22/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html">https://kafka.apache.org/22/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html</a><br>（似乎文档里也有这句话）<br>The consumer application need not use Kafka’s built-in offset storage, it can store offsets in a store of its own choosing. The primary use case for this is allowing the application to store both the offset and the results of the consumption in the same system in a way that both the results and offsets are stored atomically. This is not always possible, but when it is it will make the consumption fully atomic and give “exactly once” semantics that are stronger than the default “at-least once” semantics you get with Kafka’s offset commit functionality.</p>
@@ -588,7 +589,7 @@
 <p>（我的理解）ISR 机制是一种 控制与数据分离的设计，控制数据（ISR 集合）使用 Quorum 系统（ZK）实现，而业务数据则可以根据配置获得不同的 写可用性、节点容错数量（min.insync）。举个例子，min.insync&#x3D;6, replication factor&#x3D;7，使得容错为 5，而 Raft 在相同的 replication factor 容错为 3（当然代价是写可用性下降）</p>
 <p>Question：考虑 7 节点挂 6 个，剩下的属于 ISR，背后的 Raft 肯定已经不可用了，难道不影响数据写入吗？<br>TODO 有 dedicated 节点用来部署 KRaft 的方案，应该还是基于这个方案思考的。x 个数据面节点，最多容忍 x-1 节点宕机，不重合的 2y+1 个控制面节点（即 KRaft）容忍最多 y 节点宕机，上一个问题中提到的优势只是对于数据面节点而言的</p>
 <h5 id="Question：ISR-是如何动态维护的？ISR-的维护有延迟会有问题吗？"><a href="#Question：ISR-是如何动态维护的？ISR-的维护有延迟会有问题吗？" class="headerlink" title="Question：ISR 是如何动态维护的？ISR 的维护有延迟会有问题吗？"></a>Question：ISR 是如何动态维护的？ISR 的维护有延迟会有问题吗？</h5><p>ISR 的维护不需要强一致<br>server 侧<br>  如果未同步的 follower 持续存在于 ISR，会影响可用性，但由于其会阻塞 HW 的前进，任何未同步到所有 ISR 的日志都不会向 client 返回 ACK（即尚未向 client 做出任何关于这条消息的承诺），因此不会对一致性造成影响<br>  如果已同步的 follower 暂时未被加入 ISR，同样会影响可用性，但是是反映在 Leader 挂掉后有多少 ISR 可选这一层面上的<br>client 侧<br>  如果向非 ISR 节点发送请求，且它也认为自己是 ISR</p>
-<h5 id="Question：如果消息发给-ISR，在任何-ISR-将其从-OS-buffer-刷盘前-ISR-挂掉（比如-sizeof-ISR-x3D-1-的情况），是否意味着数据丢失？"><a href="#Question：如果消息发给-ISR，在任何-ISR-将其从-OS-buffer-刷盘前-ISR-挂掉（比如-sizeof-ISR-x3D-1-的情况），是否意味着数据丢失？" class="headerlink" title="Question：如果消息发给 ISR，在任何 ISR 将其从 OS buffer 刷盘前 ISR 挂掉（比如 sizeof ISR &#x3D; 1 的情况），是否意味着数据丢失？"></a>Question：如果消息发给 ISR，在任何 ISR 将其从 OS buffer 刷盘前 ISR 挂掉（比如 sizeof ISR &#x3D; 1 的情况），是否意味着数据丢失？</h5><blockquote>
+<h5 id="Question：如果消息同步复制到-ISR-的过程中，在任何-ISR-将其从-OS-buffer-刷盘前-ISR-挂掉（比如-sizeof-ISR-x3D-1-的情况），是否意味着数据丢失？"><a href="#Question：如果消息同步复制到-ISR-的过程中，在任何-ISR-将其从-OS-buffer-刷盘前-ISR-挂掉（比如-sizeof-ISR-x3D-1-的情况），是否意味着数据丢失？" class="headerlink" title="Question：如果消息同步复制到 ISR 的过程中，在任何 ISR 将其从 OS buffer 刷盘前 ISR 挂掉（比如 sizeof ISR &#x3D; 1 的情况），是否意味着数据丢失？"></a>Question：如果消息同步复制到 ISR 的过程中，在任何 ISR 将其从 OS buffer 刷盘前 ISR 挂掉（比如 sizeof ISR &#x3D; 1 的情况），是否意味着数据丢失？</h5><blockquote>
 <p>[3]<br>With this ISR model and f+1 replicas, a Kafka topic can tolerate f failures without losing committed messages.</p>
 <p>Note that Kafka’s guarantee with respect to data loss is predicated on at least one replica remaining in sync. If all the nodes replicating a partition die, this guarantee no longer holds.</p>
 </blockquote>
