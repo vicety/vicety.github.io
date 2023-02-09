@@ -743,7 +743,7 @@
       
       <a class="index-excerpt index-excerpt__noimg" href="/2021/07/16/MVCC/" target="_self">
         <div>
-          Here&#39;s something encrypted, password is required to continue reading.
+          PID&#x3D;88775351 本节基于Reference 1进行记录 MVCC的设计初衷是读写间不需要隔离 DBMS with MVCC会为一个逻辑对象维护多个物理版本，当txn写入对象，DBMS创建对象的一个新版本，当txn读取对象，DBMS读取txn开始前对象的最新版本。 引入MVCC需要在数据表中额外增加几个字段（版本ID、开始时间、结束时间），需要维护当前活跃的txn序号（时间戳）
         </div>
       </a>
 

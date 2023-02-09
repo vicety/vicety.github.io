@@ -16,19 +16,25 @@
   <meta name="author" content="vicety">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Here&#39;s something encrypted, password is required to continue reading.">
+    <meta name="description" content="PID&#x3D;88775351 本节基于Reference 1进行记录 MVCC的设计初衷是读写间不需要隔离 DBMS with MVCC会为一个逻辑对象维护多个物理版本，当txn写入对象，DBMS创建对象的一个新版本，当txn读取对象，DBMS读取txn开始前对象的最新版本。 引入MVCC需要在数据表中额外增加几个字段（版本ID、开始时间、结束时间），需要维护当前活跃的txn序号（时间戳）">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MVCC">
 <meta property="og:url" content="https://vicety.github.io/2021/07/16/MVCC/index.html">
 <meta property="og:site_name" content="vicety的博客">
-<meta property="og:description" content="Here&#39;s something encrypted, password is required to continue reading.">
+<meta property="og:description" content="PID&#x3D;88775351 本节基于Reference 1进行记录 MVCC的设计初衷是读写间不需要隔离 DBMS with MVCC会为一个逻辑对象维护多个物理版本，当txn写入对象，DBMS创建对象的一个新版本，当txn读取对象，DBMS读取txn开始前对象的最新版本。 引入MVCC需要在数据表中额外增加几个字段（版本ID、开始时间、结束时间），需要维护当前活跃的txn序号（时间戳）">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/2021-06-28-14-52-59-mvcc-example.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/2021-06-28-17-09-16-append-only-storage-mvcc.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/2021-06-28-17-54-31-mvcc-time-travel-storage.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/2021-06-28-17-59-49-mvcc-delta-storage.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/20210712054226.png">
 <meta property="article:published_time" content="2021-07-16T01:00:00.000Z">
-<meta property="article:modified_time" content="2022-11-30T01:06:11.908Z">
+<meta property="article:modified_time" content="2023-02-09T04:27:58.965Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="加密">
 <meta property="article:tag" content="数据库">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/vicety/Images/master/2021-06-28-14-52-59-mvcc-example.png">
   
   
   
@@ -220,7 +226,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.7k 字
+          3k 字
         
       </span>
     
@@ -231,7 +237,7 @@
         
         
         
-          23 分钟
+          26 分钟
         
       </span>
     
@@ -286,22 +292,84 @@
             <h1 style="display: none">MVCC</h1>
             
             
-              
-              <div class="hbe hbe-container" id="hexo-blog-encrypt" data-wpm="Oh, this is an invalid password. Check and try again, please." data-whm="Oh, these decrypted content cannot be verified, but you can still have a look.">
-  <script id="hbeData" type="hbeData" data-hmacdigest="8b8161970e52489fc78f8c98dc39ad09ef09d4522a480158b38f93c84153e0c1">4724090b17589d633a1c19b9d3b8c5a5f81fda2f76688d0b0ea58793dbff575e3b9fd32790872b620277e3756d73e73ad76d72ff7ac8428a1d9cd51d2d458af4ac1e287954c876e5131feb6436b8390b5fcf83e63276390c1d18667e5cbe4e539c4e6b42463c242f4d3e2d95003a7fc4c28c81d047b68de8600acbff56ebedc58686e395ae59f3739fc48a94ca09353004cd56e523856196008ae5bb047fc844316cc93f92c448aee0dbc73a61a79c535e2e001682f90158e688af494dde76aa8e5be90ddf0b763f7f3a14d60733daad687b05f1a833c3b43c940e37700c29fe0027f8beb0b2e601cf3d3339572d1c99cf028e8b3c160c4bd7eef5ef52a2696e07109f0a39af1bfcc01597d9d06d24f80c57a5c81986e6edb5ec77976c4a6ebd1537ab770fa0cdb3c2b2d5d0c4dc20c442b888d304e1aeef8afdf2bd524bbd195168c7050e7446192dff20fde5423a1b7f91b7444c640ee8e4ef6805a8b9d2f03edfce9a39021a0835184a2dbe01a2a69e1908ce36d0463400a3832b0fdea284ace8d914a1c1bae1e747abd7c7a59d879e7c45e9c0d89dbce46b6627eebbc08a34948a503af7dccaa7a5fab8baf1e43899520945b2043804b19a201873fbbf16d9ba564e739a175dd637bea5679c9e9a3074b7caf373da32c790ca29ca46c3bdf0274d6db615836c966ca93703a3d9afa72f718ae5f30301252f58714084451d14ddf6cdf917990bbf79849d487ea1ec21c8e593bb43285855be497bc63b7150c6369f5c4fd9a05eb3a04c7931e3610fcf084faf3396c7a0270937de24c55790fa1b29d70f2888f28bd76d4a7827bd8d987916dd7e6f92f1ca86eb5fa9a1114c610f4012b26fd2803cfdd937aee8eac8ad7bebab2072e9f65d4c0886f634d341d946690fdedf333fea1f952019ec7d2498ee6fff8d01bbdae3e19be66ecdf903ceaa726b25b48e7419fb7196d4c82184c858351ad732ff9cde2a322f8b9c38bc7b0a8d03be180e88f57bb32b4052eb50e4882d24621a73d9f3590a74f4b8bb5bde1f512db91ce19acbe03bb23bdc04703add74b04745a20415101d760f810e2f982ba7f1d19d77140a67ce8aee7a9346c1a7cad85c427bcd1e10207afe701d6987360cb3fcb9ca31d0b8a29fd0e52dffefb7632afd5d381625c1411486f8788e811662e99399a4e0d3dbbefbcf9613fe5ab8d91c620a65fe170351a02c29249c8b6f62403b5b1acff59f5c6da81bb1db2ad48f145bac071171d78393f21a939951d349dfa98e604a7615fdb0a15a78a310e2fd02abe6114b98fe21b592307aa42298f986c6ea9e73180be3daa87dd3291c9100c22e5738f10da4fc5df9008052b55462279c519d567261e32a036af8b619487ee5624c441a9e79afa2294324d6cae76d97d706fb1253a710d4ec96e6dbe7840d796d3eb9b5b10966b05bd6c41d1865d6de39caf9870f60d124738848f13dcfed06457f26b83d7ff6a2c13e6045404cdd8e82311d0e4730808649d9d5be5b48c71f708dc0d85388bdd8f3b2280631aed1da933b718f3dc6b595f93e40c11887e62d41f315a13755a9524ffb416473e3f67db8254e5e16a3eb04949caa57cdf7a97db2850308a2bcc784af9b103df0920fe832ae6299238e381ebe12ce60553289efc46e83249b40cabf911fcf07cb0fb16ef8f4d0877340cbe889bdff830baf73316165e35e6f0c1f58d3c6b7b9903271a1358f7b2fde5a988dce9db3a266fd43b8721881f2dca396f9954457147d91d78def2de013417d7baca36a8cb866e63920518f45407ce8a617d9e1ee8b7415c923183e1134c7ca1fb6a534d5875e77a1d2fbb79c97eba76713ff33546d17eae3a71e2f644de6918deb7a4168228a21d1a99c1e64562ca1f4d7882208388db8c28ca64c09ab2357a350896665fd633dd8ff8434a7334bdb5ff0c8cc29459222669cf70236551eb9a7525b9595e80da24d2159038c39c51448f95f36d8071f5f5090c739fbd951729641a36db229ef315b1ec75658a1becbe81e1da475ffaddbaeab3ee8e65ca77abae560eb909837fe5a91a30756ee9170ced6e1eda28d3540530c54592203a1ac244983984ec6be86b38b1fb4966e2d2b818579ea18bb72d48c1bac5a190cb0f5fcb8bf1e64dcb7e978c75023488d025b9a7d6e70e42ae60ce720d908e67455adbd762a3030126c028e58e39bd761c726b4be0d4b541b78e4dd39e5e4bbb13ba7e7a13a05a29fdc9618fc8b20c539aa537da9211d8f19b0a6e0826eb1628ebfa168663c6c725e034c3baf90e1260651f443cc2fdcdecb45d5d7a65d1a46a476e8e865471edb0be638740e095c5fd0965c09668ce22adc25ace4add4d5b8f0d1e48f32384acdaa589a39a1c73ccf2843172d8739efb55dcc08d8f76640d5ce2683e2b7a9d2947755c2410f0ae82baa051f1d19e714851de06316515f12165b923f61d2268e6b42404e95019d2751a9a43660fa1f222c94feca75d6d20ce55692bf2a5174c2812db68c91bad882ad15a046a02ad749a1efc3f665b31a430493e7127b328875547bbcd44ccdd88394f5066dde8d71793abed944c5a4afa4331ef11911fb0d56404bc4c10479dfd57225966a06b0564cb499398eacc15ca8a54915f2cc45d11a1f018f3cebdc631eb334a87bf47dcd96bfdf502e578d3412bfc421773b176e822d738c555642d8603ce48890117b32d1916aebaa9dcc18e5ba88ca5d1d6eb1ce325f71ebea7af3073b7501c131895e69ac37b00cc8d586a159d1bf6e5af2a49f341a40d94b375cfea27be52d310b1e161f659428bf843e6b539efeeb780db295324e005b02402d3b58d96b2c028fcb688b75b200d3a7e143603d9893fa12bf0faf2ccd110b76c0660b1a4460237ed69a6eb265ff4e8e19f1666eed57ed81dbb61dc5e9d4709f6a797697deae1e62a5099f99295c731cb2c4d953d55920f888b8858dc210ed7467872e1315044cc81b08ffae3277c17a649de2a44b11f0e50849e0995bf2b0064b8d485e5a7c3a4b4f049be43c8f956ecb021356502417188f7c8bb9e3ee853d60b99cb460581bbd67bb134f1f48efb7619f1e01f661e7770a5bd360dde5be5ab4292cf7eaf1dc6c86e0f2df259d763a735b0f036aab3bf1088e0dbaffe6bed526fa90aecc63ddde2f9899e3dcdf0e75ad26828064aea01994949501e76c92d533bc0f8f973969c370fe1fca75aa41da102e7a2eac2ce63fa712cc125f1681f661204989474954d814112b42288f04cd460cf9d58d348920e1e253bc5a2da7bc2f5b4d9025ca676cd87cb85e781f96ef7722bf654eb74b7f747402c7916ee81e195fff7aaf05148447df0aef7696f809348b442863970ad5a611d3247504a49caa18fd9511314014506c27a44549570ed7b9c4f3d806a810898b9218d29ffc1890e25359e32b97dd939c02817d8621b82e8563081b512557f22b2efb5714ac5ac44c250d6b914391b7df436d49081df597ca5b9356a0db7cea814815faa9161399c0aeab729002f74c8ec01de412971417b06ce5e2567cd8218d06af9722412d3984dc7e067d3c32b367a2d2c96559b07c6c6cbaace05f8f903be1bbc6b891359915e9be3aea4692faefb897ef928b4332b16e2b33d650911502136fe4799b2265db7059e3ba2c995d792bcdb7962af6ee3ad29306ee890c93984cb7f5f2d774df1d59a21d912152eda38654dc038242f3021a059308cbff36f437daa3a7009a1f80b5d7856d1b94610de31970025fbae45b557d571c7d92baee610da6f2867feaa86055be03baa9cb27fd9799648a80c251008a18a9ef53d28905330c404292dea5e5e001c19dcf2275768763df49217c4f6463b3f728d17ec14764d6b8b69475227d4a4bf170251b1af478615917a9030920f61fec9ec403775d27a2a45adb0eed082e3206aaa6dfe54d1127423a16105e71d1f8f5010a68f9be0e5332a957f349152d5182f8b5cd309bb8c25c43c3d9a750ab06405fe41642b355c615f2830c7c372805c0a5a599e12bb6b1bb323286abda910cb35fb4a6ddbba5505fb13a6e5b78529611fd10838f35bd1503862ee78e94ef188225c86241ca6117c96c99b6b1a57294256886f6d07d6d71949c8ceaa37632ad62b59011dd5a15aa8d5ef1155297354c4f9223a89138195a3ddddae14ababca31ab3194483098327ec614d672ec60d987a1816de83a2ec217928e6c8bb33df3b6ec222a9da437f37543d1c7d9f703c38a958fa9004ad7b6f37465fa2e0b148b3cafc5a84862af1236902cd15b2ecb6e445e3a38ed0524c617b5a3a82916e4cf486ba77bddabf2b78690e7bcb055b54fc3152f090b9bc5c7473e3a8e95c642e57c5c954e7f620f97f964bb7279a8a4ed698bac81ffc4039bf9a378041be8d3e7bbf5016d2160550412db277673547f243168f1ce05a90e6f23b1d8e7e04c696178bf6dfe65c46de6cff548079839d9a30446178e290c14d64435780e417be71a4ba1c3efe6a2804613679ec79511b4d3b0fb730aff0f466d2948e3d0a6e9c2b68ae1d0d9de3d82e8cf549d95e4585fc513c5de9ae84e6d702d30f3a72e943451dc9af5158163488e2373f413bcf90a0ee6371f3d4b232efc15edc4cb4857c253ddd32b49e0a52d78ceec8bfd9a3186d739b34aa3ec332fe3672f30741d043d88a87503a35376d952251790c44e090f25e1e069fecdfd1e9087c37506498fbd39939a4ac5f367cefb6d72ee0dd043e21c057837dc6deb0e6c8a822d2171f3c59c3862394ee28771f285b6bba3c79eaedc8c57c7d5a8551825ca7539131f58dd2b31092d83f0af0b7edaccf92f74e1d1034983450617ccad41408aaef7cc29ae03d2f54ff64fe91a6b0c638deee18cb4c1d15891d0a352486a6229ab3a357e31649bb518fc899308a951870443ae61de21167c8329e7d6536bb911d026022ece68faaede2da87e1b624e9d3ad637748640151e09e34e46ee8d0c456e6e66f696fb3e40fdc85eb7cdeb400a2e650e32df220f467186f6928ffa38af66b0ca4e499930f75b53e900914562d98873768f6030cf3727fd34649f17f081e9e4014a07b2bde17370663af1d4a879050d4cbf59f413a9f661c171fe28df398455f1e803e3699eb96d0172c3eb7b7288be82a47c828db0a9c075dbc4d768572b43a5b0c4c8faae5def7abfcde01b26480a4eb44bf7e2b7d7f4cecc844195a4b86b6cb39e4fdcdb37cf59e2fde8e434add1b50b8380b3e052863be1f161ab3afe906784b25c63f86bbcb01f08264e25a89890be09eff312f6398b13ff6c42a951fa436647a5234aecd564ff8a7f363cefd56206432835595b885430b762b76e92d3a2eed2088325bc7e8bdc0bc71fad95da33e9f04d0861246424863fc6192c3c1ba637a40a8e8b7440146433cfbd6227a7d0bb345c17faf4160d47f3b7212d1c5a59bef152c23cce43fae2bc39ea9f6687e8f3f2fb5e60ccb61c782a767cea25a3291897cb8b08329407e77e28631cd451d94f3ba5adb235410df4eec9aa5a61f551cea7f19f420faacb75135cdf73b711c2a7ecd795dda47fafdbbd94fa986ede4d644990d4c32733bec6e2bb4b1089421ca3ae05eb47b4eccaec992493a789e2057fe75d5ec527c19deb5320d40760fa1119da47fd13894a2576a3cc4b38d4b20aea3564c83eaa56ce4f25f3026089d81149e2c3272ad1c84ecafa292cef12ddeb55828b904a4cac5fbe0c5cd3d828628af52408b1efe3162b6a1e1e6609c38c5b99ed6d23c64d8fa3abfd60015d7ab47eedf975aabb3703dbe620ad0b549777527285ceebaf6876a24ae1e6356f42b6fbcd9bb98c181fc7d440ef82dd76b2e1a235b53208ebc48ac43d78a711dce6318ceb05acdb6d8ea4378ded87489aae291904d437dbb5fd0c7c82b59addb0aef9e3b7541f5b369d0c57d593339915cd486b3dbb1e6dc1b96883a79d4acf276fae0efaf07f52a20cfa2e3356b077b4d91adc847cba65c330c23bf1c17ace127985c3f7895cc66543e43078818183d15a672c4bffa392a22ed5f9b9d29a55d5a0b72f2a2dd8d13d1ba5f47e60798555755c12226d37937a977599dead7563ee9a28976050bd27a1350ecce1ec8cc0cc4e250778f9bc7c8469342be82221c6b90718193e94c3709c241f947344c25b73c5f1996f6d2332c884d1acd9adf99141d1dfa7dc163bf35a412fc9fdca36f8d46e241c9434cb11eda4719010d9cb322ce010f3ceef4c642eeb5e52931fd8f736ce5e11acfb4b4f7f09fd9a330f0a0c1882a84d20efd7a3ca8778da70df2cec1fcf9ce798fab36ef8b9bee05daf7411c5ec34fe32618d1292b352c55d5bdbbc63a30b2e83d1a61215a1abf32b3d44e8fa0d219498d642837e9c82690fe1160a92c3ebb973435ef5e53a6265d0c0a39f65e97a2e47485d3b60ba05c8d6023f1096ad6ab9e7be712ffe045d8e7aa1d0496ff6c5c66370a9d6cc8be40d733fffeb81db326ab60ad8e24a000af5d3483ec4bd40a01ab5a3a0146194f8bfedd0eb6a621d3b6a1790b483cf9c2718972014a174c53a3e786e75c596c3c82f0603f956216f0e8ad4b0dba15290c8d7d04beff67e569b6125bf5afbd624b73073be9cac485bd047e518b55ebd03d883e18054cc8914f0a92c1aeb65bc2773f4cd174c8a5f23f4e05e458feeeb255c526530fdf05e6f7b67ef663ffeb8f2fc8595fa73b5f8c188979b6c9ee38992e5b0b1999f0a8f3e296ba39634787f330f14ce851fe8d5a6c0cb0bfd0ea29349791d9e17828075a63bbdfee66c0a15e8dd5aea55faf67df5648b4fce369883cae1ab0d0b6838f596ffbb3ebb346e31337812ef08607e2bfe262e4fd62c68bbe1d3976cf72cd25b4104b85ef51a2c29753bd489714ade992a26741ae877482a8cd027c4e5403ceaf27c7ff707eaa255022dcaefd2ee4f3646fc4d7dc1dcf66897a728b8a54d176731e662b8f8cf57d2149d19baa6b4b256544c906a187ae07c6666fa0c6bfbfb800daefdbba93a801a02f2875c324ccc1dbf1db0f1c5dac9fb5a5809abd1f1e43ec7a8637fd7da595ec9223d6e2a9b97ac544fa576cc8a2eb5b65bc242466b3e4b278d549028567b0ccd4118d1d8100ccf398bcedf91763b2004a154d004af2132023f2fc73b10ee60c31df28d88121b309f0d3e20654fc595718d6fb6625f84520b383719e293cc32a6f1ff9cc632062634c6ec4d66702d88b661dbf190d1322b71ae575a39e687e451f66c29c613a93bc67627faf50bc96797435d015206df61f17dba29d7d5454115cb8951ec6dc7ea8f5409de16a5b48dd2c414ddb386ec62db9ee5d97631baa71a588566f45a43a984597b68686028d809b04903db6693da368f1eaa0ac0f2dba5ca400f47a2ee1eb937e7b749e55c3d8cbd1df6030498b2115d099beecc44e0da186f40e61ab6f56685d442300965d7da1f9a1f08da1e490c38203d3a2c667bdb2c8112d921b8fcd22cc47bb13e6f83de5412add6b21b1895837364c1469deb0597ce675bc27ad446b0ad80d81f6ed196c480ad7c3a129b4a5e592f8f8806d4e6ef27cecf513371cf7f358ae9ef84fcae1bcbcd6c1f84d01747f015485b1abcbb9af0e1f48361fff31827501f3bc14945f4ad7e65713b2e88e421648d6eca9f3e7631bc00119939702f1c90d59a3563d4c1ee77a554929413eab310e4c5dc398bd6051ca08e8e42034f79fb7495461cba8855c7e8d6056a013cc6509ca1368d66f285ae5893380dda5c953bff7f44ef14d0f509d22d1c7da6779c2ce54e8d85997380d5a731c2ca104a30024e02c5713a789dd91e0329588477c79418e745d977f3328dc739b1b43b51ded50d8ccb8ca15dd3f484144a1bbe560c2febf0c3f8a8b824ecdcdfeec772524bd32f713547ac8c273af78e9a57151827ff3c7d78c2b7c6319aa0b4f626acf42af4130bcd80a678e8e7083bee2989e78c6d97d58fca46fd4c15e323039bf45bbbcffb418bf4d6a5c021c6566ab6db79325825c3ef5395b650c6b8da3958d4712acd8d08fe8b9d78f20697d3d6735ee00fedafad97d3e9e508307d80d2c7dd71de49f3358a43c7e8090ef43cf6fb39c53527feecf7378c1054af923e506a6710b491f7dc0c66cda14e7ac4ffe84a017fed09c65d58e4e8e7698eaced42de902223ebdc7199e0ce33c44752851f2d47301c1f362fd4acea278c51d98e49ea668b3c6c8c305a52e991d9a63b2870bbd91c1923d8ecb51dff07ae4313f8ac68a6e69787a06d016b4d18b6f6c4af69c98a5f178adee8a0740542996c547558ed6e3530a907f90cf0c06a7a0db5f8669059996c28e2bb8ebf7cf2c20d7752bd6a368cba67bec29103e006aaa38bdb215866e6fbf44182a351dd218cebf10a1e9917461f6d9070098fd64d3e61c4b98d4e7f44d4ae50c276a0813301930acdc7cb0bbbf8010546478dc4c19d976692466b488c2cac0b5dce5b869e2aaf848afd2933ff71f21562ed1a24fcb2d96d910214253e32e5c3010b274f892e1b409290ab1fddd1fdce5f487850ea742c8b08cda407d4ff0b338b633878a703bd36e0f78086711c2391f109cc0359af1a8bd6e73b443400aab1d28867f38fafa286d62675de8ba399df530a9e591cf3919fd8123628ebd6ef71326a3366d62cf6a8a4c1fd5e3e8fd28e00d7e7f4c5e23f5f73da2d5af9621a065ebe18984a8a7a0d3e6669175c2cecd082988c5f45ccf69895ed1cbd9ff6b643967b2474c2dbec68ae2008261dc8ef99bd323f86d57d591dd9e94c9be97a3fe93593dd6c1a2659682deac88d748412e7420b04f112d86457f50b8496e51313a5b945dfa8d2e6bc0a2252e4001e903c44f1600c756a62be2f92ed414856e69b9f31335a306359bfedad368e65338b32bd3f8d17bc0f9a24325e89727e361029f5cca97c49e1cd42caa6072edd3e017c4dff0807885bdf4c68047c4335fc30a5916b8a0eead24a400044ce5a3e341f16375ec818908cc0b6b7e17d42c0eadfc3d4583e119232c635c1e2564e7173a337ff4244e04db5775fef2a8597c5e2073df60d8e10418effd0cb21caecd4d762e7df80a6ab47ff9e21ca837613d3abe161391ede9058043cc67760e1914177343d61911ff7dd2a3d9c7c8f7d076301f56f88bbacd4f430f74a0556d66f7e85ea34cac208f70d391800f2b0567de53d90b0fea4f963a8eefbcc8ac3e8c2381ddac99b94e42ce094fd6751146a1960fff66ca3d685259ba58a63bf634c72a471c2b373f1d913394210074c69109c7abe79f509ece7d9465f06fb8fbdc26755e5dbbeab4c503b3714eaedebea91485fe21e42a19bfa915b5e4dc61b01998621d3c359aac7ff559621a648d3a5676b59d1e4587ae0056642d38177936a72a935fe378158418b22cc4129c66963a75ac90fd71cdc5959bd2d208fe0f497c729733cc262e279758112085a59094827ce53b86503fed859757b95a36ae8edc7820f6bcaa10b4666ddccdde99e5c6774ca9fb4596c543b6ecbb1d33079b4f76c0d2a2417e8f00c6c0b701c1d398e682791ff6efb7d0fb0f53045b102c2d0b00e6a787ca8c39b5362bc22c3aeee77cfeed5f17c4110128c8740ba1a3f03e2de7caa219de13f3cce53f65d721abd2201a7541f03d1869613b194ed611bdf06af9d176cc5dbe9920c371046dbd8249ed9021741ef03adf681e1712f6125ee5fbcc2b6cb58a0d3c632430820d5c1ce739e74ad11615ecf1b04a95312b48a8111f5e41f69850f9de7e5667710573557e821951e1c5d46e0720362cbbe32bf1fe338683c29d7c0b43a1f3722fcbdfd4642219342aebe51d742b849ee989ab1cafc30429a99cc4bd820285184074de99a8f4ffa2bdadee4b967e7f0d0cf29f8605b532f32c2932891af1de6e356a35bd67d0973cbd5bdb1a1ca361dfdba1af3a61a7ecd507369fd78fdeef24b30fb400c1880ac4a72ea875d4129e840fc5dab2743d017b982040df73bd3e7d04671cea938b4e1316b0ffb0f31496986bde06b237dbdae9e427d7e67c66a054012ef48110a055393efe794e0086228922e1e416e9f27c1a7cedec467faa02a26e440fb3e5f2694d7a895881610957ccdbc43cfca579f26b54bfc7fdb2ba9badbfd342f1843796c2040f36493341a6d09c46a6d1537d8e66220792d71557405142e61a216d86bf17f05c6f1eadb54553f4de918d5bb2a622997e35b3334313327914a648743df671d1442d44a5239b5a12269658eb7ddfe690c649b8f5a511fd2a13f0e937c894e8f274e3970442af94f77e5483b64609971dc3100c0120d7fc33ad8c10c16c5efe253a0556c41526e62780f22bac6d717479a0eda09d359e8910325eafa0a4cc20060d931db597042e469a8b96f81c0a844cfe969fe00bcc32e17ef72d9fbfe351209dc29667e9054b1ede921c6fb860e060541f7a59c4cab6194fd946530c5fc88ca10f13801b314b49e7f7a1289221239419aef8431b3231ada8d15a48820b060708cb063496577a2584d5c499ccfa6afcd21e9407f53cab7577c6bb9ff9a58ae93a83d3deae0f818b5ab346ab4264ec1845b59b72d50734037a13a2af97c510ca306d739990ed688a43b21952f4d82b3f04438cbfe1f9347adab6dfe96125d34febcd1766f6575efbc24726c65808302c4133a631f40a3879daff1bb5edde1ee2bdaada328a176c1ea061297965bb1b73704838fe9368f52ad42fbb778d65a962abb6d4f87f5fd824ef30ea809c15a8f04269b5ccab75741dbddcef11c55b194c262e462f5b38e1422f6256fe67d0a72744e57217ee5552b171f7699ffc9edec5147364e4fe173efe98c0928cfad3b47bb5a6e211fd14d641c86b0e0d76511379099a8539b3a5e97a374537a89df937e1b2632edd380cfbb727fb72e86fb4110e64e16bc882fcd4196f9a30734e283f1c5736f15f1c6d40e56f3e91d1daee91216b90c0f486134d4d34453400e4307da9204407d90761b8c2456e1272ce1f77ecb75d1e2f758c5f959e1fa10af44deadc4b96eb5f990b3ef3a99030798fb67366f8e50e011a5e593b0a17fc12dc7d91070a69cc741147d04c8af0bbc2f2de0be42b0fa8b1ca687a7cfa5437cfeaf0c493a056f56408e03a96f15bd9077dd3cff0d056c1587649c03aff9511b9a1f6463ee1a559ab2210f68b19d94c1d3064a48759d1f355a52de4c2fb6b856e5a13af62afe9117e58f8c220b07115defb4da94afb53723e3546376d2eb12d01d5e6d221699091390412ef90b79966bb749056a08b660ba59c4e14b00b29c38d153a6de45bed73f9b6c3c0675da23acd57a22d80193e727477ae233598c849c687a51703783198e3382a6543497e508720667dd955878c77ffcc506616733db122beab7f9e9c77409a8be75322591029e78f8a627e28cac4a28f0b16128561e98a525b3c429aca337f71ae978b930262cb73b08ae7f19d57ed02e357cb04a2c98beee95228bb8eb44c7d6d9a6f46b29d9cae9446d4f6ac49190f6df0948c620806ef52f07e674e537767714508b0122175cb40b7e6588dbf844fde8cda1348c91a0e00e13cb3ec2a37cb1aecb7ea1925f6f6aea0fe1ed741c33976cb2542d688e31f2612c28013c16efa190a8f1f05bd264033b3ee57cd69c5b4437fa72286b97178bbf300a0964a2bf5e0c277bb647be043610cf40820ed368866c8de054e4348d6664e7efa61434a6cfa09396626692361fa7fc853349f12f552ba6d859c961d49ad221a0f7180fc32541b1b949ee4aa1b31eadd15376b87de783d945b42d8cdff2def190c85322a310e666e280075780e6278c1656acc684339f8f40cfe67e3ba8e92b652d31f7b24124dc8602f5946ce4230d1607f8a822c82c9cc6bcde170e7deffd18c4db9e65addefdcb0d6ef20d6cb8e1e3599a7eebb3fd75e9253aa3c0b9fde6f18f003e96cae6eef3342097155ae4a0b41f3d9ae62c99517f8fcfbd0b4792ef8375240a7a2aeae34b69c1a5571c3270e589fb5521490ed5a83f0dc4235c6afa8aea2c259f76ce85ad75175ee00bf2c187c67560a3d581b10e2391c10686d4130e8276ce84843a0f53a2eae091aa9e8836ceba2783253a7b0ce0f8e2eb8d63d0298458265367670a57cf0bb20a33c4dd0a86e55fe4e2586ee708c97e0c2a2f58f7a5f10557abe1a72be1839e27af774af7d469b366c87c4c41ece77dbef06872c0b5051b992c4ddd9cec8c2391d27808cda041e8950c0798396d12d2646157152423f97eb85e9362721d164f2078221ffede6a812418ba6b93fba68434102b9bf0a6f575a143521d89f5466dd60f58235835451e59fa975bfb8dac7bcad5e58327fa34670a770d380b8df032152a774967202827d9c6cb5fd2077807c593eafc1d616fa196c2d6d8c0b15fe06</script>
-  <div class="hbe hbe-content">
-    <div class="hbe hbe-input hbe-input-default">
-      <input class="hbe hbe-input-field hbe-input-field-default" type="password" id="hbePass">
-      <label class="hbe hbe-input-label hbe-input-label-default" for="hbePass">
-        <span class="hbe hbe-input-label-content hbe-input-label-content-default">Hey, password is required here.</span>
-      </label>
-    </div>
-  </div>
-</div>
-<script data-pjax src="/lib/hbe.js"></script><link href="/css/hbe.style.css" rel="stylesheet" type="text/css">
-              
+              <div class="markdown-body">
+                
+                <p>PID&#x3D;88775351</p>
+<p>本节基于Reference 1进行记录</p>
+<p>MVCC的设计初衷是<strong>读写间不需要隔离</strong></p>
+<p>DBMS with MVCC会为一个逻辑对象维护多个物理版本，当txn写入对象，DBMS创建对象的一个新版本，当txn读取对象，DBMS读取txn开始前对象的最新版本。</p>
+<p>引入MVCC需要在数据表中额外增加几个字段（版本ID、开始时间、结束时间），需要维护当前活跃的txn序号（时间戳）</p>
+<p><img src="https://raw.githubusercontent.com/vicety/Images/master/2021-06-28-14-52-59-mvcc-example.png" srcset="/img/loading.gif" lazyload><br>（图中使用2pl作为并发控制协议，因此W2A与W1A冲突，需要等待）</p>
+<p>数据库系统引入MVCC时需要考虑如下四个部分的设计，稍后会详细介绍：</p>
+<ol>
+<li>并发控制协议（两段锁、timestamp ordering、OOC）</li>
+<li>版本存储</li>
+<li>GC</li>
+<li>索引管理</li>
+</ol>
+<h2 id="版本存储"><a href="#版本存储" class="headerlink" title="版本存储"></a>版本存储</h2><p>record中存在一个指针列，用于指向此记录的版本链表，PK索引总是指向链表表头，利用这个链表，DBMS能够找到对于特定txn，这一记录的可见版本</p>
+<p>版本存储有三种方案</p>
+<h3 id="Append-Only-Storage"><a href="#Append-Only-Storage" class="headerlink" title="Append-Only Storage"></a>Append-Only Storage</h3><p>也是Postgre采用的方案，main table新增一列存储指针，新的版本作为一条记录插入main table。当发生更新时，插入一条新的记录，更新次新记录的链表指针，修改索引（optional）<br><img src="https://raw.githubusercontent.com/vicety/Images/master/2021-06-28-17-09-16-append-only-storage-mvcc.png" srcset="/img/loading.gif" lazyload></p>
+<p>关于链表新到旧还是旧到新：</p>
+<ol>
+<li>O2N，旧到新：查询需要O(N)（为啥不能额外维护一个指向最新版本的指针？），每次GC移除旧值时需要更新索引</li>
+<li>N2O，新到旧：每次更新需要更新索引、查询O(1)</li>
+</ol>
+<h3 id="Time-Travel-Storage"><a href="#Time-Travel-Storage" class="headerlink" title="Time-Travel Storage"></a>Time-Travel Storage</h3><p>在main table增加一列，此外维护一个time-travel table，在其中存储所有旧值与其链表关系。当发生更新时，将main table中的这条记录拷贝到time-travel table，更新time-travel table的链表，在main table写入新值，更新main table的指针列</p>
+<p><img src="https://raw.githubusercontent.com/vicety/Images/master/2021-06-28-17-54-31-mvcc-time-travel-storage.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="Delta-Storage"><a href="#Delta-Storage" class="headerlink" title="Delta Storage"></a>Delta Storage</h3><p>也是Mysql与Oracle采用的方案，main table增加一列作为指针，此外维护一个Delta Storage Table。当发生更新时，只拷贝那些发生修改的字段至Delta表，修改Delta表指针，随后在main table修改为新值，修改main table的指针</p>
+<p><img src="https://raw.githubusercontent.com/vicety/Images/master/2021-06-28-17-59-49-mvcc-delta-storage.png" srcset="/img/loading.gif" lazyload></p>
+<p>delta storage的优势在于不需要拷贝整个记录，劣势在于查询旧版本时需要沿着链表一步步还原，因此相对于Append-Only而言写快读慢</p>
+<h2 id="垃圾回收"><a href="#垃圾回收" class="headerlink" title="垃圾回收"></a>垃圾回收</h2><p>那些没有任何txn能够看见的版本、以及哪些abort的版本可以被回收。在设计回收算法时需要考虑两个问题：</p>
+<ol>
+<li>如何确定一个版本已经expire</li>
+<li>如何决定何时safe to回收内存</li>
+</ol>
+<p>（然而课程并没有深入介绍）</p>
+<h3 id="Tuple-level-Garbage-Collection"><a href="#Tuple-level-Garbage-Collection" class="headerlink" title="Tuple-level Garbage Collection"></a>Tuple-level Garbage Collection</h3><p>通过扫描每条记录，确认这些记录是否已经过期</p>
+<h4 id="Background-Vacuuming"><a href="#Background-Vacuuming" class="headerlink" title="Background Vacuuming"></a>Background Vacuuming</h4><p>后台线程定期扫表清理，一个优化是使用bitmap表示整个数据库的所有页面，上次scan以来修改过的页面置位，扫表时只需要关心这些置位的页面，清理后复位</p>
+<h4 id="Cooperative-Cleaning"><a href="#Cooperative-Cleaning" class="headerlink" title="Cooperative Cleaning"></a>Cooperative Cleaning</h4><p>Only works for O2N，执行txn的线程，当它们从旧timestamp开始遍历时，能够知道哪些timestamp已经不能被其他thread seen，因此顺便执行gc操作，如果是N2O，那么txn在从New拿当前数据之外，还需要额外遍历到Old去GC，效率上不如O2N</p>
+<h3 id="Transaction-level-Garbage-Collection"><a href="#Transaction-level-Garbage-Collection" class="headerlink" title="Transaction-level Garbage Collection"></a>Transaction-level Garbage Collection</h3><p>没有做深入介绍，大致的意思是每个txn维护自己的old value集合，当提交&#x2F;回滚后，gc器能够据此决定是否回收这些记录</p>
+<h2 id="Index-Management"><a href="#Index-Management" class="headerlink" title="Index Management"></a>Index Management</h2><p>对于索引列，每当更新导致产生新的版本时，为了确保old timestamp的查询仍然能走索引，不能更新旧值的索引直到垃圾回收，对于新值，需要先将旧值在当前timestamp标记为删除，然后重新插入一条数据，这样就产生了两条version chain</p>
+<p>对于二级索引（Append Only为例），坏的做法（Postgres的做法）是索引存最新记录的位置，当列更新时，每个索引的指向都要更新，两种优化：</p>
+<ol>
+<li>（MySQL的做法）二级索引指向一级索引，更新时只更新一级索引</li>
+<li>创建一个中间层，比如说维护一个map，key是行ID，value是物理地址，二级索引指向map的key，即tuple ID，其实和方法一一样</li>
+</ol>
+<p>下面是对于各种类型数据库使用的并发控制协议、MVCC版本存储方式、MVCC GC方式、二级索引是否是逻辑的<br><img src="https://raw.githubusercontent.com/vicety/Images/master/20210712054226.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="InnoDB的实现"><a href="#InnoDB的实现" class="headerlink" title="InnoDB的实现"></a>InnoDB的实现</h2><p>可能是本文中最贴近面试的一个话题了</p>
+<p>参考了知乎上Reference 2的内容，大量复制粘贴+少量总结预警</p>
+<p>Innodb MVCC实现的核心知识点</p>
+<ol>
+<li>事务版本号<br>每次事务开启前都会从数据库获得一个自增长的事务ID，可以从事务ID判断事务的执行先后顺序。</li>
+<li>表的隐藏列：当前行最新一次修改的事务ID、指向上一版本数据的undo log指针、如果没有聚集索引，会有隐藏的列作为聚集索引</li>
+<li>undo log<br>undo log中也维护了指向更早修改此值的undo log的指针</li>
+<li>read view<br>在每次select&#x2F;每次开启事务（取决于隔离登记，RC或RR）时都会得到一个read view，read view中维护了trx_ids: 当前未提交事务集合（包含creator_trx_id）、low_limit_id: 创建read view时DB的最大事务号+1、up_limit_id: 当前未提交事务的最小版本号、creator_trx_id: 当前事务版本号</li>
+</ol>
+<p>执行select时，按照read_view中的一下信息选择展示数据内容：</p>
+<ol>
+<li>如果数据事务ID小于up_limit_id（所有活跃事务ID），必定已提交，可以展示</li>
+<li>数据事务ID大于等于low_limit_id（创建view时DB最大tx ID），必定是view创建后产生的变动，不展示</li>
+<li>小于low_limit_id，大于等于up_limit_id<ol>
+<li>如果数据事务ID已提交（不存在于trx_ids），可以展示</li>
+<li>如果数据事务ID等于creator_trx_id，自己修改的数据当然能够看见</li>
+<li>如果数据事务ID在trx_ids中，不展示</li>
+</ol>
+</li>
+</ol>
+<p>Question: 如何定义 MVCC 下的不同事务产生冲突（因此无法都 commit）？</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Optimistic_concurrency_control">https://en.wikipedia.org/wiki/Optimistic_concurrency_control</a><br>Check whether other transactions have modified data that this transaction has used (read or written). This includes transactions that completed after this transaction’s start time, and optionally, transactions that are still active at validation time.</p>
+</blockquote>
+<h2 id="自言自语"><a href="#自言自语" class="headerlink" title="自言自语"></a>自言自语</h2><p>根据Reference 3，RC可以通过MVCC实现，我猜RC仍然需要读过去版本的原因是steal策略会写未提交到磁盘，这种情况下需要undo来获得已提交值</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=E4u4ogqfEIA&list=PLSE8ODhjZXjbohkNBWQs_otTrBTrjyohi&index=19">19 - Multi-Version Concurrency Control (CMU Databases Systems &#x2F; Fall 2019)</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/52977862">InnoDB MVCC实现</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/298576970">MVCC &amp; SI: Protocol</a></li>
+</ol>
 
-              
+                
+              </div>
             
             <hr/>
             <div>
@@ -599,23 +667,6 @@
     }
   });
 </script>
-
-
-  
-  <script defer>
-    if (document.getElementById('hbePass')) {
-      Fluid.utils.waitElementLoaded('hbe-prefix', function() {
-        var hbePrefix = document.querySelector('hbe-prefix');
-        hbePrefix.parentElement.classList.add('markdown-body');
-        Fluid.utils.retry(function() {
-          if (Fluid.boot && Fluid.boot.refreshPlugins) {
-            Fluid.boot.refreshPlugins();
-            return true;
-          }
-        }, 100, 10);
-      })
-    }
-  </script>
 
 
   <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>

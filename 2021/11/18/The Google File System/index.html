@@ -26,7 +26,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20211118121935.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20220905204039.png">
 <meta property="article:published_time" content="2021-11-18T16:00:00.000Z">
-<meta property="article:modified_time" content="2022-11-30T01:06:11.897Z">
+<meta property="article:modified_time" content="2023-02-09T04:27:58.955Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="论文阅读">
 <meta property="article:tag" content="分布式">
@@ -224,7 +224,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          9.2k 字
+          10k 字
         
       </span>
     
@@ -235,7 +235,7 @@
         
         
         
-          78 分钟
+          84 分钟
         
       </span>
     
@@ -324,6 +324,7 @@
 <li>client 读返回的 chunk server 中的一个，通常是最近的那个<br>TODO 这个cache时间和lease是一致的吗，不是的话，这个时间由什么决定？file reopen为什么需要invalidate cache？</li>
 <li>如此直到 cache 过期或者 file reopen<br>（事实上对多个 chunk 的读操作，在于 master 通信阶段可以合并，进一步减少通信量）</li>
 </ol>
+<p>因为是同步复制（损失可用性），所以读可以容易地满足强一致</p>
 <h3 id="Chunk-Size"><a href="#Chunk-Size" class="headerlink" title="Chunk Size"></a>Chunk Size</h3><p>chunk size设计为 64MB，越大的chunk size，越少的metadata（就像操作系统中的多级页表），越少与master的通信；并且，（似乎，我的理解，数据传输是以chunk单位进行的）更大的chunk能够减少与chunkserver的通信次数</p>
 <p>同时，更大的 chunk 意味着一个chunk 越容易成为 hot spot，考虑对单个文件的热点，由于组成文件的 chunk 数量少，读写会集中在少量的 chunk 上（而不是分散到多个 chunk）。作者指出在大多数顺序读的情况下不会出现此问题的，但对于 MapReduce，Map 阶段的结果写到同一个 chunk，随后 Reduce 阶段被随机读，会产生此问题。作者提出的解决方案，一是增加 replication（因为是本地读），二是使 client 读完数据后维护起来，也可以响应其他 client 的读请求</p>
 <h3 id="Metadata"><a href="#Metadata" class="headerlink" title="Metadata"></a>Metadata</h3><p>所有的 metadata 在 master 维护，内容包括：</p>
@@ -371,10 +372,10 @@
 <p>将数据写入新chunk中：向master的元数据中创建新chunk相关信息。</p>
 <p>如果有多个客户端同时进行写入操作，那么这些客户端也会同时向master发送创建文件或创建新chunk的指令。master在同一时间收到多个请求，它会通过加锁的方式，防止多个客户端同时修改同一个文件的元数据。</p>
 <h3 id="Data-Flow"><a href="#Data-Flow" class="headerlink" title="Data Flow"></a>Data Flow</h3><p>希望尽量占满带宽，因此数据的传递按链状而非树状，一旦chunkserver收到部分数据，立即开始forward给最近的未收到数据的chunkserver</p>
-<h3 id="Atomic-Record-Appends"><a href="#Atomic-Record-Appends" class="headerlink" title="Atomic Record Appends"></a>Atomic Record Appends</h3><p>以下来自参考文章2</p>
+<h3 id="原子追加流程"><a href="#原子追加流程" class="headerlink" title="原子追加流程"></a>原子追加流程</h3><p>以下来自参考文章2</p>
 <p>primary 收到写入请求后，会检查把这个 record 追加到尾部会不会超出 chunk 的边界，如果超出边界，那么它会把 chunk 剩余的空间填充满（这里填充什么并不重要，后面的2.4节会解释这个填充操作），并且让 secondary 做相同的事情，然后再告知客户端这次写入应该在下一个 chunk 上重试。如果这个 record 能在 chunk 剩余的空间存放，那么 primary 会把它追加到尾部，并且告知 secondary 在同样的位置写入，最后通知客户端操作成功。</p>
-<p>总结：确保append在一个chunk内发生，确保了append的原子性</p>
-<h3 id="Snapshot"><a href="#Snapshot" class="headerlink" title="Snapshot"></a>Snapshot</h3><p>用于复制目录，通过 COW 实现，在 master 维护指向某个 chunk 的指针数量，如果大于 1，那么当对 chunk 的修改发生时，master需要让所有 replicate chunk server 在本地复制一份，随后再对复制出的数据做修改</p>
+<p>总结：确保 append 在一个 chunk 内完成，从而确保 append 的原子性</p>
+<h3 id="Snapshot"><a href="#Snapshot" class="headerlink" title="Snapshot"></a>Snapshot</h3><p>用于复制目录，通过 COW 实现，在 master 维护指向某个 chunk 的指针数量，如果大于 1，那么当对 chunk 的修改发生时，master 需要让所有 replicate chunk server 在本地复制一份，随后再对复制出的数据做修改</p>
 <h2 id="Master-Operation"><a href="#Master-Operation" class="headerlink" title="Master Operation"></a>Master Operation</h2><h3 id="Namespace-Management-and-Locking"><a href="#Namespace-Management-and-Locking" class="headerlink" title="Namespace Management and Locking"></a>Namespace Management and Locking</h3><p>namespace 实际上就是目录树</p>
 <p>master 的 operation 会在路径节点上获取读&#x2F;写锁，读写分离的目的是提高并发度，不同对象的锁的获取服从total order，首先按它在 namespace tree 中的level排序，其次在同一级别按照字母顺序排序，以避免死锁。</p>
 <p>NOTE：感觉和文件创建删除快照相关，应该是支持并发打开文件并写入的，否则前面对并发写入的分析就没有意义了</p>
@@ -404,7 +405,7 @@
 <p>Master 服务器周期性地检查当前的副本分布情况，然后移动副本以便更好的利用硬盘空间、更有效的进行负载均衡。而且在这个过程中，Master 服务器逐渐的填满一个新的 Chunk Server，而不是在短时间内用新的 Chunk 填满它，以至于过载。新副本的存储位置选择策略和上面讨论的相同。另外，Master 节点必须选择哪个副本要被移走。通常情况，Master 节点移走那些剩余空间低于平均值的 Chunk 服务 器上的副本，从而平衡系统整体的硬盘使用率。</p>
 <h3 id="Garbage-Collection"><a href="#Garbage-Collection" class="headerlink" title="Garbage Collection"></a>Garbage Collection</h3><p>在 master 的定期 scan 中，会检测是否有 chunk 不属于任何文件，在心跳包中，chunkserver会携带它所拥有的一部分chunk，master 在心跳包响应中会携带那些不存在于 master metadata 中的 chunk（可能由文件删除导致），这样 chunkserver 能够回收它。文件的删除是延迟的，rename 为特殊名称，在一定时间后才会删除，删除动作仅删除 file 在 master 的 metadata，chunk级别由上面所说的心跳包逻辑实现。</p>
 <p>Question: 为什么不采用 eager deletion？<br>因为分布式系统中出现问题是很常见的，因此选择 <strong>level-based</strong>（心跳包） rather than edge-based（发起一个删除请求）的方法，此外，定期扫描也能按batch处理，缺点是频繁创建删除的临时文件占用的资源无法被及时回收。GFS 提供了指定某些 directory 在 GC 时立即执行、某些 directory 不做 replication 的功能</p>
-<h3 id="Stale-Replica-Detection"><a href="#Stale-Replica-Detection" class="headerlink" title="Stale Replica Detection"></a>Stale Replica Detection</h3><p>Question：如何确保选出的新主拥有所有新数据？<br>通过数据版本号实现。对每个 chunk，master 维护一个 chunk version number 来辨别 stale replica，每当颁发 lease 前，increase version number。除 master，版本号也维护在，chunk 的所有网络可达节点，heartbeat 时 master 会比对 chunk 的 version 与自己维护的最新版本号，如果对方 version 大于自己维护的，说明自己在颁发lease时挂了，将这个更高的值设为最新版本号；如果低于，那么说明这个 chunk 挂过。对于stale replica，master 当做它不存在，即回复给client的 replica server中不会包含它。另一道防线是，master 告诉 client replica server 时，会附上其 veseion number，client 或 server 在通信时会确认这个版本号</p>
+<h3 id="Stale-Replica-Detection"><a href="#Stale-Replica-Detection" class="headerlink" title="Stale Replica Detection"></a>Stale Replica Detection</h3><p>Question：如何确保选出的新主拥有所有新数据？SEO：选主、Leader Election<br>通过数据版本号实现。对每个 chunk，master 维护一个 chunk version number 来辨别 stale replica，每当颁发 lease 前，increase version number。除 master，版本号也维护在，chunk 的所有网络可达节点，heartbeat 时 master 会比对 chunk 的 version 与自己维护的最新版本号，如果对方 version 大于自己维护的，说明自己在颁发lease时挂了，将这个更高的值设为最新版本号；如果低于，那么说明这个 chunk 挂过。对于stale replica，master 当做它不存在，即回复给client的 replica server中不会包含它。另一道防线是，master 告诉 client replica server 时，会附上其 veseion number，client 或 server 在通信时会确认这个版本号</p>
 <h2 id="Fault-Tolerance-and-Diagnosis"><a href="#Fault-Tolerance-and-Diagnosis" class="headerlink" title="Fault Tolerance and Diagnosis"></a>Fault Tolerance and Diagnosis</h2><h3 id="High-Availability"><a href="#High-Availability" class="headerlink" title="High Availability"></a>High Availability</h3><p>主要说下Master Replication，master日志也会在master副本写入，日志写入阻塞直到所有副本日志写入完成。副本会基于日志重现master状态，以实现master挂掉情况的快速切换，它不阻塞日志写入，这也是为什么副本会有延迟。</p>
 <h3 id="Data-Integrity"><a href="#Data-Integrity" class="headerlink" title="Data Integrity"></a>Data Integrity</h3><p>前文介绍过，原子追加若失败会造成数据不一致，因此没法通过对比 chunk 的不同副本来纠错。</p>
 <p>本节以下部分摘自[4]</p>
@@ -433,11 +434,11 @@
 <li>读：本地读</li>
 <li>写：链式数据复制，同步广播复制式的控制流实现逻辑写入</li>
 <li>单点 master</li>
-<li>master 在 chunk 级别使用 lease 机制选主来指定并发写入顺序（由于是同步复制，任意节点成为主都不会有一致性问题）</li>
-<li>并发随机写的执行顺序是确定的，但可能存在相互覆盖的问题，需要应用层的同步</li>
+<li>master 在 chunk 级别使用 lease 机制选主来指定并发写入顺序（由于是同步复制，任意节点成为主都不会有一致性问题）<br>NOTE：可能有不一致的数据，但这是 ok 的，GFS 只保证 向 client 返回 ack 的数据，一定在所有节点都一致。但（我的理解）需要应用层机制来过滤这些不一致的数据</li>
+<li>并发随机写的执行顺序是确定的（chunk primary 作为 sequencer），但可能存在相互覆盖的问题，需要应用层的同步</li>
 <li>原子追加被限制在一个 chunk 内执行以确保原子性（会因此产生 padding），追加成功一定会有一致数据，但可能存在重试导致的非一致数据，需要在应用层过滤</li>
 <li>通过版本号保证 master 选主时选择数据最新的节点</li>
-<li>64MB 大 chunk，减少 metadata 数量，但产生内部碎片（分析同页表），且对单个文件的热点，由于 chunk 数量少，会几种在少量的 chunk 上（而不是分散到多个 chunk）</li>
+<li>64MB 大 chunk，减少 metadata 数量，但产生内部碎片（类似操作系统的页表），此外对于单个文件成为热点的情况，由于 chunk 数量少，使得压力会几种在少量的 chunk 上（而不是分散到多个 chunk）</li>
 <li>单 master，WAL + Checkpoint 维护 metadata 修改<ul>
 <li>对 master 有监控，挂了能快速拉起 ch5.1.3</li>
 <li>master 有 shadow，shadow 是异步复制，有过时读（看业务需要）</li>
@@ -455,6 +456,15 @@
 <li>推荐 <a target="_blank" rel="noopener" href="https://www.qtmuniao.com/2019/05/26/gfs/">GFS —— 取舍的艺术</a></li>
 <li>推荐 <a target="_blank" rel="noopener" href="https://niceaz.com/2019/03/24/gfs/#%E5%85%83%E6%95%B0%E6%8D%AE%E5%8A%A0%E9%94%81">GFS阅读总结</a></li>
 </ol>
+<p>TODO<br>（其实都在 Implications for Applications 这一节）</p>
+<blockquote>
+<p>[5] 另一个经典的场景是多 writer 并发追加以合并分片结果或者充当生产消费队列。之前也提到，对于追加写，GFS 提供至少成功一次的语义保证。由于记录写失败了会重试，但是并不会删除，那么就必然存在一些失败记录（表现为一些 replica 上的失败记录和另一些 replica 上的 padding）。<br>GFS 的策略是将对这些错误记录留给 reader 进行处理。具体处理方法是，对于写坏的记录，可以用 writer 写入的校验和进行校验从而跳过；对于写重的记录，writer 提供了 record id，reader 可以在读取的时候根据其进行过滤。<br>当然，上述逻辑的代码都内置在了库函数中，应用层代码可以很方便的调用。</p>
+</blockquote>
+<p>摘抄重点</p>
+<blockquote>
+<p>对于写坏的记录，可以用 writer 写入的校验和进行校验从而跳过；对于写重的记录，writer 提供了 record id，reader 可以在读取的时候根据其进行过滤。</p>
+</blockquote>
+<p>写坏：checksum<br>写重：record id<br>避免读到未被 client 视为写入完成的数据（可能由于重试期间挂掉，导致 client 不知道是否写入成功）：<br>  client 确认写完一个文件后对其重命名，或者其他类似的 checkpoint 机制，这样确保这个文件都是被 client 视为写入完成的数据</p>
 
                 
               </div>

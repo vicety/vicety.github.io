@@ -31,7 +31,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221112075648.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221112080952.png">
 <meta property="article:published_time" content="2022-09-26T16:17:00.000Z">
-<meta property="article:modified_time" content="2023-01-13T10:09:30.289Z">
+<meta property="article:modified_time" content="2023-02-09T04:27:58.922Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="论文阅读">
 <meta property="article:tag" content="大数据">
@@ -239,7 +239,7 @@
         
         
         
-          215 分钟
+          219 分钟
         
       </span>
     
@@ -437,10 +437,10 @@
 <p>More formally, if a stream processing application consumes message A and produces message B such that B &#x3D; F(A), then exactly-once processing means that A is considered consumed if and only if B is successfully produced, and vice versa.</p>
 </blockquote>
 <p>Question: 这个 seq id 如何初始化？<br>TODO <a target="_blank" rel="noopener" href="https://www.waitingforcode.com/apache-kafka/apache-kafka-idempotent-producer/read#:~:text=What%20if%20my%20producer%20fails%3F">https://www.waitingforcode.com/apache-kafka/apache-kafka-idempotent-producer/read#:~:text=What%20if%20my%20producer%20fails%3F</a></p>
-<p>NOTE: 20230111 补充，需要和上述内容合并一下<br>关于跨 session 的 exactly-once，[14] 给出了一个解决方案，Kafka 能够支持，但需要额外的业务逻辑，Kafka can’t help you with that：</p>
+<p>NOTE: 20230111 补充，需要和上述内容合并一下<br>关于跨 session 的 exactly-once，[15] 给出了一个解决方案，Kafka 能够支持，但需要额外的业务逻辑：</p>
 <ol>
-<li>producer 侧有持久化逻辑存要写入但未 ACK 的消息</li>
-<li>重启后需要通过 consumer 重新读此 partition 最后成功写入的 消息，来确定新 session 开始时的正确 offset</li>
+<li>producer 侧额外维护一个 consumer，重启后 consumer 重新读此 partition 最后成功写入的 消息，来确定哪些消息是 “未 ACK 但成功写入” 的</li>
+<li>consumer 从头开始读显然太慢，可以额外维护一个持久化的字段，每当 producer 发送的消息被 ACK 时，在这个字段记录“这个 offset 已经 成功写入”，恢复时从这个字段的下一个 offset 开始读就行了</li>
 </ol>
 <p>Question：目前默认 keyBy 似乎是放到下游的流处理系统来做，如果在 kafka 做，会导致一个 producer 写多个 partition，那如何保证同一个 producer 的消息能够被按顺序消费呢？<br><a target="_blank" rel="noopener" href="https://youtu.be/twgbAL_EaQw?t=1900">https://youtu.be/twgbAL_EaQw?t=1900</a><br>Answer：同 producer 对需要有序的消息需要加上相同的 key</p>
 <blockquote>
@@ -468,7 +468,7 @@
 <p>TODO Kafka 是不是可以通过 txn 实现？<br>TODO consumer 挂了会发生什么，待总结<br><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/49916055/kafka-behaviour-if-consumer-fail">https://stackoverflow.com/questions/49916055/kafka-behaviour-if-consumer-fail</a></p>
 <p>TODO consumer 挂掉重启后如何获知上次的消费进度<br><a target="_blank" rel="noopener" href="https://kafka.apache.org/22/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html">https://kafka.apache.org/22/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html</a></p>
 <blockquote>
-<p>The committed position is the last offset that has been stored securely. Should the process fail and restart, this is the offset that the consumer will recover to.<br><a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/consumer-group-protocol/">https://developer.confluent.io/learn-kafka/architecture/consumer-group-protocol/</a><br>When a consumer group instance is restarted, it will send an OffsetFetchRequest to the group coordinator to retrieve the last committed offset for its assigned partition. Once it has the offset, it will resume the consumption from that point. If this consumer instance is starting for the very first time and there is no saved offset position for this consumer group, then the auto.offset.reset configuration will determine whether it begins consuming from the earliest offset or the latest.<br>TODO 关于如何 commit 消费进度<br><a target="_blank" rel="noopener" href="https://kafka.apache.org/22/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html">https://kafka.apache.org/22/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html</a><br>（似乎文档里也有这句话）<br>The consumer application need not use Kafka’s built-in offset storage, it can store offsets in a store of its own choosing. The primary use case for this is allowing the application to store both the offset and the results of the consumption in the same system in a way that both the results and offsets are stored atomically. This is not always possible, but when it is it will make the consumption fully atomic and give “exactly once” semantics that are stronger than the default “at-least once” semantics you get with Kafka’s offset commit functionality.</p>
+<p>The committed position is the last offset that has been stored securely. Should the process fail and restart, this is the offset that the consumer will recover to.<br><a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/consumer-group-protocol/">https://developer.confluent.io/learn-kafka/architecture/consumer-group-protocol/</a><br>When a consumer group instance is restarted, it will send an OffsetFetchRequest to the group coordinator to retrieve the last committed offset for its assigned partition. Once it has the offset, it will resume the consumption from that point. If this consumer instance is starting for the very first time and there is no saved offset position for this consumer group, then the auto.offset.reset configuration will determine whether it begins consuming from the earliest offset or the latest.<br>TODO 关于如何 commit 消费进度<br>TODO 可以参考这里 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/FG123/p/10091599.html%EF%BC%8C%E5%A4%A7%E8%87%B4%E5%B0%B1%E6%98%AF%E9%BB%98%E8%AE%A4">https://www.cnblogs.com/FG123/p/10091599.html，大致就是默认</a> auto-commit，也可以手动，但没法保证原子地写入消息处理结果与 commit 进度，除非你的消息和 commit 进度是按 txn 写入 kafka 的<br><a target="_blank" rel="noopener" href="https://kafka.apache.org/22/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html">https://kafka.apache.org/22/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html</a><br>（似乎文档里也有这句话）<br>The consumer application need not use Kafka’s built-in offset storage, it can store offsets in a store of its own choosing. The primary use case for this is allowing the application to store both the offset and the results of the consumption in the same system in a way that both the results and offsets are stored atomically. This is not always possible, but when it is it will make the consumption fully atomic and give “exactly once” semantics that are stronger than the default “at-least once” semantics you get with Kafka’s offset commit functionality.</p>
 </blockquote>
 <p>TODO 问题，那么往 topic 写入的消费进度是如何支持读取的呢</p>
 <blockquote>
@@ -683,12 +683,16 @@
 <p>TODO 补充下方文章中的内容<br>如何学习kafka？ - 腾讯技术工程的回答 - 知乎<br><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/456093354/answer/2754225999">https://www.zhihu.com/question/456093354/answer/2754225999</a></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
 <li>Producer 如何 scale？Consumer 如何 scale？<ul>
-<li>Producer 侧允许 Partition 级别多 Producer 并发写入[13]，由 partition leader 作为 sequencer 决定消息顺序，因此 Partition 的 scale out 相对简单<br>（但 consumer 侧不支持，这使得单 consumer 总能在 partition 上有序消费）</li>
+<li>Producer 侧允许 Partition 级别多 Producer 并发写入[13]，由 partition leader (即某个 broker) 作为 sequencer 决定消息顺序，因此 Partition 的 scale out 相对简单<br>（但 consumer 侧不支持，这使得单 consumer 总能在 partition 上有序消费）</li>
 <li>对 Consumer 与 Broker 的 watch 使得 Parition 与 Consumer 的关联关系能够随着 Consumer 的加入&#x2F;挂掉、Broker 的加入&#x2F;挂掉 实现自动调整，从而实现 scale out</li>
 </ul>
 </li>
 <li>Kafka 自身如何 scale？<br>增加节点即可，partition 会分散在不同的 broker 上</li>
-<li>Kafka 提供哪些 Guarantee，为什么需要这样它们？是如何提供的？<br>TODO Exactly-once、Transaction、顺序保证</li>
+<li>Kafka 提供哪些 Guarantee，为什么需要这样它们？是如何提供的？<ul>
+<li>Exactly-Once: Idempotent Producer +（跨 session producer 的额外逻辑）+ ISR Replication + Consumer 原子写入消费进度与副作用</li>
+<li>同 Partition 保证写入与消费顺序相同<br>TODO Transaction</li>
+</ul>
+</li>
 <li>为什么 producer 推，consumer 拉<br>TODO</li>
 <li>消费进度的维护<br>TODO</li>
 <li>数据复制：ISR 内同步复制，其余异步复制</li>
@@ -696,6 +700,7 @@
 </ul>
 <h2 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h2><p>TODO：broker 挂后，如何影响 producer？如何影响 consumer？</p>
 <p>TODO partition 数量可以一开始指定，之后可变吗？变化涉及的数据迁移有什么优化吗？<br>TODO 读写流程 <a target="_blank" rel="noopener" href="https://yangyangmm.cn/2021/10/24/Kafka%E7%9A%84%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B/">https://yangyangmm.cn/2021/10/24/Kafka%E7%9A%84%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B/</a></p>
+<p>Kafka 的一些高级特性介绍<br><a target="_blank" rel="noopener" href="https://medium.zenika.com/some-cool-features-you-may-not-know-about-apache-kafka-953a601f5af5">https://medium.zenika.com/some-cool-features-you-may-not-know-about-apache-kafka-953a601f5af5</a><br><a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/geo-replication/">https://developer.confluent.io/learn-kafka/architecture/geo-replication/</a><br>Multi-Region Cluster 国内多机房级别，注意 consensus 层需要引入第三个机房，否则仍然无法抵抗一个机房的故障<br>也提供了异步复制、从 Follower 读的方案，可以确定异步复制是可能丢数据的，Follower 读不确定</p>
 <p>TODO 看下 Kafka 的设计文档中的：<br>Geo-Replication<br>多租户<br>监控</p>
 <h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><ol>
 <li>论文 Kafka: a Distributed Messaging System for Log Processing</li>

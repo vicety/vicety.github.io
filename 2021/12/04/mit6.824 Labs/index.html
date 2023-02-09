@@ -26,7 +26,7 @@
 <meta property="og:image" content="https://decentralizedthoughts.github.io/uploads/RAFT%201.jpg">
 <meta property="og:image" content="https://decentralizedthoughts.github.io/uploads/RAFT%202.jpg">
 <meta property="article:published_time" content="2021-12-04T11:13:00.000Z">
-<meta property="article:modified_time" content="2023-01-28T06:22:18.279Z">
+<meta property="article:modified_time" content="2023-02-09T04:27:58.874Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="分布式">
 <meta name="twitter:card" content="summary_large_image">
@@ -233,7 +233,7 @@
         
         
         
-          377 分钟
+          379 分钟
         
       </span>
     
@@ -313,6 +313,7 @@
 <li><a target="_blank" rel="noopener" href="https://etcd.io/docs/v3.4/op-guide/performance/">Performance</a></li>
 <li>In Search of an Understandable Consensus Algorithm Raft论文本身</li>
 <li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/359206808">Raft成员变更的工程实践</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/27869566">etcd raft如何实现Linearizable Read</a></li>
 </ol>
 <h4 id="相关资料"><a href="#相关资料" class="headerlink" title="相关资料"></a>相关资料</h4><p>来不及看的一些文章，优先级递减</p>
 <ol>
@@ -597,18 +598,29 @@
 <h3 id="通过client向raft提交op，raft提供什么样的语义"><a href="#通过client向raft提交op，raft提供什么样的语义" class="headerlink" title="通过client向raft提交op，raft提供什么样的语义"></a>通过client向raft提交op，raft提供什么样的语义</h3><p>at-most-once<br>举例：如果提交请求未返回，那么要么op没有被执行，要么执行了一次</p>
 <p>业务上可以利用at-most-once语义进行组合得到exactly-once语义<br>举例：提交请求A未返回，可以再提交一次，就像LAB3 LAB4中的client，raft上层可以基于op的seqNum决定是否apply这个op</p>
 <h3 id="读优化"><a href="#读优化" class="headerlink" title="读优化"></a>读优化</h3><p>走日志的读称为Log Read，是安全的，但我们可以做得更好</p>
-<p>参考了PingCAP的文章[10]</p>
-<h4 id="Lease-Read"><a href="#Lease-Read" class="headerlink" title="Lease Read"></a>Lease Read</h4><p>我们希望能直接读leader本地的数据而不向其他人发任何请求，这要求我们确保leader的已提交数据总是最新的，可以通过确保majority在一定时间内不选择其他leader，使得这个时间段内最多只有自己一个leader（或者自己挂掉），不会有更新term的leader提交日志，使得当前leader的已提交数据总是最新的</p>
+<p>TL;DR（总结）<br>Read Index：读走 Leader 但不走日志，Leader 发送一轮心跳，收到 quorum ack 证明自己还是 leader，可以安全返回请求到来时 commit index 对应的状态机状态（或者更新的状态，只要保证后续返回的状态不比这轮返回的状态旧）<br>Lease Read：基于 Read Index，但实际上，leader 如果确信自己的心跳在 quorum 内还未过期（注意考虑时钟偏移），那么可以安全地直接向 client 返回读结果</p>
+<h4 id="ReadIndex"><a href="#ReadIndex" class="headerlink" title="ReadIndex"></a>ReadIndex</h4><p>本小节完全参考[14]</p>
+<blockquote>
+<p>当leader接收到读请求时，将当前commit index记录下来，记作read index，在返回结果给客户端之前，leader需要先确定自己到底还是不是真的leader，确定的方法就是给其他所有peers发送一次心跳，如果收到了多数派的响应，说明至少这个读请求到达这个节点时，这个节点仍然是leader，这时只需要等到commit index被apply到状态机后，即可返回结果。</p>
+</blockquote>
+<p>总结：</p>
+<ol>
+<li>leader check自己是否在当前term commit过entry</li>
+<li>leader记录下当前commit index，然后leader给所有peers发心跳广播</li>
+<li>收到多数派响应代表读请求到达时还是leader，然后等待apply index大于等于commit index</li>
+<li>返回结果</li>
+</ol>
+<blockquote>
+<p>etcd不仅实现了leader上的read only query，同时也实现了follower上的read only query，原理是一样的，只不过读请求到达follower时，commit index是需要向leader去要的，leader返回commit index给follower之前，同样，需要走上面的ReadIndex流程，因为leader同样需要check自己到底还是不是leader<br>（我的理解：本质还是 leader 的 Read Index 读，只是 follower 充当与 client 之间的一层 proxy）</p>
+</blockquote>
+<h4 id="Lease-Read"><a href="#Lease-Read" class="headerlink" title="Lease Read"></a>Lease Read</h4><p>本小节完全参考 TiDB 文档[10]</p>
+<p>（TiDB 把这个优化当做比 ReadIndex 更高级的优化来介绍，具体来说，ReadIndex 还需要额外发一轮心跳，收到 quorum ack 后，才能返回）</p>
+<p>我们希望能直接读leader本地的数据而不向其他人发任何请求，这要求我们确保leader的已提交数据总是最新的，可以通过确保majority在一定时间内不选择其他leader，使得这个时间段内最多只有自己一个leader（或者自己挂掉），不会有更新term的leader提交日志，使得当前leader的已提交数据总是最新的</p>
 <blockquote>
 <p>在 Raft 论文里面，提到了一种通过 clock + heartbeat 的 lease read 优化方法。也就是 leader 发送 heartbeat 的时候，会首先记录一个时间点 start，当系统大部分节点都回复了 heartbeat response，那么我们就可以认为 leader 的 lease 有效期可以到 start + election timeout &#x2F; (clock drift bound per second * election timeout)这个时间点</p>
 </blockquote>
-<p>lease的时间长度可以变化，但应当比election timeout要短，因为我们只对leader做了限制。考虑lease比timeout长，follower可能timeout，从而选出新的leader。当然，我们也可以对follower做限制，详情参考ID2203 spanner章节，对于paxos，既对proposer进行了限制，也对acceptor进行了限制</p>
+<p>我的理解：leader lease 的有效期到 “不再满足 quorum 节点心跳未过期，减去心跳过期时间内的时钟偏移上限”</p>
 <p>TODO 如果消息传输已经用了比lease还久的时间，那么leader怎么做，leader在lease过期后自己就step down吗，好像不需要，因为写入操作实际上也是心跳，之后的写入等于续约，或者，如果follower已经没有lease了，等于签一个新的lease</p>
-<h4 id="ReadIndex"><a href="#ReadIndex" class="headerlink" title="ReadIndex"></a>ReadIndex</h4><blockquote>
-<p>当leader接收到读请求时，将当前commit index记录下来，记作read index，在返回结果给客户端之前，leader需要先确定自己到底还是不是真的leader，确定的方法就是给其他所有peers发送一次心跳，如果收到了多数派的响应，说明至少这个读请求到达这个节点时，这个节点仍然是leader，这时只需要等到commit index被apply到状态机后，即可返回结果。<br>ref: <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/27869566">https://zhuanlan.zhihu.com/p/27869566</a></p>
-</blockquote>
-<p>我的理解：记录commit index后，读操作可以看做发生在此commit index后的动作，因此状态机apply这个commit index后，状态机就可以返回这个get的结果了。另一方面，考虑leader分区到minority，此时从leader返回的数据可能是stale的，因此在收到请求后，返回数据前还要发起一次心跳，并获得一次majority的ack，从而确保收到请求的时刻，自己还是最新leader</p>
-<p>这块还要看更多文章，先<br>TODO</p>
 <h3 id="Membership"><a href="#Membership" class="headerlink" title="Membership"></a>Membership</h3><p>参考[12]</p>
 <p>论文中介绍了两阶段Membership变更算法，介绍如下：</p>
 <ol>

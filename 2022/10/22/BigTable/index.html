@@ -16,21 +16,23 @@
   <meta name="author" content="vicety">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Here&#39;s something encrypted, password is required to continue reading.">
+    <meta name="description" content="BigTable 论文阅读">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Bigtable: A Distributed Storage System for Structured Data">
 <meta property="og:url" content="https://vicety.github.io/2022/10/22/BigTable/index.html">
 <meta property="og:site_name" content="vicety的博客">
-<meta property="og:description" content="Here&#39;s something encrypted, password is required to continue reading.">
+<meta property="og:description" content="BigTable 论文阅读">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20220904031156.png">
 <meta property="article:published_time" content="2022-10-22T18:24:00.000Z">
-<meta property="article:modified_time" content="2022-11-30T01:06:11.892Z">
+<meta property="article:modified_time" content="2023-02-09T04:27:58.946Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="加密">
 <meta property="article:tag" content="论文阅读">
 <meta property="article:tag" content="分布式">
 <meta property="article:tag" content="存储">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20220904031156.png">
   
   
   
@@ -222,7 +224,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.9k 字
+          4.1k 字
         
       </span>
     
@@ -233,7 +235,7 @@
         
         
         
-          25 分钟
+          35 分钟
         
       </span>
     
@@ -288,22 +290,72 @@
             <h1 style="display: none">Bigtable: A Distributed Storage System for Structured Data</h1>
             
             
-              
-              <div class="hbe hbe-container" id="hexo-blog-encrypt" data-wpm="Oh, this is an invalid password. Check and try again, please." data-whm="Oh, these decrypted content cannot be verified, but you can still have a look.">
-  <script id="hbeData" type="hbeData" data-hmacdigest="8799e9b8169e504032b7a45bcc4809dbe2f8670927b9305e2b49a2dea3629ef2">4724090b17589d633a1c19b9d3b8c5a57b304526b9e92048e1d8b335056517d4181e35ffcb3662be58439e5da768693e666a3a0a22d6c707bee5812f2764674ba84b962d1de32c34a1fa60c70f6033ab3a1254f08732c46cc2397609a59a204dce009da6ee157694f744ade333c9028f6a0ae09c8f35f17e3806e2e1d8e82ad6e8bf4d2ec707f8e004ed6c1a937fdbf623a2d7dcc0a0c72bd8644f20cdc3ae27f56596445c340cb5029b5be686bddc6a748085295e561eb35cc7c47d4fabfe9f96c1a1b3c4be32bd56244ad27223b1dd4d38334abbabee685e380b67b81b9afb0dd898074fbb9c59bc89963b83cf038ef6e984edab0ea0ea8dcfce4d6beb4170087a956cd8506181eb11c2e32ecc2337f85e25c779fa35389e0952afa8a603508a4ed681b2cefb5d3cb75f6beaae2bb82a7817214f3235080b974750d14c8e54c2664094b2bf77a184add1a047a24b6383ad00aaf1941ad32d9e39a9932b3474d717edd0a7b944ba2b8b41b7c01f504585a152d2196eb3bf7440f602876e6437d68348e07a41ddbccb540b8e5ab95e2a180fa5ed9f0f367e71b56589beb55f17d4268194838d18a80a0f4951619115d726b5f0a2be6f0bf06a8d1f913156009ce31ee337d7b7be64983c917d0119682dbc9a524453032f2a7cde492fd679eb639fba7bc3062f9cbea74537ea6b9edc78023dfbd7f9dea39b9b3017042c5aee2932a47d98c246dcac5aa512b991b51fecbdf7d7b794a6e40dd767a240c9cc4c547ef84f6b0e1df2b17f60203a69101bdf3a8f40c1a38011fb93b75b43dede056b807be1ba52f415497c99f6a82219d60c77600b263579768315055fd6312bcdc2443e1fc2c516c498e01fe8f274937ca356e6a1c987518f92e6fb0deb602b6757044a96177e9c36a0614ab1cb8b84a9cb3682e07727cc34f0a8d391860e883838bde2b3b2fefbb83b5e43e340125aad72f67cd94a9070c5885184448780aa5f844098a2991e71d9d342fb8899d40ffaa7280a96ebafbfabb407c45af38ee1464b24c950de5cc9479e7247a7a4e8222b76bd10319c22d430bd4aceed7029ae96fba774fc690bdfa63a46e15331ad23cfb474590a1766a3f8c5de2973d8563b5c938ba551d28d062b8bf67d25abfa51bc89428d43ef59aeddd0a91327e012b7addd44a5e5f42c52acfe375a20c2aa4ce197127f7a9aa2cc19a4a14c1d5d6c86e193598041d31c14a1d18c7e459af7a087f14b4d401888b810abe03a6b9c0a654e7adc60c4e08484f3c84ae1c1c301d35a809ec732ab7578e8baf087e91bf760e4f3f591c7ab2f8d7e31269663d0ff9f11520d1c5c74dd9f2e9a0c7bd25ee4aa33bb30dd44608c597a49a5ec075bb34e33e1c8704b3655211a9580d72c62112cfb013b2482a7d18a20915aaca8d21c5560f253635ca80886a7e6fae92908f3ffb0c75769cc94eba6237849af4d3372237477e4d58c9b22d96440ac0ef5a6dd1f3466aa0ade68675ae2da24a6a241a6b3f2600b5db47cf5ad0bd454d4d61f1075e97737eba545d17b14154e5eb5056b835422bf243836748c2396b28f5b1eeec322ef9269b34e22ab32e6a6205a07947c110818f91de8d7fe02afc9cb1370c35c7d3a837440a8a3b6d2b1abdceca605e765c926e76c4d2aafb4c7d2d2e43b8491696d9dfa34ec2b3059dab069b62d8b3b1be84e74d7f93a9d01298ef5d853b75b9d81bd77da2f09a472e618814b41a46aa4cdd6a317b2e412bc5ae7de950eab80f0703e39ee8ffcb56816f0792a2512f923545888dd5ece89dae59a8a014b5cb936b06d48987fa52d37642fd1e00e0970c2dbc7193a830ed9375ba2972508ff2afabe1174241f6fc593cec1113ff43b1c30336728225f56f19011102f11ebff5d4dbe1b044083a79cb83b2affa760d692923d0ee7fc8487120adbd88959cfaab03d6166641605762ac007709013ff61ca0bf439fcf7e117c0b60181df22aa75895fd674cf0bb251eacff4c390126ae99a777f02bbe9a2d8fe7cdc2e4fad763e72d4925416df9e6179aa822b16bae95b82bd7112a062815be957faf801a054e133924690733b4767ec0f5603e7cf4957f58249cfcf9a5eeadd72cc8f59972c55608ba3d55a7e517f941b3e149b67b9a36a4b5042f1255b87849145a3213e2cf2797bbea0eb166370888de98da229f93923a19acf70d8992a72a4208fcfd7c79fbde3a8673999b504d4ae65138dad152c48b16dea0519146e77929cbd10dda0dd6a5571e86193ca60e705a07c19cb5394236a2abdc6b6b80670eb61e640f3728bd230e12274d519d956f02d229769d3d91219b029e5d6179443f3a4665af8f392c4346f4e68418ab25b5a55ca951907a88a53f2692f18f113aa8ba091490eec9b229be32c7e84ef6a3185456166b79194140ec51cf6d49ca03249d25dffc6c0911682e76e3925a4e80443ba1d38ad92da31a6228220b777e65850bd09aa998950d7aeec5fc5c9e720d02e8749f5d6d1241b90722ab7f07d15f51e4f5d210492407149c7d1e13b46a909aa23bce6ec85d1e36e459679fde28f5430ba444358c3d95705a6ef1604b0f06d2ab9933ff20cd62d90d718ffa6f95443ff9ce6b2f038d20324ea3cdc5a0b2178f87bccf87e8cf187bc9bed986b887d82668220554760487b7ad2335e4bf1bf7f2220b43afa3b5d30de0430c3cba8c14367799982f83e3dc292699764fcfccb8e47fc4c821bb34192cb3276abf9c8d2c9e15cca545620dc767abc465056f00656284f1562c6c79c34bf22efd15bbdded92862e901d2b7c86a25b0f00c982d4d90250bfda376c57e71f9ce935f800082f05929898be2f4dbf30fa9b1d175f82dee5fb522f4e63a85cc27bfd0387e3609fe585c393bb1dcfc1e1080fd9d3d2626eae339f06f23b75fe136c6981229165e0846a41cb5487f13c9f9b0d0e89de01fdffc7a06f073c9c7c84eaf7e9b75e79b500afe70098ec176f003ed4bedcf49650b71ab9225161b6fe652f4939ced7ff6dff34cd78a50b7f5d5e97c09c4a1b0406bbbac8f4985cd81a59e16386a8e46a00100b20a5b1852c1a72b753bb299eaf8ab2e55ea54a347dbb88e160123147940c331965aa76b3e5fb5b0f002e96b26bcf61aa7508df33bb679c9a3e90b184b283b9324e5987cb7451244e7cac08001b57cfe18334100bd0966dbb62dbeef94b980f7b5783fa98ceb22a97c0369767359b2b5c9f3321808b78a0813b94edacef04b85968ad4e6a6c19a9154eeb5a7be6bff218a65600b1969d10f8e8c0eeae938a3591a82c1b4d8e868a1340fca6fb1c3de35e9ed579258141e7bd2009d9c74deed76be8eeb7cbac340813be596d49bb423b98a5926521510bb42cffc9c218f11435a25948d48a56c709a5ce4790a1141daa75819e27b8e67224f7c4a3fb253501373887aa4940028e8a69421ab1954441386287482b633040ff5dbcbbea5d87eb53237bc0e6c44fe583f52d8ba7469032ec5653ecc13c484e082b0bc5bbb198309f59c25196ac5166204ed7b2b325ff70ddd6a082ae9df4605efd71b88cf41db8fd18687a66e58e43943bde85b846ebf8a819d9714823e7672341e3d71869ef829123454db828968abd6b355bfc8bddf39b7873e09d8852ef31f3c186499598b5824c91d124ce11cc4f55e2ddb260788e4f2f80711a962bf7e17e0261da50e38b5165274a0019bd749b8dd7fe29070159d6e84796e206b62178b175c5919627f8bf5e78bf56645a72e851239de752bce46d20a917603470b6c87501a813038b4eb7d50cbfd1da7dc92d8b190f88d9dfa8f3e6668ddcd0e3f9bab50833b9e47bcb2a21a8b2afbd4f5e181c7110ab39f6c69f4bc7d47826b7ecacaff7ce4da9687227a5b1d14acb70ac107017dee4fb1ca495113930a70ae83de1001d9cd638ef59a09fd817e37d33996c5bdb50d080ec468dadd5880d3333a8f8b689ca6d0c58fa73964fffc4dab7d5aa5dac549c945e08b3d86c9eeb28f55d160ff09f100f655f4f65cd924b05eec042410038516b7c2a7684d4327a20c01d67472febac2f6d4db79c4e516e6b4ce56e50f95314a9bcb03e0005a7581eff85dc74146adcf52febafc7c804321d3c4d7b91275430ec57a9cdf2802d164a6a7d3d4a4c53b038eba5c0ea91e9af2fabdcbb28487ac8b4d8c90273466460be74db41d503329125933225243d30ced31216aadd5b44d57e4473c0942b6874be6e4e97c6f4999dce3f528c01afe70118f8aee66216ebc96c8373056462456baa3a5a98f44660dfab5f394fba31e34fb7a19eebf4807e9d7894346abdee97b03ce0303683495fd190cb2d892e501d2dcb713794759af850e287fc27f2e157181058865f0433d71d9bf0483537bce39d1652953674d66b40d12be8eb06381c95e3d79b3b04af65c15bd64605fbd9ea610def43885c3fbb54776adfb1ca1efc8bc0bd0d5667cb4949b25aea18c3459a0f661ae9364f2c2cbff0991dfb936f8107b40da3b66e06490e2a0aade1fddfdd67449a3cb624ff6dda570bbae7d26729057a8dd75da49e4d0f6b7740f83676b644c4a007d31c8d2d51d156677d5e72f1bf965fca3fa7a5505b4e903ba4e0e23e236dada1ba876bcb878a0df818457b32af29016c3b9b5d314dd1eb75fc65aec8d71f86ece64c43ee93efa4f492edfef942db9c11ef95d80735816a5d8e87b529a44d5e8efcba1ffcde313c97ba1abd7ca4099ca2816648bf1cac97512a3a150fe37ab5e0014c2bc10996bf08668594718a9b3d79c5cb71943777ae00fc33d1eb48f6cc51a7841a9b85836c3f1040cc225648269643f838cec8d0a85fbe465c5b5c68a6d5337307493eefba0cbb244eb75fa0cd97161be49a23b60555a660d034e590edc0240e796056b14c1486b01c31d7b2b5f37cad6e9ca0912caefe74aa2fb18336ed05235b89cfe84b2e530353b90672abc6fc780dabe5e315532f21b2bd5dc89969d07262edd85a741e871ef7656a6c4957e3aac070f1e584b339910984d61ee954d5b951d562fa3d447bb1cc6acedb39d2b50265ad9385d46248dc92cef6581b92315d4071de3273744d7e6488167b6d25d88df0ddebeaf5cac2df95a4f2410e7e76a5dc893433e3b90b235588d0414ae29f99fc37be9b101d00f70429c3a40a811480256487d1171cbd001c75b964098391eca168ad3145e4040e07a7d531f4f6da1d107127fbb4186d022c8bc49392a574cea5efa7659203b76833d7531a7486cb16e28b9cc527941bf99323ac1f7450eeeb3496d31487703030f14e937cec716f435e3d7c8910c78eeb15785c70afe74a2e556c8f686150070954408f67e943b006d78dd0bcf1864794c0827dbcbf65df11c0548dff38723c0db69547674c453b193c85653311e1d021aca9737e6bb7fad98b17ce659203c910c355e42c2db654506c87bf441ba37c87d95ce2ff91b43e470cb57fdaa2dbf0616a10ce52782604f6fd2f23b679c917872534e1c8d544ee298850bc5ad3959399cde274d825877efed7b445cae2a2a8a84f84cb43424e5face0c57ab0310569e3c7ea762590037f083d7983a9040e04d249b70f902979cd96958b8a26981c199c86dd165c44df378df032b99cd57c197794b8f34ef9811e32d2ba38f522da9985d272bcb50ca93d35c507e5c543541f3eed96839dba41cd262e6cfc3acdf70a2a9ca16119df2ce954fa641ffa5617594423e2608efd6bb27f5ca4bb1c6993f3924e20426d264a850f098fa8ae90bd4b73120ab79e265d8e2f50374a08b5ca2dc2a05143d4ddd6cd7d08ccbc1f63a3439158e42457caf8d500f00db96f4b461d0cb5868a83514c108e00aaf9bedf4dd8a031ac20a04d3fcb3608b4da0aa00fccc6f28a077b4e193dd76add3ba9e973f57455cc3686c656d14c65c823d274c60da8066b5e02a8357f4c7bab23d9e0904201a17cbecd3b7fe3c25ce3746e062ecabe8e27fee32517ecaa7b5870314519c01e38dc9b9c52911034ab54c5eb9dca47a7c10bd4d47cf56f1d6898d16d9dbee7a5cb57d76010d66d401a1ef83e996707f55c270ec7c03d3c40b9bf90dd729c6280921de24280f1286bb50bc057f3e6b3c21c0abc597811445cc0445351123e6d101334a54753757318e53b1656fa94612f79683536c3bbae0095ca6bde4787a82950f24be020925e7ca1cf8bb1c9036cbfa3cf05aa52d257c01b5663216d6f20a4bcdc9378f654af46f98cfc35784b9ce38f1ef4597d2bcdfc0654bf763670020630dcc5a8fdf8d11dba0a7c9469cc3d7635e725cb1dad0f98a8b87bac43f53d7e9461e65c0a40ed0ba631173696692e33483c699e46e946eda6e4c4333b4d4d39ab2ce58bacf4a9656efad12886da260d06b07b8ae4e9e251d8b59fa92e3a355ccac5be8234f188a6d5aebc4d6b7eb1c667ad4d7efc4a7ac4a1511c9f51af609944854022ada303ebcaa9d737f8439c4be1100db6e6c68b5dca84fbcabf94aa49d00fc8f2dbea0b3856b26733ba73b014e745652362b6fb439968c6b23b0c8bbc3eb666cadbbe16241996b5e3d6b9653af63f37ee67320f4524a7da563ac2d888ecf6f0200af9f5c8575b95ef8e684d29769985c9a24e1a14a698b4ff7ddc56913033ec97701d01f63fc936d55fff2b219d655d7f247f9518dfa2af20f2275ca853a86fa15eeeb52f7419a4740f1478c91d94bbf249c4e394c5560c8aa76bc4a91dd59ae44b9ea18aa62a52417e9ab4a9f4288f14154d0cebe1fdff26f9e874b4ef15eaa26c89b5e7e1e15bded0bd5a8eba6a6a3aac8b15946bbf973858cdc0ba7a55ed08b638dd0e556f758b60869ca9a5c6329533d425be0748e58d123e53cb39469cb49bd10cba9742c2c23c5512d78b8e7138c46642625bc3537f008967856c798fb81407a771fec1245c89fc0fa3876e6fdacea797c91e88eb9eb7685e9ec78a832aaac4b1a40b110ef5b2f13092e1d11a8ac19e200e0cc50e0ba5ba54e349c0c9088ad11cb255db19cc8d43f1dcd9543ae575cb2de2014986b77d22f8cbefcdfdcc663faea843fb33b48cf2eabd4faea3538d9ad8cf8e76925406d79717a919f107feb300e4ff9a0e3d16acaeba80a97a53c55f0991d0690f364b469c0c93b1788a01c6c67f9a0586e9a4c7dc46cff60e7462a7c58e6b4de5d1e076c10edc71eae41d726efd4063ff2e456ef131668a7d5d5d2354a0d7b34ff29c251733297e3b0b9c30d5976a380084bb1c0397a9e04fba100c7e5ee961e9c090d85f0b131f251e0c25b1a7f1f17286121b0309cec6aba0105721b0834dfb1446fd46a8cd72343a2c3cbeb01298ae78382d508a00c1a455281b72f2ee1657794e9d9d5af45e39fea71d069667d29750c1a8b3da492a15e43a7e889fea8f35801947bf6503141c924e0b95c734a1b2787a108d4fc3765cb8991f8c63d01900736843ffd7648afac327868c39c5e2367b1f4ca4e0620beff0d2c469de1271d953957f34a652e4f2ab963c8322c75e9993937b3b8dc6eaa48ad54f460419e97ad30a3070af51ed1c61fb8425c90fb42f83e1883c9a19a28cbb2ff77bec70dd2d78582bbcf3deb5b484530c19051d343c52040f731f19f8b4da711390aa19dca428b350f53ab8545daa11e3a973d5b8953a8054a93ed21d9d1e0822430f19d3993f5cc96dbeef13aff459ac8b05a037c6a4e2508bf22d62e20ce23218fee4435ad75db692b407dbb7c9e0ed10aaa2d2d178a3b6ff4815e2f72b78d06330bee30fc7db75a7ad0328587562f62816a5d959acf43638ec09c53ae8585fbb759d8235f9a7c2210c49ed1167885b9863fcde459058b8e2343b058c5e7a98e7a73ab7831764304fafe13e05467d8a334f943e40e61e40efe40a304d4abe22ee74ee92a7eea0ad0efb6f54f780a964a49686dab7a19150914d70913871ccf9d312c66e488c088f9012f2a9fc1977bd6e1c81295a4a176546dc339f52c7487e04433e5d39e5705930433107c84f4798c0d6fc95dfda1f82e1e50119a5593e1ff999cb6b12bc5ff0c349ecf092a6840229f36d0f6bd9f425d28a0af4edd2b74821c84e28176cdc035d8ec8bae94d8a9f25dedc0197d2e3d6683cecc7f760244f32b4753d4770a58606fc5e3162ff6b3a3b96291e759ea4a43cb4cdc3f6c4d5dd9c23e98a2139eeab5551259565872c07b913ed3382ab69ca4733ffae46ea51e5834e5b9e788275db3b7c368a7894206bfcce89b0dd099d79f0c6bf8602bc07c7297d771894ec7db6dc5277f85991d1e7b9a8eb31b95a73faeaef865bacf88d6ac1e2b460ff21a208639468003ceef8b27074930bf6e57c68ba1ffd2641416ec213ab43f55bdd0f1bc0ae278578f704bcdf18f8534fe68a87e437ee232693d92f4fbbff41d978169bac405168bae863860f345c07c9113e1612f74af9b7e08020a2eff00a3fc5e8621adef80e42445aa38c4798517346b8edf556e361664cf46c51cc327417b79f3494e1b90de101fcd180e632e9bc95d32362cef5f5e20a3fc31276d61cb7c59ac548aac81a4a1e7c703a5913980c3bfe9e2b4ee2fffacb99966dff793ca3699c84ec53ccc14655b11c25398bc84d4741e569226a46f8dc07690dafcd14ebace5ee9b6381fdc287e4a34f10a45df3d24175d09171bad44e0616fbcf0c8f33fcedb7ffd1b645718355e53e2c0014c64e57857a2ecd04dea85ba95ad72c3ceb622456c12df35a17857b9a3ac3ffe150505d36f91810c196a882524cba7c6fdc2b09dac3c4c7da5a47aff7ba118cfc22f0c0d0639f69d246732d07b86f390cce2b58f4562a194bd66feb86c5bb1f6323adbf5f6aac6f7c13a6e79720701560832d3de37f02b77a4b5caa081aa82fe1d26e28be3247e86c08adc996e608ef58911af6c7a71dd4e71dec679d5e8a4e8fb41ee7f79d32fd491dd12c6a14cbaccbe1f647b42f6b48d6b3f60c6f8e275b4adacd6059bffd95646937a41f22de0d16573756455e5820d894ed67ec8418259495a51502bc1d6a785e8b15d2a271fe0d8cbf01964f3b479b9e9d715f48957a2b9c6d89226bc1617a24985c853aaf2b5c38dd3216dd0d3c0e30f6651139fa80b8121166d427c6c2e276089c2a1e1e9bcdb106d82f7994324d93e0f2020d97077ddc4f82f2162336ebe18986a50d6d5a1c14555f5e9dc042b24fbfe9d1bd6e1af45a177e05fe3942eff0fed812e945923adeb244c3abe66eec5d110d77a129f86048b54d7b6d9a406a84709c324eabc3b5ed558e3d65a193c154098cff411128578b978789c8d2a2c2099f19856262f8625940bf268be3651f611cccac170d585b22fe732f293177dd75d6729f4037f834302a0dd2f3af7f3170569ee37107e74b35501954b07b0acb11a0b1ba3b52b50e3142f0e8e86d8acf464fb224e39ab7a2b23c36a5f59079614ea7fd7ebf67431163ccd4000aee66ad77f9e951d3a864f383258a004fd65e6b519c03a9231d1538fc2d82a4f9000543df122b4688c81d99ce06dda24aeeea8d1e8b4cefaff1bd04d7d0ecd87850ee7684190bf2967bbe691463665b392c78225b0b520991d30ab55cc052113e62de9efa3e21ae409f0596503d00e425aecaa83f4135c459cc8429f03818fe36b1e670c7af35ab6e162980222edc66e2c8cc8510275eb03f97ca46b9d9050768b1d94c842aacc1821db0d579b3c076b7c44a95b5194414d678d6ce6f7331ff156999695081cb90140d6cace4d68f71b8f667a6fd284c73dd9053d2b4300e29873e8162edfe45e2d0ce75d5306e8b5ee35ccb481b490f0e337239618bb7e2f7e8c322ee92418df8faa59f8c6501f30771940f155808c5bb385f16ee2b4629e1a7d6bca6a25f0c9ee83da067213b9034f9c4a0c482be8b749893925a9701332732fcf2ba230b3dd05ee871348d77c8ed386289aada074d84122699f04144ff15ff5871da339ff69cd112a1a253c2074c7eb0085f36e69d5eb240eda617c57c910939835d32999570689dbb4b597e92ae269c60fcea50a2693bc3e3b4702e2e76673318fa21c9b1800c00a4527866c548d8dcb78f84bfbf032e65698fb79f37298c7961c17cf428b9d32ded97d042e4cbf479914da34c41f9eca3fc85d09e03c5a06c81dee5b13babf8743aa6e4b2fb4ec684eea994ab871ec70ba7478c1c3877b14c2d5fee50419c62a5deda0b6e095604ee07f9f91374226d63ac9f51654c28e31ba40b176f21a83b78b0581e656a7f92f1c669abcf303a974d1019a79e95d164a0beb16cff280991e58ba91aef9e149c6728395a4fda33b6100b2bc4336ddb2d3cb4a3fba60e0a23a653fb0668652a133fddce933d627961e2ae7453710a58e9047a099ca9ee4133d94279228a4c77e69c3fab6d86312383e3f46bebb7fdd656122c24f803ca85d0c502c1583b495a4cee7dafd2cc222c8551e5adc3eb6f32a4bd025062bf4b390f9b1d2d6579db6ddf160a96b6b68ec0272e14b7b5cd4ca5e00f22396fd0396321f8f446d1e198a2c9614d499dc6974abb5333a2a1e3775d5df945ce5ea9d6742ed29d3c79e078ac59dcf2f20aeef53e4b49c39561256c75d4deb628997752368f5606bca0811998c35bbdedc38806a1c7a9aee7d68aa96b9ebd83b6348c6487b44cbfce704ec5af2b000c3f01aa91a301e22e0cde277bbb8b3dbd82c88c49a23297c716351cedc01ffa3cfaa595235f0565c9660bd26132b98013ab1729cf15af1860ebe73fa8246d52bd630a668a9255190dde62a3fe15952bc98c0aa70f7dec55948f2d8bfc84f9b60da2ade27fa0d367ada5a7d93d3e49b093ecb67473c09daf179490db40750d03da51df6f34ae857c96f7b3602c79dcffb3768b8b22da6797cee93536f17d31b3b742395e30e9d04677b5805c8fc41ca7dfd1c4d6093665a25d9a5252439edecb5e8a2e2c4d050f84e9ed8ecc2a37b14de0c0116f6f44f67623debdda5abeffdc11047d13c33b2d6ac7aae194679008ead33f48f6b113b94e09e92c83f4b135c1d8a9277ee8f02b1fe82235648d317e8d32719b34eb38b32c4339169d9b742ef2924ffbd367f4e9f5ceb25b7df44bc2b3a1683ecb158608bb843a179d63d32ac7ae32c7cebbeece15c2751aae2dbd7b84eb37c4309766d07d125be843abbc2a1eaef07b2f36582c23d56a18c0c1df10758dd4580892811d9919800cecc61d1befe5cad0a7f99071d0852945d8ecf4065cc5446d38d9f4be8708ac694ee0d94e2bb941218d46835cfa4d93d11d98e94e5c0d771704f047569e827d585582cf7b16d779a6023e9630dadb1651741c22aa09bef8e6e2890b0cd86b218cf673f2653f300d0204507d0535db6a6e49de45598ae42dc3f176b64f0ceabf299fd16b4eb9404ec4304469d32a12207afef44e92d74fdf390a5561dd4adb63d77991526c87c4426d9013b36b71ba74f1190fa89d6427d4d1704a79e864b</script>
-  <div class="hbe hbe-content">
-    <div class="hbe hbe-input hbe-input-default">
-      <input class="hbe hbe-input-field hbe-input-field-default" type="password" id="hbePass">
-      <label class="hbe hbe-input-label hbe-input-label-default" for="hbePass">
-        <span class="hbe hbe-input-label-content hbe-input-label-content-default">Hey, password is required here.</span>
-      </label>
-    </div>
-  </div>
-</div>
-<script data-pjax src="/lib/hbe.js"></script><link href="/css/hbe.style.css" rel="stylesheet" type="text/css">
-              
+              <div class="markdown-body">
+                
+                <p>pid&#x3D;72055179</p>
+<p>文章没有 GFS 好懂，部分内容是推测的</p>
+<h3 id="API"><a href="#API" class="headerlink" title="API"></a>API</h3><ul>
+<li>数据级别：Set（新增或修改）、Delete、CAS、批量接口（非事务）</li>
+<li>Metadata 级别：（增删 column family、table）</li>
+<li>以及访问权限配置</li>
+</ul>
+<h3 id="数据格式"><a href="#数据格式" class="headerlink" title="数据格式"></a>数据格式</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c">tablet server=Set[tablet]<br>    len between (<span class="hljs-number">10</span>, <span class="hljs-number">1000</span>) <br>    size between (<span class="hljs-number">100</span>M, <span class="hljs-number">200</span>M)<br>table=List[tablet] <span class="hljs-comment">// initially one tablet, will split when growing </span><br>    METADATA table=List[METADATA tablet]<br>tablet=Row Range Segment=Data<br>TODO tablet和SSTable的关系尚不明确 我的猜测是一个 tablet 对应一个 SSTable<br><span class="hljs-comment">// 数据按 Key 字典序存储（因此在应用层应尽量使可能同时访问的数据有相似的 key 以提升访问效率）（同时也可以应用类似于 LevelDB 的压缩策略）</span><br>Data=List[(Key, Value)]<br>Key=String<br>Value=List[ColFamily]<br>ColFamily=List[Cell]<br>Cell=List[(CellContent, Version)]<br></code></pre></td></tr></table></figure>
 
-              
+<p>举例：</p>
+<p><img src="https://raw.githubusercontent.com/vicety/Images/master/images20220904031156.png" srcset="/img/loading.gif" lazyload></p>
+<p>key：类似java包，因为key会排序，这样做有利于相关数据放在一起<br>名为anchor的column family：cnnsi.com 与 my.look.ca 都引用了 key，引用时使用名称 CNN、CNN.com<br>contents column family只有一列，但这一列中的这个cell存了三个网页版本</p>
+<h3 id="与其他系统的关系"><a href="#与其他系统的关系" class="headerlink" title="与其他系统的关系"></a>与其他系统的关系</h3><ul>
+<li>GFS 是 BigTable 的底层存储</li>
+<li>有 wrapper 代码使 BigTable 可以作为 MapReduce 作业的输入与&#x2F;或输出</li>
+<li>使用 基于 paxos 的 Chubby，它暴露文件 API（类似 ZK），BigTable 用它：<ol>
+<li>选 master</li>
+<li>存 root tablet</li>
+<li>存表结构、ACL</li>
+<li>使用类似 zk ephemeral 节点的功能检测 tablet server 上下线，同时 tablet server 也主动 watch 这个节点，如果 master 将文件删除，意味着这个 tablet server 不再</li>
+</ol>
+</li>
+</ul>
+<h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><p>对应论文 ch5</p>
+<p>BigTable 在实现上包括 client lib, master server, tablet server 三类组件</p>
+<p>master server 功能：负责管理 tablet 与 tablet server 的映射关系<br>tablet server 功能：存多个 tablet</p>
+<p>client 读写大部分时间直接与 tablet server 交互即可</p>
+<blockquote>
+<p>client data does not move through the master: clients communicate directly with tablet servers for<br>reads and writes</p>
+</blockquote>
+<p>本节剩余部分参考自[1]，对照论文确认过正确性</p>
+<p>当master启动的时候，master需要完成以下步骤：</p>
+<ul>
+<li>在chubby上获取master锁。</li>
+<li>扫描chubby server directory获取活跃的tabletServer。</li>
+<li>获取每个活跃的tabletServer上分配的tablet</li>
+<li>扫描所有的METADATA tablet获取所有的tablet，与3对比，可以获取未分配的tablet，进行分配。在扫描METADATA tablet的过程中，如果发现MEATADATA tablet还没有初始化，就新创建rootTablet和MEATADATA tablet，进行初始化。</li>
+</ul>
+<p>tablet在四种情况下会发生变化：创建、删除、合并和分裂。这四种变化中，前三种是由master发起的，最后一种是由chunkServer发起的。tablet的分裂实际上不涉及到数据的移动，只涉及到元数据的更改。chunkServer在对应的METADATA进行元数据的更改和插入，就可以完成分裂操作，然后通知master这个分裂操作。如果这个通知失败了，通过后续的心跳信息，master也很容易知道知道tablet的最新情况。tablet分裂的细节请参考tabletServer一节。</p>
+<p>master 负责 tablet 的调度，Bigtable 的数据是存储在GFS上的，数据的调度由GFS负责，<strong>master 调度更多是让 memtable 在 tabletServer 间均衡分布</strong>。</p>
+<h4 id="索引设计"><a href="#索引设计" class="headerlink" title="索引设计"></a>索引设计</h4><p>全局的所有数据（跨table）使用三层树状结构维护，类似于 B+ 树，每层都以 tablet 的形式存，数据足够多会导致 tablet 分裂。第一层只有一个 root tablet，维护指向第二层 metadata tablet 的指针列表，永不分裂，root tablet 的位置在 Chubby 中维护；第二层是 metadata tablet，内部每行指向第三层的 tablet；第三层的 tablet 对应某个 table 下的某个 tablet。（我的理解）tablet 的尾部存了 tablet 内部的索引，读到内存，使得 tablet 内部查询仅走一次随机IO（另一个可选项是将整个 tablet 都读到内存）。另，Client 会缓存索引，避免每次都查索引</p>
+<h4 id="SSTable-管理"><a href="#SSTable-管理" class="headerlink" title="SSTable 管理"></a>SSTable 管理</h4><p>Memtable + WAL + minor compaction （定期 memtable 落盘，我的理解等同于论文中的 redo point）+ 定期 schedule major compaction（合并多个 sstable）</p>
+<h4 id="工程优化"><a href="#工程优化" class="headerlink" title="工程优化"></a>工程优化</h4><p>来自论文第六节</p>
+<p>如果为每个 tablet 维护一个 WAL，由于这些 tablet 可能被调度到不同的 GFS chunk server，多个 tablet 修改产生的 WAL 插入在写入上可能不是顺序写入，（换句话说，单个 tablet server 维护 N 个 tablet，如果全 table 随机写入，这些写入就会转化为 N 个 WAL 文件的顺序写入），论文提出对每个 tablet server 维护一个 WAL（即使维护 N 个 tablet，仍然只写一个 WAL，但是这个 WAL 是所有 tablet server 维护的 tablet 的 WAL 混合起来的，也就是 GFS 的 conrrent + append 场景），但 tablet 恢复过程中需要过滤出此 tablet 写入的 WAL。BigTable 使用的 WAL 格式是 <code>⟨table, row name, log sequence number⟩</code>，其中包含了 GFS 读取时应用层需要的去重功能</p>
+<h3 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h3><p>TODO<br>宽列模式的优势？<br>选主流程？理论上可以类比利用 zk 实现选主，监听前缀节点即可</p>
+<h3 id="Explain-the-finding-process-of-tablets-in-BigTable"><a href="#Explain-the-finding-process-of-tablets-in-BigTable" class="headerlink" title="Explain the finding process of tablets in BigTable"></a>Explain the finding process of tablets in BigTable</h3><p>（来自 KTH DD2221 HW1)</p>
+<p>BigTable maintains a METADATA table, in which each row encodes the information (tablet identifier, end row) to find the tablet. A root tablet maintains the location of all tablets in METADATA tablet, and the location of the root tablet is maintained as a file in Chubby.</p>
+<p>Clients first need to get the location of root tablet from Chubby, then find the METADATA tablet matching the key that client is reading or writing, then find the row in that METADATA tablet matching the key that client is reading or writing, finally, find the tablet that stores the data from the tablet identifier stored in the row. The client can cache these information so later read&#x2F;write won’t need these steps.</p>
+<h3 id="关于宽列数据库"><a href="#关于宽列数据库" class="headerlink" title="关于宽列数据库"></a>关于宽列数据库</h3><blockquote>
+<p><a target="_blank" rel="noopener" href="https://db-engines.com/en/article/Wide+Column+Stores">https://db-engines.com/en/article/Wide+Column+Stores</a><br>Wide column stores, also called extensible record stores, store data in records with an ability to hold very large numbers of dynamic columns. Since the column names as well as the record keys are not fixed, and since a record can have billions of columns, wide column stores can be seen as two-dimensional key-value stores.<br>(与 列式存储 的区别)<br>Wide column stores must not be confused with the column oriented storage in some relational systems. This is an internal concept for improving the performance of an RDBMS for OLAP workloads and stores the data of a table not record after record but column by column.</p>
+</blockquote>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>介绍了一个分布式宽列数据库的设计思路</li>
+<li>将 GFS 封装为 SSTable 使用，同时引入配套需要的 Memtable、WAL、Compaction、聚簇索引（三层，类似 B+ 树，用于根据 key 找 tablet）、表结构&#x2F;ACL 维护</li>
+<li>Metadata 使用 Chubby 维护</li>
+<li>Memtable 的调度</li>
+</ul>
+<p>总结的总结：分布式宽列数据库，存储层使用 GFS，<br>数据安全已经在 GFS 层解决，本层主要解决引入的 metadata 的安全 和</p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://niceaz.com/2019/03/24/bigtable/#%E5%85%B3%E4%BA%8E%E8%B7%A8%E8%A1%8C%E4%BA%8B%E5%8A%A1">Bigtable论文阅读总结</a><br>TODO 其中还讨论了 Percolator 在 BitTable 单行事务基础上实现的多行事务，值得学习一下</li>
+</ol>
+
+                
+              </div>
             
             <hr/>
             <div>
@@ -599,23 +651,6 @@
     }
   });
 </script>
-
-
-  
-  <script defer>
-    if (document.getElementById('hbePass')) {
-      Fluid.utils.waitElementLoaded('hbe-prefix', function() {
-        var hbePrefix = document.querySelector('hbe-prefix');
-        hbePrefix.parentElement.classList.add('markdown-body');
-        Fluid.utils.retry(function() {
-          if (Fluid.boot && Fluid.boot.refreshPlugins) {
-            Fluid.boot.refreshPlugins();
-            return true;
-          }
-        }, 100, 10);
-      })
-    }
-  </script>
 
 
   <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
