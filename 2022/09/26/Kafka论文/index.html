@@ -31,7 +31,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221112075648.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20221112080952.png">
 <meta property="article:published_time" content="2022-09-26T16:17:00.000Z">
-<meta property="article:modified_time" content="2023-02-09T04:27:58.922Z">
+<meta property="article:modified_time" content="2023-02-13T17:07:07.050Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="论文阅读">
 <meta property="article:tag" content="大数据">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          26k 字
+          27k 字
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          219 分钟
+          225 分钟
         
       </span>
     
@@ -698,6 +698,16 @@
 <li>数据复制：ISR 内同步复制，其余异步复制</li>
 <li>运行效率（Kafka 为什么快），关键词：Producer Batch、写 OS Buffer 能够利用缓存，利用不上的情况下零拷贝、报文压缩</li>
 </ul>
+<h2 id="新特性"><a href="#新特性" class="headerlink" title="新特性"></a>新特性</h2><h3 id="KIP-405-Kafka-Tiered-Storage"><a href="#KIP-405-Kafka-Tiered-Storage" class="headerlink" title="KIP-405: Kafka Tiered Storage"></a>KIP-405: Kafka Tiered Storage</h3><p><a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-405%3A+Kafka+Tiered+Storage">https://cwiki.apache.org/confluence/display/KAFKA/KIP-405%3A+Kafka+Tiered+Storage</a><br>[Accessed Feb, 2023]</p>
+<ol>
+<li><p>希望能将 Kafka 作为长期存储源，当前通常需要设置一个相对短的 retention time（通常 3 天），需要额外将数据导入到持久存储（如 HDFS）来实现长期存储能力。同时，当前 Kafka 的存储能力依赖于增加更多的 broker，这意味着使用更多的 CPU、内存，意味着存储资源的扩展与计算资源的扩展耦合，希望避免这样的问题</p>
+</li>
+<li><p>Failover 或 新节点加入 后需要将数据复制到新节点，将 Kafka 的部分存储交给 Tiered Storage 使得可以为 Kafka 配置更少的 rentention time，即减少了由 Kafka Broker 管理的数据，有利于改善 recovery &#x2F; rebalance time。</p>
+</li>
+<li><p>On-premise Kafka 的部署通常在 broker 节点 attach 数十 TB 的本地存储，这样的配置在云上很贵或者不存在，类似第二点，降低由 Kafka Broker 本地管理的数据量能够缓解这一问题</p>
+</li>
+</ol>
+<p>顺便提一下 Flink Table Store，which 是一个 流读流写、支持 OLAP 的存储，同样也能够避免从 Kafka 额外同步到 OLAP DFS 的逻辑，但相对于 Tiered Storage 强调了支持 OLAP 的能力。</p>
 <h2 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h2><p>TODO：broker 挂后，如何影响 producer？如何影响 consumer？</p>
 <p>TODO partition 数量可以一开始指定，之后可变吗？变化涉及的数据迁移有什么优化吗？<br>TODO 读写流程 <a target="_blank" rel="noopener" href="https://yangyangmm.cn/2021/10/24/Kafka%E7%9A%84%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B/">https://yangyangmm.cn/2021/10/24/Kafka%E7%9A%84%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B/</a></p>
 <p>Kafka 的一些高级特性介绍<br><a target="_blank" rel="noopener" href="https://medium.zenika.com/some-cool-features-you-may-not-know-about-apache-kafka-953a601f5af5">https://medium.zenika.com/some-cool-features-you-may-not-know-about-apache-kafka-953a601f5af5</a><br><a target="_blank" rel="noopener" href="https://developer.confluent.io/learn-kafka/architecture/geo-replication/">https://developer.confluent.io/learn-kafka/architecture/geo-replication/</a><br>Multi-Region Cluster 国内多机房级别，注意 consensus 层需要引入第三个机房，否则仍然无法抵抗一个机房的故障<br>也提供了异步复制、从 Follower 读的方案，可以确定异步复制是可能丢数据的，Follower 读不确定</p>
