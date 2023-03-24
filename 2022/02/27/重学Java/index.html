@@ -32,7 +32,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20151217151455512.jpg">
 <meta property="og:image" content="https://s2.51cto.com/images/blog/202112/31104829_61ce6f7db613373977.png?x-oss-process=image/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_30,g_se,x_10,y_10,shadow_20,type_ZmFuZ3poZW5naGVpdGk=">
 <meta property="article:published_time" content="2022-02-27T11:42:00.000Z">
-<meta property="article:modified_time" content="2023-03-17T00:04:42.055Z">
+<meta property="article:modified_time" content="2023-03-24T15:42:53.482Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="加密">
 <meta property="article:tag" content="编程语言">
@@ -230,7 +230,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          25k 字
+          26k 字
         
       </span>
     
@@ -241,7 +241,7 @@
         
         
         
-          207 分钟
+          219 分钟
         
       </span>
     
@@ -408,7 +408,7 @@
 </blockquote>
 <p>上述链接中还包括三种不同 ClassLoader 何时被使用的例子，分别是 <code>MyClass</code>, <code>Logging</code>, <code>ArrayList</code></p>
 <blockquote>
-<p>This bootstrap class loader is part of the core JVM and is written in native code (即不是 Java 写的)<br>The extension class loader is a child of the bootstrap class loader, and takes care of loading the extensions of the standard core Java classes<br>The system or application class loader, on the other hand, takes care of loading all the application level classes into the JVM.</p>
+<p>This bootstrap classloader is part of the core JVM and is written in native code (即不是 Java 写的)<br>The extension classloader is a child of the bootstrap class loader, and takes care of loading the extensions of the standard core Java classes<br>(extension classloader 在 Java9 开始叫做 platform classloader)<br>The system or application classloader, on the other hand, takes care of loading all the application level classes into the JVM.</p>
 </blockquote>
 <p>Question: Bootstrap ClassLoader 是 native code 的，那么谁加载了其余两个 ClassLoader 呢？<br>Answer：省流：就是 Bootstrap Classloader<br>TL;DR</p>
 <blockquote>
@@ -422,32 +422,37 @@
 <blockquote>
 <p>So when the Application class loader has loaded your class myapp.foo.Bar and it contains a reference to javax.swing.JButton, its defining class loader, i.e. the Application class loader, will be queried for that class, follow the delegation model to end up with a javax.swing.JButton defined by the Bootstrap loader. So class references within javax.swing.JButton are resolved only through the Bootstrap loader, which implies that javax.swing.JButton can not contain a reference to your myapp.foo.Bar class, as it is not in scope.</p>
 </blockquote>
-<p>Question：是否有办法实现主动类卸载</p>
-<p>场景：REPL redefinition<br>Answer：没有，仅当 ClassLoader 被 GC 时，Class 表示会被卸载，<a target="_blank" rel="noopener" href="https://stackoverflow.com/a/148707/8454039">参考</a></p>
-<h4 id="破坏双亲委派"><a href="#破坏双亲委派" class="headerlink" title="破坏双亲委派"></a>破坏双亲委派</h4><p>省流：<strong>当我们需要在 Java 内置类 中加载应用类时，会需要打破默认的类加载逻辑</strong></p>
+<p>Question：是否有办法实现主动类卸载<br>场景：REPL redefinition<br>Answer：没有，仅当 ClassLoader 被 GC 时，Class 表示会被卸载，<a target="_blank" rel="noopener" href="https://stackoverflow.com/a/148707/8454039">参考</a></p>
+<p>实践</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java">System.out.println(ServiceLoader.class.getClassLoader());<br>System.out.println(Integer.class.getClassLoader());<br>System.out.println(SunEC.class.getClassLoader());<br>System.out.println(Tmp2.class.getClassLoader());<br>System.out.println(Thread.currentThread().getContextClassLoader());<br><span class="hljs-comment">/**</span><br><span class="hljs-comment">null Bootstrap ClassLoader 在 getClassLoader 时返回 null</span><br><span class="hljs-comment">null</span><br><span class="hljs-comment">sun.misc.Launcher$ExtClassLoader@4edde6e5</span><br><span class="hljs-comment">sun.misc.Launcher$AppClassLoader@18b4aac2</span><br><span class="hljs-comment">sun.misc.Launcher$AppClassLoader@18b4aac2</span><br><span class="hljs-comment"> */</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="破坏双亲委派"><a href="#破坏双亲委派" class="headerlink" title="破坏双亲委派"></a>破坏双亲委派</h4><p>省流：<strong>网上常说的 ServiceLoader 通过 SPI 机制在使得</strong><br><strong>当我们需要在 Java 内置类 中加载应用类时，会需要打破默认的类加载逻辑</strong>; <code>ServiceLoader.load</code> 默认使用 Thread 的 ContextClassLoader，一般是 <code>AppClassLoader</code>，也就实现了</p>
 <p>先回顾 类加载 流程伪代码</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># canonical class name</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">loadClass</span>(<span class="hljs-params">name:<span class="hljs-built_in">str</span>, resolve:<span class="hljs-built_in">bool</span></span>):<br>    c:Class = <span class="hljs-literal">None</span><br>    <span class="hljs-keyword">if</span> notAlreadyLoaded(name):  <br>        <span class="hljs-keyword">if</span> parent:<br>            c = parent.localClass(name, false)<br>        <span class="hljs-keyword">else</span>:  <span class="hljs-comment"># Bootstrap ClassLoader (the uppermost classloader)</span><br>            c = findBootstrapClassOrNull(name)<br>        <br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> c:<br>            <span class="hljs-comment"># may throw throws ClassNotFoundException</span><br>            c = findClass(name)<br><br>        <span class="hljs-comment"># guaranteed c not None here</span><br>    <span class="hljs-keyword">if</span> resolve:<br>        <span class="hljs-comment"># linking phase, see JLS 12.3. Linking of Classes and Interfaces</span><br>        resolveClass(c)<br>    <span class="hljs-keyword">return</span> c<br></code></pre></td></tr></table></figure>
 
 <p>Question: 为什么会需要破坏双亲委派<br>[7]给出的例子中，若业务代码引用了 <code>javax.swing.JButton</code>，它会被 Bootstrap Classloader 加载，而 <code>javax.swing.JButton</code> 内部定义的类，由于上述伪代码描述的加载逻辑，是不可能能够成功加载业务代码中定义的类的。<strong>当我们需要在 Java 内置类 中加载应用类时，会需要打破默认的类加载逻辑。</strong></p>
-<p>[loc 1] 给出了一个网上常见的例子，通过 <code>DriverManager.getConnection(url, &quot;root&quot;, &quot;password&quot;);</code> 可以拿到 JDBC 连接，这意味着 Java 内置的 DriverManger 代码要能够返回一个 DB 方定义的 SomeDBConnection 实例，这就是上面提到的需要打破类加载机制的 case。</p>
+<p>[loc 1] 给出了一个网上常见的例子，通过 <code>DriverManager.getConnection(url, &quot;root&quot;, &quot;password&quot;);</code> 可以拿到 JDBC 连接，这意味着 Java 内置的 DriverManger 代码要能够返回一个 DB 方定义的 SomeDBConnection 实例，<strong>这是一个经常误解为打破了双亲委派的例子</strong>，下方细说。<br>（<strong>省流</strong>：DriverManager 通过静态块在 JVM 加载时就会调用 ServiceLoader.load，读取 META-INF&#x2F;services&#x2F; 下的所有类全限定名，并尝试用 thread contextClassLoader 加载，而 Drvier 实现一般是第三方类，Bootstrap 和 Platform Classloader 都无法加载，一般是 AppClassLoader 完成加载，仍然是先让 parent 检查，并没有打破双亲委派）</p>
+<h5 id="SPI-机制实现-Java-内置类的函数返回第三方类实例的功能（未破坏双亲委派）"><a href="#SPI-机制实现-Java-内置类的函数返回第三方类实例的功能（未破坏双亲委派）" class="headerlink" title="SPI 机制实现 Java 内置类的函数返回第三方类实例的功能（未破坏双亲委派）"></a>SPI 机制实现 Java 内置类的函数返回第三方类实例的功能（未破坏双亲委派）</h5><p>小节标题有点抽象，具体应用其实就是让 <code>DriverManager.getConnection</code> 可以返回第三方定义的类，如 <code>CalciteConnectionImpl</code></p>
+<p>省流：为了实现这个功能，必然要让 Java 内置类加载第三方类，因此约定了一个固定的路径来记录这些类的全限定名，这样就实现了这个功能</p>
 <p>具体实现利用了 Java 提供的 SPI 机制，这里先介绍 SPI 机制</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 假设ISpeak接口来自 io.github.vicety 包</span><br>ServiceLoader&lt;ISpeak&gt; speakers = ServiceLoader.load(ISpeak.class);<br><span class="hljs-keyword">for</span> (ISpeak speaker : speakers) &#123;<br>    speaker.speak();<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>传入我们需要用来找实现类的接口（相当于传一个配置），获得对应的 ServiceLoader instance，这是一个迭代器，迭代时会根据我们创建它时传入的配置，也就是接口的全限定名 <code>io.github.vicety.ISpeak</code>，搜索 classpath 下所有 jar包 内的 META-INF&#x2F;services&#x2F;io.github.vicety.ISpeak 文件，文件中会存放实现类的全限定名，并通过 <code>Class.forName</code> 加载它，通过 <code>Class.newInstance</code> + <code>Class.cast</code> 创建实例并转化为接口类型返回给用户使用</p>
 <p>虽然看起来是 Java 内部代码帮我们加载了这个类，实际上则是 ServiceLoader 创建时记录了 <code>Thread.currentThread().getContextClassLoader();</code>，一般是 Applicaiton ClassLoader，后续的 <code>Class.forName</code> 也是使用这个类加载器加载，实际上并没有破坏双亲委派</p>
-<p>回到 DriverManager 的例子，其源码摘录重点如下。主要的逻辑就是当 DriverManager 被加载时，在静态块中利用 SPI 机制初始化所有实现 <code>Driver</code> 接口的实现类</p>
+<p>回到通过 <code>DriverManager.getConnection</code> 拿到第三方 DriverImpl 的例子，摘录 <code>DriverManager</code> 重点源码如下。主要的逻辑就是当 <code>DriverManager</code> 被加载时，在静态块中利用 SPI 机制初始化所有实现 <code>Driver</code> 接口的实现类</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">static</span> &#123;<br>    loadInitialDrivers();<br>        ServiceLoader&lt;Driver&gt; loadedDrivers = ServiceLoader.load(Driver.class);<br>        Iterator&lt;Driver&gt; driversIterator = loadedDrivers.iterator();<br>        <span class="hljs-keyword">while</span>(driversIterator.hasNext())<br>            driversIterator.next();<br>    println(<span class="hljs-string">&quot;JDBC DriverManager initialized&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>但这还不够，接着看 [loc 3] 中介绍的 <code>Driver</code> 接口实现类的实现，核心逻辑是主动将自身实例 <code>new Driver()</code> 注册到 DriverManager 的容器中，后续调用 <code>DriverManager.getConnection</code> 时会使用这个容器中的实例尝试进行连接</p>
+<p><code>driversIterator.next()</code> 会触发类加载，但这还不够，在 getConnection 时我们希望拿到的是 <code>Connection</code> 的实例，但目前我们只有 <code>Driver.class</code>。<br>接着看 [loc 3] 中介绍的 <code>Driver</code> 接口实现类的实现，核心逻辑是主动将自身实例 <code>new Driver()</code> 注册到 DriverManager 的容器中，后续调用 <code>DriverManager.getConnection</code> 时会使用这个容器中的实例尝试进行连接</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Driver</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">NonRegisteringDriver</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">java</span>.sql.Driver &#123;<br>    <span class="hljs-keyword">static</span> &#123;  <br>        <span class="hljs-keyword">try</span> &#123;  <br>            java.sql.DriverManager.registerDriver(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Driver</span>());  <br>        &#125; <span class="hljs-keyword">catch</span> (SQLException E) &#123;  <br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(<span class="hljs-string">&quot;Can&#x27;t register driver!&quot;</span>);  <br>        &#125;  <br>    &#125; <br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>TODO dubbo、spring 的例子？看下这些例子有什么不同吗？</p>
+<p>最后再提一下：网上很多建立 JDBC 的教程都会先有个类似这样的操作 <code>Class.forName(&quot;oracle.jdbc.driver.OracleDriver&quot;);</code>，在非古代 Java 中（&gt;&#x3D; JDK 6）已经不需要了，详情见 <a target="_blank" rel="noopener" href="https://stackoverflow.com/q/39116196/8454039">https://stackoverflow.com/q/39116196/8454039</a></p>
 <p>参考文章：</p>
 <ol>
 <li><a target="_blank" rel="noopener" href="https://juejin.cn/post/7007292903361871903">https://juejin.cn/post/7007292903361871903</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/hollischuang/p/14260801.html">https://www.cnblogs.com/hollischuang/p/14260801.html</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/u013679744/article/details/56298283">https://blog.csdn.net/u013679744/article/details/56298283</a></li>
 </ol>
+<h5 id="真正破坏了双亲委派的例子"><a href="#真正破坏了双亲委派的例子" class="headerlink" title="真正破坏了双亲委派的例子"></a>真正破坏了双亲委派的例子</h5><p>Tomcat为什么要JAVA破坏双亲委派机制？ - Java3y的回答 - 知乎<br><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/466696410/answer/2219153613">https://www.zhihu.com/question/466696410/answer/2219153613</a></p>
 <h3 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h3><p>与class文件等价的字节流可能不是通过javac产生的，可能会绕过一些问题的检查（如引用无法找到的类等），因此需要校验</p>
 <blockquote>
 <p>JLS 12.3.1. Verification of the Binary Representation<br>Verification ensures that the binary representation of a class or interface is structurally correct. For example, it checks that every instruction has a valid operation code; that every branch instruction branches to the start of some other instruction, rather than into the middle of an instruction;</p>
