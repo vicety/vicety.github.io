@@ -32,7 +32,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20151217151455512.jpg">
 <meta property="og:image" content="https://s2.51cto.com/images/blog/202112/31104829_61ce6f7db613373977.png?x-oss-process=image/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_30,g_se,x_10,y_10,shadow_20,type_ZmFuZ3poZW5naGVpdGk=">
 <meta property="article:published_time" content="2022-02-27T11:42:00.000Z">
-<meta property="article:modified_time" content="2023-03-24T15:42:53.482Z">
+<meta property="article:modified_time" content="2023-03-24T15:47:54.549Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="加密">
 <meta property="article:tag" content="编程语言">
@@ -241,7 +241,7 @@
         
         
         
-          219 分钟
+          218 分钟
         
       </span>
     
@@ -426,8 +426,7 @@
 <p>实践</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java">System.out.println(ServiceLoader.class.getClassLoader());<br>System.out.println(Integer.class.getClassLoader());<br>System.out.println(SunEC.class.getClassLoader());<br>System.out.println(Tmp2.class.getClassLoader());<br>System.out.println(Thread.currentThread().getContextClassLoader());<br><span class="hljs-comment">/**</span><br><span class="hljs-comment">null Bootstrap ClassLoader 在 getClassLoader 时返回 null</span><br><span class="hljs-comment">null</span><br><span class="hljs-comment">sun.misc.Launcher$ExtClassLoader@4edde6e5</span><br><span class="hljs-comment">sun.misc.Launcher$AppClassLoader@18b4aac2</span><br><span class="hljs-comment">sun.misc.Launcher$AppClassLoader@18b4aac2</span><br><span class="hljs-comment"> */</span><br></code></pre></td></tr></table></figure>
 
-<h4 id="破坏双亲委派"><a href="#破坏双亲委派" class="headerlink" title="破坏双亲委派"></a>破坏双亲委派</h4><p>省流：<strong>网上常说的 ServiceLoader 通过 SPI 机制在使得</strong><br><strong>当我们需要在 Java 内置类 中加载应用类时，会需要打破默认的类加载逻辑</strong>; <code>ServiceLoader.load</code> 默认使用 Thread 的 ContextClassLoader，一般是 <code>AppClassLoader</code>，也就实现了</p>
-<p>先回顾 类加载 流程伪代码</p>
+<h4 id="破坏双亲委派"><a href="#破坏双亲委派" class="headerlink" title="破坏双亲委派"></a>破坏双亲委派</h4><p>先回顾类加载流程的伪代码，然后给出两个常见的例子（其中一个经常被误认为破坏了双亲委派）</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># canonical class name</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">loadClass</span>(<span class="hljs-params">name:<span class="hljs-built_in">str</span>, resolve:<span class="hljs-built_in">bool</span></span>):<br>    c:Class = <span class="hljs-literal">None</span><br>    <span class="hljs-keyword">if</span> notAlreadyLoaded(name):  <br>        <span class="hljs-keyword">if</span> parent:<br>            c = parent.localClass(name, false)<br>        <span class="hljs-keyword">else</span>:  <span class="hljs-comment"># Bootstrap ClassLoader (the uppermost classloader)</span><br>            c = findBootstrapClassOrNull(name)<br>        <br>        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> c:<br>            <span class="hljs-comment"># may throw throws ClassNotFoundException</span><br>            c = findClass(name)<br><br>        <span class="hljs-comment"># guaranteed c not None here</span><br>    <span class="hljs-keyword">if</span> resolve:<br>        <span class="hljs-comment"># linking phase, see JLS 12.3. Linking of Classes and Interfaces</span><br>        resolveClass(c)<br>    <span class="hljs-keyword">return</span> c<br></code></pre></td></tr></table></figure>
 
 <p>Question: 为什么会需要破坏双亲委派<br>[7]给出的例子中，若业务代码引用了 <code>javax.swing.JButton</code>，它会被 Bootstrap Classloader 加载，而 <code>javax.swing.JButton</code> 内部定义的类，由于上述伪代码描述的加载逻辑，是不可能能够成功加载业务代码中定义的类的。<strong>当我们需要在 Java 内置类 中加载应用类时，会需要打破默认的类加载逻辑。</strong></p>
@@ -435,7 +434,7 @@
 <h5 id="SPI-机制实现-Java-内置类的函数返回第三方类实例的功能（未破坏双亲委派）"><a href="#SPI-机制实现-Java-内置类的函数返回第三方类实例的功能（未破坏双亲委派）" class="headerlink" title="SPI 机制实现 Java 内置类的函数返回第三方类实例的功能（未破坏双亲委派）"></a>SPI 机制实现 Java 内置类的函数返回第三方类实例的功能（未破坏双亲委派）</h5><p>小节标题有点抽象，具体应用其实就是让 <code>DriverManager.getConnection</code> 可以返回第三方定义的类，如 <code>CalciteConnectionImpl</code></p>
 <p>省流：为了实现这个功能，必然要让 Java 内置类加载第三方类，因此约定了一个固定的路径来记录这些类的全限定名，这样就实现了这个功能</p>
 <p>具体实现利用了 Java 提供的 SPI 机制，这里先介绍 SPI 机制</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 假设ISpeak接口来自 io.github.vicety 包</span><br>ServiceLoader&lt;ISpeak&gt; speakers = ServiceLoader.load(ISpeak.class);<br><span class="hljs-keyword">for</span> (ISpeak speaker : speakers) &#123;<br>    speaker.speak();<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 假设ISpeak接口来自 io.github.vicety 包</span><br><span class="hljs-comment">// `ServiceLoader.load` 默认使用 Thread 的 ContextClassLoader，一般是 `AppClassLoader`</span><br>ServiceLoader&lt;ISpeak&gt; speakers = ServiceLoader.load(ISpeak.class);<br><span class="hljs-keyword">for</span> (ISpeak speaker : speakers) &#123;<br>    speaker.speak();<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>传入我们需要用来找实现类的接口（相当于传一个配置），获得对应的 ServiceLoader instance，这是一个迭代器，迭代时会根据我们创建它时传入的配置，也就是接口的全限定名 <code>io.github.vicety.ISpeak</code>，搜索 classpath 下所有 jar包 内的 META-INF&#x2F;services&#x2F;io.github.vicety.ISpeak 文件，文件中会存放实现类的全限定名，并通过 <code>Class.forName</code> 加载它，通过 <code>Class.newInstance</code> + <code>Class.cast</code> 创建实例并转化为接口类型返回给用户使用</p>
 <p>虽然看起来是 Java 内部代码帮我们加载了这个类，实际上则是 ServiceLoader 创建时记录了 <code>Thread.currentThread().getContextClassLoader();</code>，一般是 Applicaiton ClassLoader，后续的 <code>Class.forName</code> 也是使用这个类加载器加载，实际上并没有破坏双亲委派</p>
