@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20220904031156.png">
 <meta property="article:published_time" content="2022-10-22T18:24:00.000Z">
-<meta property="article:modified_time" content="2023-06-13T21:28:05.883Z">
+<meta property="article:modified_time" content="2023-06-21T15:03:13.318Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="论文阅读">
 <meta property="article:tag" content="分布式">
@@ -300,7 +300,7 @@
               <div class="markdown-body">
                 
                 <p>pid&#x3D;72055179</p>
-<p>BigTable 是一个基于有序 KV 的多列、分布式数据库。它将 GFS 当做 SSTable 与 WAL 用，在 GFS 上层提供宽表的语义，分布式一致使用 Chubby 实现。BigTable 将 KV 进行分片，负责维护每个分片的 memtable，也负责分片的 LB</p>
+<p>BigTable 是一个基于有序 KV 的多列、分布式列式存储。它将 GFS 当做 SSTable 与 WAL 用，在 GFS 上层提供宽表的语义，分布式一致使用 Chubby 实现。BigTable 将 KV 进行分片，负责维护每个分片的 memtable，也负责分片的 LB</p>
 <h3 id="数据模式"><a href="#数据模式" class="headerlink" title="数据模式"></a>数据模式</h3><p>key &#x3D; (row:string, column:string, time:int64) 类似多列索引<br>value &#x3D; string<br>table &#x3D; Set[tablet]，创建时只对应一个 tablet，随着数据的增长 tablet 会被分裂，每个 tablet 的大小在 100 - 200 MB<br>column 按 column family 分组，每个 column family 单独压缩，所以 familiy 内应该放相似数据，column family 的数量一般不多，column 的数量则无上限。column key 的名称遵守如下规范：family:qualifier。权限控制最细到 column family 级别。<br>（其他索引一致时）要避免冲突必须使用不同的 timestamp，支持根据时间或基于保留固定数量的版本数来删除旧数据</p>
 <h3 id="存储模式"><a href="#存储模式" class="headerlink" title="存储模式"></a>存储模式</h3><ul>
 <li>KV 表用 SSTable 格式存储</li>
@@ -344,14 +344,11 @@
 <li>只有 memtable 有并发读写的问题，BigTable 对于写入采用了 copy-on-write 的策略，这样读写永不阻塞，写入需要先在内存复制</li>
 <li>分裂后的两个 tablet 仍然共享原有的 SSTable，而不是需要为各自从旧的 SSTable 重新生成</li>
 </ul>
-<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><p>sequential write<br>sequential read<br>random read<br>random reads (mem) 每个 tablet server 数据量限制为 100 MB，使得足够 fit in memory<br>random writes<br>scan</p>
-<ul>
-<li>R 行数据，每行数据中包含 1000 byte 的随机字符串，取 R 使得平均每个 tablet server 负责 1GB 的数据，R 个 key 被划分为 10N 个区间，被 N 个 client 消费，每次拿一个区间去做读&#x2F;写操作，取决于 random&#x2F;sequential，区间内的 key 是排序或随机的</li>
-<li>scan 的 API 可以减少获取相同数据需要的 RPC 数量</li>
-</ul>
-<p>测试结果<br>scan &gt; mem random read &gt;&gt; seq read &#x3D; rnd write &#x3D; seq write &gt;&gt; rnd read<br>因为 rnd read 每次需要从 GFS 传输 64KB 的 SSTable Block，而实际只用到了 1000 byte。tablet server 读 1200 个 block，等于 75 MB&#x2F;s，在当时的条件下足够打满 CPU（协议栈、SSTable 解析、BigTable 逻辑），也足够打满网络带宽（？）。这种场景下的应用通常会将 SSTable Block Size 调整为 8KB 来缓解问题。random write 和 sequential write 的 code path 是一致的，所以性能相似。seq read 可以用到预读，所以也快。</p>
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><h4 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h4><p>sequential write<br>sequential read<br>random read<br>random reads (mem) 每个 tablet server 数据量限制为 100 MB，使得足够 fit in memory<br>random writes<br>scan（scan 的 API 可以减少获取相同数据需要的 RPC 数量）</p>
+<h4 id="Workload"><a href="#Workload" class="headerlink" title="Workload"></a>Workload</h4><p>R 行数据，每行数据中包含 1000 byte 的随机字符串，取 R 使得平均每个 tablet server 负责 1GB 的数据，R 个 key 被划分为 10N 个区间，被 N 个 client 消费，每次拿一个区间去做读&#x2F;写操作，取决于 random&#x2F;sequential，区间内的 key 是排序或随机的</p>
+<h4 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h4><p>scan &gt; mem random read &gt;&gt; seq read &#x3D; rnd write &#x3D; seq write &gt;&gt; rnd read<br>因为 rnd read 每次需要从 GFS 传输 64KB 的 SSTable Block，而实际只用到了 1000 byte。tablet server 读 1200 个 block，等于 75 MB&#x2F;s，在当时的条件下足够打满 CPU（协议栈、SSTable 解析、BigTable 逻辑），也足够打满网络带宽（？）。这种场景下的应用通常会将 SSTable Block Size 调整为 8KB 来缓解问题。random write 和 sequential write 的 code path 是一致的，所以性能相似。seq read 可以用到预读，所以也快。</p>
 <p>从 1 scale 到 500 节点，吞吐量提升数百倍</p>
-<h2 id="以下是第一次读时的笔记"><a href="#以下是第一次读时的笔记" class="headerlink" title="以下是第一次读时的笔记**"></a>以下是第一次读时的笔记**</h2><p>文章没有 GFS 好懂，部分内容是推测的</p>
+<h2 id="第一次读时的笔记"><a href="#第一次读时的笔记" class="headerlink" title="第一次读时的笔记"></a>第一次读时的笔记</h2><p>文章没有 GFS 好懂，部分内容是推测的</p>
 <h3 id="API"><a href="#API" class="headerlink" title="API"></a>API</h3><ul>
 <li>数据级别：Set（新增或修改）、Delete、CAS、批量接口（非事务）</li>
 <li>Metadata 级别：（增删 column family、table）</li>
