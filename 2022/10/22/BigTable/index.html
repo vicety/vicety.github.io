@@ -24,8 +24,8 @@
 <meta property="og:description" content="BigTable 论文阅读">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20220904031156.png">
-<meta property="article:published_time" content="2022-10-22T18:24:00.000Z">
-<meta property="article:modified_time" content="2023-06-21T15:03:13.318Z">
+<meta property="article:published_time" content="2022-10-22T12:24:00.000Z">
+<meta property="article:modified_time" content="2023-07-02T15:16:08.860Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="论文阅读">
 <meta property="article:tag" content="分布式">
@@ -223,7 +223,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          8.1k 字
+          8.3k 字
         
       </span>
     
@@ -234,7 +234,7 @@
         
         
         
-          68 分钟
+          70 分钟
         
       </span>
     
@@ -300,9 +300,11 @@
               <div class="markdown-body">
                 
                 <p>pid&#x3D;72055179</p>
-<p>BigTable 是一个基于有序 KV 的多列、分布式列式存储。它将 GFS 当做 SSTable 与 WAL 用，在 GFS 上层提供宽表的语义，分布式一致使用 Chubby 实现。BigTable 将 KV 进行分片，负责维护每个分片的 memtable，也负责分片的 LB</p>
+<p>TODO HBase 怎么和 MapReduce &#x2F; Hadoop 有关的？</p>
+<p>BigTable 是一个稀疏、列式、分布式、持久的多维有序映射。它将 GFS 当做 SSTable 与 WAL 用，在 GFS 上层提供宽表的语义，分布式一致使用 Chubby 实现。BigTable 将 KV 进行分片，负责维护每个分片的 memtable，也负责分片的 LB</p>
 <h3 id="数据模式"><a href="#数据模式" class="headerlink" title="数据模式"></a>数据模式</h3><p>key &#x3D; (row:string, column:string, time:int64) 类似多列索引<br>value &#x3D; string<br>table &#x3D; Set[tablet]，创建时只对应一个 tablet，随着数据的增长 tablet 会被分裂，每个 tablet 的大小在 100 - 200 MB<br>column 按 column family 分组，每个 column family 单独压缩，所以 familiy 内应该放相似数据，column family 的数量一般不多，column 的数量则无上限。column key 的名称遵守如下规范：family:qualifier。权限控制最细到 column family 级别。<br>（其他索引一致时）要避免冲突必须使用不同的 timestamp，支持根据时间或基于保留固定数量的版本数来删除旧数据</p>
 <h3 id="存储模式"><a href="#存储模式" class="headerlink" title="存储模式"></a>存储模式</h3><ul>
+<li>用 kv 的格式存每一列 (row, timestamp, family:qualifier -&gt; value)，而不是用行存 (row, family1:qualifier1, family1:qualifier2, family2:qualifier1, … -&gt; value)，这也是为什么说 BigTable 是稀疏的</li>
 <li>KV 表用 SSTable 格式存储</li>
 <li>SSTable &#x3D; List[Block]，SSTable 末端存 Block List 的索引 (block index)，加载 SSTable 时读到内存，一次 lookup 先在 block index 二分找，然后做一次 IO 读对应的 block（当然也可以选择所有 block 都放到内存）</li>
 <li>Minor Compaction：Memtable 达到 size 阈值后冻结，创建新 memtable，旧的 memtable 转换成 SSTable，写入 GFS。一方面节约 tablet server 内存，另一方面减少恢复时间</li>
@@ -395,7 +397,8 @@
 <h3 id="Explain-the-finding-process-of-tablets-in-BigTable"><a href="#Explain-the-finding-process-of-tablets-in-BigTable" class="headerlink" title="Explain the finding process of tablets in BigTable"></a>Explain the finding process of tablets in BigTable</h3><p>（来自 KTH DD2221 HW1）</p>
 <p>BigTable maintains a METADATA table, in which each row encodes the information (tablet identifier, end row) to find the tablet. A root tablet maintains the location of all tablets in METADATA tablet, and the location of the root tablet is maintained as a file in Chubby.</p>
 <p>Clients first need to get the location of root tablet from Chubby, then find the METADATA tablet matching the key that client is reading or writing, then find the row in that METADATA tablet matching the key that client is reading or writing, finally, find the tablet that stores the data from the tablet identifier stored in the row. The client can cache these information so later read&#x2F;write won’t need these steps.</p>
-<h3 id="关于宽列数据库"><a href="#关于宽列数据库" class="headerlink" title="关于宽列数据库"></a>关于宽列数据库</h3><blockquote>
+<h3 id="宽列数据库与列式数据库"><a href="#宽列数据库与列式数据库" class="headerlink" title="宽列数据库与列式数据库"></a>宽列数据库与列式数据库</h3><p>BigTable 二者都是</p>
+<blockquote>
 <p><a target="_blank" rel="noopener" href="https://db-engines.com/en/article/Wide+Column+Stores">https://db-engines.com/en/article/Wide+Column+Stores</a><br>Wide column stores, also called extensible record stores, store data in records with an ability to hold very large numbers of dynamic columns. Since the column names as well as the record keys are not fixed, and since a record can have billions of columns, wide column stores can be seen as two-dimensional key-value stores.<br>(与 列式存储 的区别)<br>Wide column stores must not be confused with the column oriented storage in some relational systems. This is an internal concept for improving the performance of an RDBMS for OLAP workloads and stores the data of a table not record after record but column by column.</p>
 </blockquote>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
@@ -500,9 +503,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/03/12/%E5%9C%A8%20Apache%20Calcite%20%E4%B8%AD%E4%BD%BF%E7%94%A8UDF/" title="在 Apache Calcite 中使用 UDF">
+                      <a href="/2023/03/12/%E5%9C%A8%20Apache%20Calcite%20%E4%B8%AD%E4%BD%BF%E7%94%A8UDF/" title="基于 Apache Calcite 为 Java 容器提供 SQL 接口">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">在 Apache Calcite 中使用 UDF</span>
+                        <span class="hidden-mobile">基于 Apache Calcite 为 Java 容器提供 SQL 接口</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     

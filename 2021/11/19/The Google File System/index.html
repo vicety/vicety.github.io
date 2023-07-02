@@ -1,0 +1,837 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji-ico.ico">
+  <link rel="icon" href="https://cdn.jsdelivr.net/gh/vicety/Images@master/images/momiji-ico.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="vicety">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="GFS 论文阅读">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The Google File System">
+<meta property="og:url" content="https://vicety.github.io/2021/11/19/The%20Google%20File%20System/index.html">
+<meta property="og:site_name" content="vicety的博客">
+<meta property="og:description" content="GFS 论文阅读">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20211118121935.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20220905204039.png">
+<meta property="article:published_time" content="2021-11-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-06-13T21:16:54.192Z">
+<meta property="article:author" content="vicety">
+<meta property="article:tag" content="论文阅读">
+<meta property="article:tag" content="分布式">
+<meta property="article:tag" content="存储">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/vicety/Images/master/images20211118121935.png">
+  
+  
+  
+  <title>The Google File System - vicety的博客</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"vicety.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"TdxzU2OpwN7XHsa0T05Y01Kn-gzGzoHsz","app_key":"lfgF4JmupaIQkD5xRHAIBfTk","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 90vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>vicety的博客</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://raw.githubusercontent.com/vicety/Images/master/71322074_p0.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="The Google File System"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-11-19 00:00" pubdate>
+          2021年11月19日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          10k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          84 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">The Google File System</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>PID&#x3D;71322074</p>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>GFS专为大规模data-intensive application设计（实际上就是Map Reduce），本节介绍对于这样的系统，需要应对什么场景</p>
+<ol>
+<li>大量节点，因此节点 failure 是 situation 而非 exception</li>
+<li>文件很大，但也需要支持KB级别的文件操作，因此需要 revisit block size</li>
+<li>顺序读写比随机读写更为常见</li>
+<li>在设计系统的同时也对API进行调整，具体来说，GFS relaxed its concistency model</li>
+</ol>
+<h2 id="Design-Overview"><a href="#Design-Overview" class="headerlink" title="Design Overview"></a>Design Overview</h2><ol>
+<li>需要高可用，因为 system built from many inexpensive commodity components</li>
+<li>能够存储大文件，expect few million files, each typically 100MB or larger，同时也需要支持小文件，但不必对它们特别优化</li>
+<li>workload 由以下几部分组成：大量顺序读写、少量随机读</li>
+<li>存在大量机器并发写一个文件的情景，需要对这种并发场景有明确的语义</li>
+<li>高带宽比低延迟更重要，由业务场景得出</li>
+</ol>
+<h3 id="Interface"><a href="#Interface" class="headerlink" title="Interface"></a>Interface</h3><p>Not POSIX compliant，提供 create&#x2F;delete&#x2F;open&#x2F;close&#x2F;read&#x2F;write&#x2F;snapshot&#x2F;append 操作</p>
+<ul>
+<li>snapshot 用于目录复制，使用 COW 实现</li>
+<li><strong>append保证每个client的append是原子的</strong>，即并发 append 不会相互覆盖</li>
+<li>write 就是普通的随机写入</li>
+</ul>
+<h3 id="Architecture"><a href="#Architecture" class="headerlink" title="Architecture"></a>Architecture</h3><p>一个 master 多个 chunkserver，每个跑在一台机器上，文件划分为固定大小的 chunk，chunk 使用 64 位 chunk handle 定位，读写时使用 chunk handle + byte range 定位，每个 chunk 默认三副本。（待证实 from ID2221）每个 chunk 实现上对应一个 plain linux file</p>
+<p>master 维护所有的 metadata、GC orphaned chunk、与所有 chunkserver 通过心跳采集其状态。</p>
+<p>GFS 的一个值得提及的设计是控制流与数据流分离，GFS client与 master 通信获得 metadata，而数据传递则是 client 直接与 chunk server 交互实现的。无论是 client 还是 chunkserver 都不对数据做缓存，因为文件太大并且主要是顺序读写，即命中率很低</p>
+<p>TODO we do not provide posix api, therefore need not hook into Linux vnode layer 是什么意思</p>
+<h3 id="Single-Master"><a href="#Single-Master" class="headerlink" title="Single Master"></a>Single Master</h3><p>采用了<strong>单点 master</strong> 的设计，因此需要 minimize 与 master 的通信，避免其成为 bottleneck<br>（实际上还存在几个数据有延迟的 shadow，可以帮忙分担请求，如果 application 不介意延迟的话，但出于实现简单考虑，会造成状态改变的操作，如 GC，仍然只在 master 节点做）</p>
+<h4 id="读流程"><a href="#读流程" class="headerlink" title="读流程"></a>读流程</h4><ol>
+<li>client 将应用传来的请求参数 filename + offset, 转换为 filename + 文件内 chunk index，用转换后的请求参数，向 master 询问对应的 chunkserver, master 返回 chunk handle（全局所有 chunk 共享 id 空间下的 id）, 含有此数据的所有 chunk server 列表（这一 metadata 会缓存，见下一步）。client 以 kv 格式缓存返回值，即（请求参数，response）</li>
+<li>client caches the list</li>
+<li>client 读返回的 chunk server 中的一个，通常是最近的那个<br>TODO 这个cache时间和lease是一致的吗，不是的话，这个时间由什么决定？file reopen为什么需要invalidate cache？</li>
+<li>如此直到 cache 过期或者 file reopen<br>（事实上对多个 chunk 的读操作，在于 master 通信阶段可以合并，进一步减少通信量）</li>
+</ol>
+<p>因为是同步复制（损失可用性），所以读可以容易地满足强一致</p>
+<h3 id="Chunk-Size"><a href="#Chunk-Size" class="headerlink" title="Chunk Size"></a>Chunk Size</h3><p>chunk size设计为 64MB，越大的chunk size，越少的metadata（就像操作系统中的多级页表），越少与master的通信；并且，（似乎，我的理解，数据传输是以chunk单位进行的）更大的chunk能够减少与chunkserver的通信次数</p>
+<p>同时，更大的 chunk 意味着一个chunk 越容易成为 hot spot，考虑对单个文件的热点，由于组成文件的 chunk 数量少，读写会集中在少量的 chunk 上（而不是分散到多个 chunk）。作者指出在大多数顺序读的情况下不会出现此问题的，但对于 MapReduce，Map 阶段的结果写到同一个 chunk，随后 Reduce 阶段被随机读，会产生此问题。作者提出的解决方案，一是增加 replication（因为是本地读），二是使 client 读完数据后维护起来，也可以响应其他 client 的读请求</p>
+<h3 id="Metadata"><a href="#Metadata" class="headerlink" title="Metadata"></a>Metadata</h3><p>所有的 metadata 在 master 维护，内容包括：</p>
+<ol>
+<li>namespace（其实就是目录树），内存维护，同时持久化到日志</li>
+<li>file to chunk mapping，内存维护，同时持久化到日志</li>
+<li>chunk to chunkserver mapping，仅在内存维护，master 启动时 ask chunkserver，之后通过心跳维护。显然只有 chunkserver 才对自己掌控哪些 chunk 有发言权，这也是为什么这个数据持久化是无意义的</li>
+<li>第三点的延伸（我的理解，也参考了[3]）chunk 版本号、primary chunk 是谁、lease 过期时间</li>
+</ol>
+<h4 id="Metadata-功能"><a href="#Metadata-功能" class="headerlink" title="Metadata 功能"></a>Metadata 功能</h4><p>master 会定期 scan 内存中的 metadata，以实现如下功能： GC、re-replicate 挂掉的 chunkserver、通过 chunk migration 来 LB chunk server 的负载与磁盘占用</p>
+<h4 id="Metadata-读写"><a href="#Metadata-读写" class="headerlink" title="Metadata 读写"></a>Metadata 读写</h4><p>读是本地内存读，写是批量 WAL + 定期 checkpoint &amp; GC</p>
+<h4 id="Metadata-相关的各种疑问"><a href="#Metadata-相关的各种疑问" class="headerlink" title="Metadata 相关的各种疑问"></a>Metadata 相关的各种疑问</h4><p>Question：是否存在 master 内存不足以保存 metadata 的问题？<br>文章中进行了分析，结论是不会</p>
+<h3 id="Consistency-Model"><a href="#Consistency-Model" class="headerlink" title="Consistency Model"></a>Consistency Model</h3><p>先给出定义</p>
+<ul>
+<li>Consistent：文件区域是 consitent 的，如果对于此区域，所有 client 在任意 replica 看到一样的数据</li>
+<li>Defined：文件区域是 defined 的，如果在一次mutation后，如果这段数据是 consistent 的、<strong>且这段数据就是这次 mutation 写入的全部数据</strong><br>（具体来说 如果逻辑的同步复制成功，数据就是 consistent 的，对于并发写请求相互覆盖的 case，数据是 undefined 的）</li>
+</ul>
+<p>Case 分析：</p>
+<ol>
+<li>随机写横跨 chunk，需要分割为多次写入不同 chunk，导致数据写入非原子。如数据的前半部分先写 chunk1 尾部，然后 chunk2 被抢占写入其他数据，最后数据的后半部分的 offset 被安排到抢占数据的后面<br>也可参考 随机写流程 小节</li>
+<li>随机写的数据之间可能相互覆盖，导致之后读不到写入数据，也就是 consistent but undefined，例子参考 [4]</li>
+<li>原子追加若部分失败，下次重试会选择更后的offset（primary 必成功，其成功后才会广播），部分失败的节点上，这次写入的区域将会是 inconsistent 的。此外，若多次尝试，最终可能看到写入的内容在chunk中多次重复（对于成功的节点）</li>
+</ol>
+<p><img src="https://raw.githubusercontent.com/vicety/Images/master/images20211118121935.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="System-Interaction"><a href="#System-Interaction" class="headerlink" title="System Interaction"></a>System Interaction</h2><h3 id="Leases-and-Mutation-Order"><a href="#Leases-and-Mutation-Order" class="headerlink" title="Leases and Mutation Order"></a>Leases and Mutation Order</h3><p>Question: 引入 lease 的目的？<br>防止出现多主。举例，如某时刻仅 master 与 当前 primary 的通信断开，（不考虑心跳）master 无法知道何时指定一个新主才不会导致多主（考虑 数据节点间相互连通，但 master 与当前 primary 不连通的情况）。如果 master 知道 primary 与 master 的心跳间隔，那么可以根据它推测 primary 何时会发现自己与 master 无法通信从而退位（等价于 lease 过期），这个时间后可以安全地指定新主。所以心跳其实也有 lease 的意思在里面</p>
+<p>master 在 chunk 级别（注意一个节点上可能有多个 chunk）会选择一个 primary，给他颁发 lease，primary 会协调这一 chunk 内、不同 chunkserver 间的并发写入顺序。Primary 可以在心跳中请求延长 lease。</p>
+<h4 id="随机写流程"><a href="#随机写流程" class="headerlink" title="随机写流程"></a>随机写流程</h4><p>TL;DR</p>
+<p><img src="https://raw.githubusercontent.com/vicety/Images/master/images20220905204039.png" srcset="/img/loading.gif" lazyload></p>
+<ol>
+<li>Client 询问哪个写入目标所在的 chunk server</li>
+<li>master 返回 chunk server 列表，以及其中谁是 primary。如果没人有 lease，master 需要指定一个。client 对结果缓存，之后仅当 primary lease 过期，或发现 primary 挂掉，才会重新联系 master</li>
+<li>client发送写入内容给最近server（无论primary secondary），server从第一个字节收到开始就同步传给其他server，目的是尽量把网络带宽占满。chunk server 对收到的内容进行缓存，先不写入</li>
+<li>client 从第三步联系的 server 收到 “所有 server 均对第三步的数据 ACK” 的消息后，向 primary 发送 write 请求</li>
+<li>primary 决定消息写入的 offset（并发消息顺序在这里确定），并让所有 secondary 也写入到同样的offset位置</li>
+<li>secondary 在指定 offset 写入，返回写入结果</li>
+<li>primary 汇总 secondary 的写入结果，返回给 client。如果部分失败，client 会重试，<br>primary 确认所有 secondary 写入成功后，返回 client 写入成功</li>
+</ol>
+<p>NOTE：特点是先写入数据，后通过 Sequencer 排序，写入数据是异步的（无 ACK 要求），但排序过程是同步的</p>
+<p>Question：跨 chunk 的写入会被分割成多次写入，但问题在于写入不再连续，中间可能穿插并发写入，尽管 replica 间的成功写入区域的结果是一致的，称为 consistent but undefined state</p>
+<p>Question：这里是一个同步复制，不会导致可用性下降吗？<br>(我的理解) 会</p>
+<p>Question：如果数据发生了部分 commit，后续如何确保一致性？<br>不保证一致性，见上面的表格</p>
+<h4 id="问题：file到chunk的关系，如果新增chunk，如何维护，在什么时候维护？"><a href="#问题：file到chunk的关系，如果新增chunk，如何维护，在什么时候维护？" class="headerlink" title="问题：file到chunk的关系，如果新增chunk，如何维护，在什么时候维护？"></a>问题：file到chunk的关系，如果新增chunk，如何维护，在什么时候维护？</h4><p>本节来自参考文章2，还没确认在论文中的位置</p>
+<p>在写流程中，当要创建新文件和将数据写入新chunk时，客户端都需要联系master来操作master上的名字空间。</p>
+<p>创建新文件：在名字空间创建一个新对象，该对象代表这个文件。</p>
+<p>将数据写入新chunk中：向master的元数据中创建新chunk相关信息。</p>
+<p>如果有多个客户端同时进行写入操作，那么这些客户端也会同时向master发送创建文件或创建新chunk的指令。master在同一时间收到多个请求，它会通过加锁的方式，防止多个客户端同时修改同一个文件的元数据。</p>
+<h3 id="Data-Flow"><a href="#Data-Flow" class="headerlink" title="Data Flow"></a>Data Flow</h3><p>希望尽量占满带宽，因此数据的传递按链状而非树状，一旦chunkserver收到部分数据，立即开始forward给最近的未收到数据的chunkserver</p>
+<h3 id="原子追加流程"><a href="#原子追加流程" class="headerlink" title="原子追加流程"></a>原子追加流程</h3><p>以下来自参考文章2</p>
+<p>primary 收到写入请求后，会检查把这个 record 追加到尾部会不会超出 chunk 的边界，如果超出边界，那么它会把 chunk 剩余的空间填充满（这里填充什么并不重要，后面的2.4节会解释这个填充操作），并且让 secondary 做相同的事情，然后再告知客户端这次写入应该在下一个 chunk 上重试。如果这个 record 能在 chunk 剩余的空间存放，那么 primary 会把它追加到尾部，并且告知 secondary 在同样的位置写入，最后通知客户端操作成功。</p>
+<p>总结：确保 append 在一个 chunk 内完成，从而确保 append 的原子性</p>
+<h3 id="Snapshot"><a href="#Snapshot" class="headerlink" title="Snapshot"></a>Snapshot</h3><p>用于复制目录，通过 COW 实现，在 master 维护指向某个 chunk 的指针数量，如果大于 1，那么当对 chunk 的修改发生时，master 需要让所有 replicate chunk server 在本地复制一份，随后再对复制出的数据做修改</p>
+<h2 id="Master-Operation"><a href="#Master-Operation" class="headerlink" title="Master Operation"></a>Master Operation</h2><h3 id="Namespace-Management-and-Locking"><a href="#Namespace-Management-and-Locking" class="headerlink" title="Namespace Management and Locking"></a>Namespace Management and Locking</h3><p>namespace 实际上就是目录树</p>
+<p>master 的 operation 会在路径节点上获取读&#x2F;写锁，读写分离的目的是提高并发度，不同对象的锁的获取服从total order，首先按它在 namespace tree 中的level排序，其次在同一级别按照字母顺序排序，以避免死锁。</p>
+<p>NOTE：感觉和文件创建删除快照相关，应该是支持并发打开文件并写入的，否则前面对并发写入的分析就没有意义了</p>
+<h3 id="Replica-Replacement"><a href="#Replica-Replacement" class="headerlink" title="Replica Replacement"></a>Replica Replacement</h3><p>需要注意不要把replica分配到同一个机架上，类似不要把鸡蛋放到同一篮子里，优势是对chunk的读可以利用不同机架的带宽（同一个chunk从不同副本读，我的理解），劣势是写入数据时，数据的流动需要跨越多个机架</p>
+<h3 id="Creation-Re-replication-Rebalancing"><a href="#Creation-Re-replication-Rebalancing" class="headerlink" title="Creation, Re-replication, Rebalancing"></a>Creation, Re-replication, Rebalancing</h3><p>新chunk的分配需要考虑：</p>
+<ol>
+<li>分配在磁盘空间更加充裕的chunkserver</li>
+<li>避免连续在同一个 chunk server 分配，连续的 chunk 可能意味着将来读取时的 hotspot</li>
+<li>分配在不同机架</li>
+</ol>
+<p>以下摘自[4]</p>
+<p>当 Chunk 副本由于以下几个可能的原因，导致副本数量小于用户指定的复制因数的时候，Master 节点就会重新复制它：</p>
+<ul>
+<li>Chunk Server不可用</li>
+<li>Chunk Server报告它所存储的一个副本损坏</li>
+<li>Chunk Server的一块磁盘不可用</li>
+<li>Chunk 副本的复制参数被增加</li>
+</ul>
+<p>当多个 Chunk 需要被复制时，优先级会考虑以下因素</p>
+<ul>
+<li>当前副本数与复制因数的差值，差值越大优先级越高</li>
+<li>优先复制未被删除的 Chunk （删除是惰性的，会被定时回收，下文有介绍）</li>
+<li>优先复制会阻塞客户端查询处理流程的</li>
+</ul>
+<p>复制时， Master 会 “命令” 拥有相应 Chunk 副本的 Chunk Server上克隆一个副本出来，并按照 Chunk 创建时的策略选择副本位置。</p>
+<p>为了防止克隆时产生的流量影响客户端的操作，Master 对整个集群和每个 Chunk Server上同时进行克隆操作的数量做了限制，并且 Chunk Server通过调节它对源 Chunk Server读请求的频率来限制它用于克隆操作的带宽。</p>
+<p>Master 服务器周期性地检查当前的副本分布情况，然后移动副本以便更好的利用硬盘空间、更有效的进行负载均衡。而且在这个过程中，Master 服务器逐渐的填满一个新的 Chunk Server，而不是在短时间内用新的 Chunk 填满它，以至于过载。新副本的存储位置选择策略和上面讨论的相同。另外，Master 节点必须选择哪个副本要被移走。通常情况，Master 节点移走那些剩余空间低于平均值的 Chunk 服务 器上的副本，从而平衡系统整体的硬盘使用率。</p>
+<h3 id="Garbage-Collection"><a href="#Garbage-Collection" class="headerlink" title="Garbage Collection"></a>Garbage Collection</h3><p>在 master 的定期 scan 中，会检测是否有 chunk 不属于任何文件，在心跳包中，chunkserver会携带它所拥有的一部分chunk，master 在心跳包响应中会携带那些不存在于 master metadata 中的 chunk（可能由文件删除导致），这样 chunkserver 能够回收它。文件的删除是延迟的，rename 为特殊名称，在一定时间后才会删除，删除动作仅删除 file 在 master 的 metadata，chunk级别由上面所说的心跳包逻辑实现。</p>
+<p>Question: 为什么不采用 eager deletion？<br>因为分布式系统中出现问题是很常见的，因此选择 <strong>level-based</strong>（心跳包） rather than edge-based（发起一个删除请求）的方法，此外，定期扫描也能按batch处理，缺点是频繁创建删除的临时文件占用的资源无法被及时回收。GFS 提供了指定某些 directory 在 GC 时立即执行、某些 directory 不做 replication 的功能</p>
+<h3 id="Stale-Replica-Detection"><a href="#Stale-Replica-Detection" class="headerlink" title="Stale Replica Detection"></a>Stale Replica Detection</h3><p>Question：如何确保选出的新主拥有所有新数据？SEO：选主、Leader Election<br>通过数据版本号实现。对每个 chunk，master 维护一个 chunk version number 来辨别 stale replica，每当颁发 lease 前，increase version number。除 master，版本号也维护在，chunk 的所有网络可达节点，heartbeat 时 master 会比对 chunk 的 version 与自己维护的最新版本号，如果对方 version 大于自己维护的，说明自己在颁发lease时挂了，将这个更高的值设为最新版本号；如果低于，那么说明这个 chunk 挂过。对于stale replica，master 当做它不存在，即回复给client的 replica server中不会包含它。另一道防线是，master 告诉 client replica server 时，会附上其 veseion number，client 或 server 在通信时会确认这个版本号</p>
+<h2 id="Fault-Tolerance-and-Diagnosis"><a href="#Fault-Tolerance-and-Diagnosis" class="headerlink" title="Fault Tolerance and Diagnosis"></a>Fault Tolerance and Diagnosis</h2><h3 id="High-Availability"><a href="#High-Availability" class="headerlink" title="High Availability"></a>High Availability</h3><p>主要说下Master Replication，master日志也会在master副本写入，日志写入阻塞直到所有副本日志写入完成。副本会基于日志重现master状态，以实现master挂掉情况的快速切换，它不阻塞日志写入，这也是为什么副本会有延迟。</p>
+<h3 id="Data-Integrity"><a href="#Data-Integrity" class="headerlink" title="Data Integrity"></a>Data Integrity</h3><p>前文介绍过，原子追加若失败会造成数据不一致，因此没法通过对比 chunk 的不同副本来纠错。</p>
+<p>本节以下部分摘自[4]</p>
+<p>GFS中的chunk被分为64KB的block，每个block都有32bit的checksum，在内存与日志中各保存一份。每次收到chunk的读操作时进行check，如果有错，那么向client返回错误、向master汇报错误，而client会尝试读其他chunk server，master会从其他replica复制一份chunk到此chunkserver。（写入过程中，当然也有可能是其他时间的造成的corruption，会在读取时，或chunkserver的定期扫描中被发现，定期扫描的目的在于，越早暴露问题，越小的可能会出现所有副本都corrupt的情况，即使在这种情况，GFS会返回一个错误，而非corrupt的数据来迷惑client）对于写入操作，write在写入时会给server写入值的checksum信息，避免在错误的数据基础上写入错误数据，最终checksum反而正确的情况。（5.2节倒数第二段）</p>
+<h2 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h2><p>Question：找到 GFS 读到过时数据的场景</p>
+<blockquote>
+<p>论文原文 大意是 chunk 数据迁移的消息 client 不能及时知道导致读到旧数据<br>Since clients cache chunk locations, they may read from a stale replica before that information is refreshed. This window is limited by the cache entry’s timeout and the next open of the file, which purges from the cache all chunk information for that file.</p>
+</blockquote>
+<p>Question: 如何应对并发随机写可能存在的相互覆盖问题？</p>
+<p>我的理解是需要在应用层做同步，框架层无法避免</p>
+<p>Question: 数据与控制分离的优势？<br>如果由 primary 广播数据，primary 的出口带宽会成为瓶颈，而 GFS 的设计使得数据总能分散到最近的 chunkserver，而 primary 仅需额外承载控制信息（逻辑的同步复制），这强化了系统的扩展性</p>
+<h3 id="6-824-课程的问题回答"><a href="#6-824-课程的问题回答" class="headerlink" title="6.824 课程的问题回答"></a>6.824 课程的问题回答</h3><p>本节摘自[4]</p>
+<ul>
+<li>应用怎么知道 Chunk 中哪些是填充数据或者重复数据？<ul>
+<li>要想检测填充数据，应用可以在每个有效记录之前加上一个魔数（Magic Number）进行标记</li>
+<li>应用可通过在记录中添加唯一 ID 来检测重复数据，这样应用在读入数据时就可以利用已经读入的 ID 来排除重复的数据了。GFS 本身提供了 library 来支撑这些典型的用例。</li>
+</ul>
+</li>
+<li>考虑到原子记录追加操作会把数据写入到文件的一个不可预知的偏移值中，客户端该怎么找到它们的数据？<ul>
+<li>追加操作（以及 GFS 本身）主要是面向那些会完整读取文件的应用的。这些应用会读取所有的记录，所以它们<strong>并不需要提前知道记录的位置</strong>。例如，一个文件中可能包含若干个并行的网络爬虫获取的所有链接 URL。这些 URL 在文件中的偏移值是不重要的，应用只会想要完整读取所有 URL。</li>
+</ul>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>参考了[5]</p>
+<ul>
+<li>读：本地读</li>
+<li>写：链式数据复制，同步广播复制式的控制流实现逻辑写入</li>
+<li>单点 master</li>
+<li>master 在 chunk 级别使用 lease 机制选主来指定并发写入顺序（由于是同步复制，任意节点成为主都不会有一致性问题）<br>NOTE：可能有不一致的数据，但这是 ok 的，GFS 只保证 向 client 返回 ack 的数据，一定在所有节点都一致。但（我的理解）需要应用层机制来过滤这些不一致的数据</li>
+<li>并发随机写的执行顺序是确定的（chunk primary 作为 sequencer），但可能存在相互覆盖的问题，需要应用层的同步</li>
+<li>原子追加被限制在一个 chunk 内执行以确保原子性（会因此产生 padding），追加成功一定会有一致数据，但可能存在重试导致的非一致数据，需要在应用层过滤</li>
+<li>通过版本号保证 master 选主时选择数据最新的节点</li>
+<li>64MB 大 chunk，减少 metadata 数量，但产生内部碎片（类似操作系统的页表），此外对于单个文件成为热点的情况，由于 chunk 数量少，使得压力会几种在少量的 chunk 上（而不是分散到多个 chunk）</li>
+<li>单 master，WAL + Checkpoint 维护 metadata 修改<ul>
+<li>对 master 有监控，挂了能快速拉起 ch5.1.3</li>
+<li>master 有 shadow，shadow 是异步复制，有过时读（看业务需要）</li>
+</ul>
+</li>
+<li>需要应用层的机制识别重复原子追加（见上方问答）</li>
+</ul>
+<h3 id="拓展阅读"><a href="#拓展阅读" class="headerlink" title="拓展阅读"></a>拓展阅读</h3><p>其实就是 TODO</p>
+<p>6.824 FAQ <a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.824/papers/gfs-faq.txt">https://pdos.csail.mit.edu/6.824/papers/gfs-faq.txt</a><br>6.824 lecture note <a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.824/notes/l-gfs.txt">https://pdos.csail.mit.edu/6.824/notes/l-gfs.txt</a><br>GFS 针对传统分布式文件系统而言最大创新点在哪？ <a target="_blank" rel="noopener" href="https://www.zhihu.com/question/19793036">https://www.zhihu.com/question/19793036</a><br>System|分布式|GFS <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/158026718">https://zhuanlan.zhihu.com/p/158026718</a></p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://blog.wonter.net/posts/aa8a2f6c/">MIT 6.824（二）GFS的一致性模型</a><br>NOTE: 链接挂了</li>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/ut8Q7vXa5Lm0auNaN2_Emg">GFS的分布式哲学：HDFS的一致性成就，归功于我的失败……</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.qtmuniao.com/2020/03/14/6-824-vidoe-notes-3-gfs/">MIT 6.824 2020 视频笔记三：GFS</a></li>
+<li>推荐 <a target="_blank" rel="noopener" href="https://andrewei1316.github.io/2020/10/05/google-file-system/">Google File System 总结</a></li>
+<li>推荐 <a target="_blank" rel="noopener" href="https://www.qtmuniao.com/2019/05/26/gfs/">GFS —— 取舍的艺术</a></li>
+<li>推荐 <a target="_blank" rel="noopener" href="https://niceaz.com/2019/03/24/gfs/#%E5%85%83%E6%95%B0%E6%8D%AE%E5%8A%A0%E9%94%81">GFS阅读总结</a></li>
+</ol>
+<p>TODO<br>（其实都在 Implications for Applications 这一节）</p>
+<blockquote>
+<p>[5] 另一个经典的场景是多 writer 并发追加以合并分片结果或者充当生产消费队列。之前也提到，对于追加写，GFS 提供至少成功一次的语义保证。由于记录写失败了会重试，但是并不会删除，那么就必然存在一些失败记录（表现为一些 replica 上的失败记录和另一些 replica 上的 padding）。<br>GFS 的策略是将对这些错误记录留给 reader 进行处理。具体处理方法是，对于写坏的记录，可以用 writer 写入的校验和进行校验从而跳过；对于写重的记录，writer 提供了 record id，reader 可以在读取的时候根据其进行过滤。<br>当然，上述逻辑的代码都内置在了库函数中，应用层代码可以很方便的调用。</p>
+</blockquote>
+<p>摘抄重点</p>
+<blockquote>
+<p>对于写坏的记录，可以用 writer 写入的校验和进行校验从而跳过；对于写重的记录，writer 提供了 record id，reader 可以在读取的时候根据其进行过滤。</p>
+</blockquote>
+<p>写坏：checksum<br>写重：record id<br>避免读到未被 client 视为写入完成的数据（可能由于重试期间挂掉，导致 client 不知道是否写入成功）：<br>  client 确认写完一个文件后对其重命名，或者其他类似的 checkpoint 机制，这样确保这个文件都是被 client 视为写入完成的数据</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%8A%80%E6%9C%AF/" class="category-chain-item">技术</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">#论文阅读</a>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">#分布式</a>
+      
+        <a href="/tags/%E5%AD%98%E5%82%A8/">#存储</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>The Google File System</div>
+      <div>https://vicety.github.io/2021/11/19/The Google File System/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>vicety</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年11月19日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/11/27/ZooKeeper/" title="ZooKeeper系列论文阅读与实战">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">ZooKeeper系列论文阅读与实战</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/10/08/%E7%BA%BF%E6%80%A7%E5%8C%96%E4%B8%8E%E9%A1%BA%E5%BA%8F%E4%B8%80%E8%87%B4%E6%80%A7/" title="线性化与顺序一致性">
+                        <span class="hidden-mobile">线性化与顺序一致性</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"p7Skzx1UifgNosmr5ms2nILv-gzGzoHsz","appKey":"W73NSV1s3dRPtfceJDBsX5uP","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
