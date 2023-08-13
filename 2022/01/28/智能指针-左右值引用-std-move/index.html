@@ -16,12 +16,12 @@
   <meta name="author" content="vicety">
   <meta name="keywords" content="">
   
-    <meta name="description" content="TL;DR可以放在等号左边的就是左值（如变量名）只能放在等号右边的是右值（如常量，表达式，函数调用）有名称的 左&#x2F;右值引用 是左值，否则是右值能指向左值，不能指向右值的就是左值引用（int &amp;ref_a &#x3D; a）可以指向右值，不能指向左值的就是右值引用（int &amp;&amp;ref_a &#x3D; 1）左值可以通过 std::move() 转换为右值，这只是 compile-tim">
+    <meta name="description" content="TL;DR 省流，但不完全准确  可以放在等号左边的就是左值（如变量名） 只能放在等号右边的是右值（如常量，表达式，函数调用） 能指向左值，不能指向右值的就是左值引用（int &amp;ref_a &#x3D; a），例外是 const 左值引用可以指向右值 可以指向右值，不能指向左值的就是右值引用（int &amp;&amp;ref_a &#x3D; 1） 左&#x2F;右值引用都是左值 左值可以通过 std::m">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++ 值类型、引用类型与智能指针">
 <meta property="og:url" content="https://vicety.github.io/2022/01/28/%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88-%E5%B7%A6%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8-std-move/index.html">
 <meta property="og:site_name" content="vicety的博客">
-<meta property="og:description" content="TL;DR可以放在等号左边的就是左值（如变量名）只能放在等号右边的是右值（如常量，表达式，函数调用）有名称的 左&#x2F;右值引用 是左值，否则是右值能指向左值，不能指向右值的就是左值引用（int &amp;ref_a &#x3D; a）可以指向右值，不能指向左值的就是右值引用（int &amp;&amp;ref_a &#x3D; 1）左值可以通过 std::move() 转换为右值，这只是 compile-tim">
+<meta property="og:description" content="TL;DR 省流，但不完全准确  可以放在等号左边的就是左值（如变量名） 只能放在等号右边的是右值（如常量，表达式，函数调用） 能指向左值，不能指向右值的就是左值引用（int &amp;ref_a &#x3D; a），例外是 const 左值引用可以指向右值 可以指向右值，不能指向左值的就是右值引用（int &amp;&amp;ref_a &#x3D; 1） 左&#x2F;右值引用都是左值 左值可以通过 std::m">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://pic1.zhimg.com/80/v2-77fdd1a5ea4589145a0a01a37cae4c58_1440w.jpg?source=1940ef5c">
 <meta property="og:image" content="https://learn.microsoft.com/en-us/cpp/cpp/media/shared_ptr.png?view=msvc-170">
@@ -233,7 +233,7 @@
         
         
         
-          64 分钟
+          65 分钟
         
       </span>
     
@@ -298,7 +298,15 @@
             
               <div class="markdown-body">
                 
-                <p>TL;DR<br>可以放在等号左边的就是左值（如变量名）<br>只能放在等号右边的是右值（如常量，表达式，函数调用）<br>有名称的 左&#x2F;右值引用 是左值，否则是右值<br>能指向左值，不能指向右值的就是左值引用（<code>int &amp;ref_a = a</code>）<br>可以指向右值，不能指向左值的就是右值引用（<code>int &amp;&amp;ref_a = 1</code>）<br>左值可以通过 <code>std::move()</code> 转换为右值，这只是 compile-time 的，不产生机器码<br>TODO</p>
+                <p>TL;DR 省流，但不完全准确</p>
+<ul>
+<li>可以放在等号左边的就是左值（如变量名）</li>
+<li>只能放在等号右边的是右值（如常量，表达式，函数调用）</li>
+<li>能指向左值，不能指向右值的就是左值引用（<code>int &amp;ref_a = a</code>），例外是 const 左值引用可以指向右值</li>
+<li>可以指向右值，不能指向左值的就是右值引用（<code>int &amp;&amp;ref_a = 1</code>）</li>
+<li>左&#x2F;右值引用都是左值</li>
+<li>左值可以通过 <code>std::move()</code> 转换为右值，这只是 compile-time 的，不产生机器码<br>TODO</li>
+</ul>
 <h2 id="引用与指针"><a href="#引用与指针" class="headerlink" title="引用与指针"></a>引用与指针</h2><ul>
 <li>引用在生成汇编代码后与指针的用法相同，只是在编译器层面做了语法上的限制[13]</li>
 <li>&amp;出现在等号右侧是取地址的意思，这是C语言就有的功能</li>
@@ -383,7 +391,7 @@
 <ul>
 <li>语法上，使用 <code>T&amp;</code> 声明的就是左值引用，使用 <code>T&amp;&amp;</code> 声明的就是右值引用[3]</li>
 <li>对于以 <code>template&lt;typename T&gt; retType funcName(T&amp;&amp; paraName)</code> 或 <code>auto&amp;&amp;</code> 格式声明的引用，它们不是右值引用，而是通用引用(universal references &#x2F; forwarding references)<br>通用引用的初始值可以是左&#x2F;右值，如果初始值是左值，那么这个通用引用是一个左值引用，反之亦然</li>
-<li>能指向 lvalue，不能指向 rvalue(xvalue + prvalue 下同)的就是左值引用，反之既是右值引用[1]</li>
+<li>能指向 lvalue，不能指向 rvalue(xvalue + prvalue 下同)的就是左值引用，反之既是右值引用[1]。一个例外是 const 左值引用可以指向右值 (<code>const int &amp;ref_a = 5;</code>)</li>
 <li>右值引用延长了右值的生命周期，同时也可以用于对右值进行修改</li>
 <li>左值引用、右值引用本身是左值还是右值？<br>与[1]不同，我的看法，左&#x2F;右值引用只能是声明出来的，因此都是左值。看一个例子</li>
 </ul>
