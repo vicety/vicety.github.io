@@ -4,7 +4,7 @@
   
   
   <entry>
-    <title>为 CUDA kernel 选择合适 block/grid size</title>
+    <title>为 CUDA kernel 选择合适的 grid / block size</title>
     <link href="/2023/11/30/%E5%A6%82%E4%BD%95%E4%B8%BAcuda-kernel%E9%80%89%E6%8B%A9block-grid-size/"/>
     <url>/2023/11/30/%E5%A6%82%E4%BD%95%E4%B8%BAcuda-kernel%E9%80%89%E6%8B%A9block-grid-size/</url>
     
