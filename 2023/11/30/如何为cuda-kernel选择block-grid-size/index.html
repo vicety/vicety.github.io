@@ -24,7 +24,7 @@
 <meta property="og:description" content="如题">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-11-30T14:56:00.000Z">
-<meta property="article:modified_time" content="2023-11-30T15:35:33.851Z">
+<meta property="article:modified_time" content="2023-11-30T15:47:22.270Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="CUDA">
 <meta name="twitter:card" content="summary_large_image">
@@ -219,7 +219,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.3k 字
+          7.4k 字
         
       </span>
     
@@ -230,7 +230,7 @@
         
         
         
-          61 分钟
+          62 分钟
         
       </span>
     
@@ -308,7 +308,7 @@
 <p>Threads within a CTA can communicate with each other. To coordinate the communication of the threads within the CTA, one can specify synchronization points where threads wait until all threads in the CTA have arrived.</p>
 <p>The hardware for block is SM (Streaming Multiprocessor). SM provides hardware resources required for communication and synchronization for threads in the same block. Communication is not supported across SMs, thus, all threads in a block are executed on one SM. Also, since there might be synchronization between threads, once the block starts executing on the SM, all the threads in the block execute on the same SM at the same time (concurrency, not parallelism). That means that the process of scheduling the block to the SM is atomic. SM allows more than one block to execute concurrently. If the idle resources of an SM meet the execution of a block, the block can be immediately scheduled on that SM. The specific hardware resources generally include registers, shared memory, and various scheduling-related resources.</p>
 </blockquote>
-<p>grid 是最大的单位，grid 内的每个单元是一个 block，也称为 CTA；block 内可以通信、同步；warp 是最小的调度单位，至多包含 32 个线程，（另外记得看过 block 被划分为 warp 的方式是固定的）；SM 是执行 block 的硬件，为执行提供寄存器、shared mem、调度相关资源等资源，SM 间无法通信，因此 block 内的 warp 一定调度到相同 SM 上，SM 可以并行执行多个 warp，也可以执行来自多个 block 的 warp</p>
+<p>grid 是最大的单位，grid 内的每个单元是一个 block，也称为 CTA；block 内可以通信、同步；warp 是最小的调度单位，至多包含 32 个线程，（另外记得看过 block 被划分为 warp 的方式是固定的）；SM 是执行 block 的硬件，为执行提供寄存器、shared mem、调度相关资源等资源，SM 间无法通信，因此 block 内的 warp 一定调度到相同 SM 上，SM 可以并行执行多个 warp，也可以执行来自多个 block 的 warp<br>（笔者：SM 包含多个 CUDA Core）</p>
 <blockquote>
 <p>The scheduling-related resources has two specific limits: Maximum number of resident blocks per SM and Maximum number of resident threads per SM. That is, the maximum number of blocks and threads that can be executed simultaneously on the SM.<br>…<br>to carry enough people to meet a certain goal, it needs to ensure that there are enough people on the escalator at the same time. For GPUs, this means trying to keep enough instructions on the pipeline at the same time.</p>
 <p><strong>There are many ways to achieve this goal. One simple way is to allow as many threads as possible to execute on the SM at the same time. The ratio of the number of concurrent threads executing on the SM to the maximum number of threads supported on the SM is called “occupancy”. The higher occupancy, the higher potential performance.</strong></p>
@@ -346,13 +346,21 @@
 <ul>
 <li>硬限制小于 1024</li>
 <li>需要是 warp 大小（32）的倍数</li>
-<li>SM 寄存器总量 &#x2F; 最大线程寄存器 及以下的 block_size 绝对安全</li>
-<li>从最大化 occupancy 的角度考虑，block_size 应当大于 SM 上最大线程数 &#x2F; SM 上最大 CTA 数</li>
+<li>SM 寄存器总量 &#x2F; 最大线程寄存器 及以下的 block_size 绝对安全<ul>
+<li>V100 的场景是 64K &#x2F; 255 &#x3D; 256</li>
+</ul>
+</li>
+<li>从最大化 occupancy 的角度考虑，block_size 应当大于 SM 上最大线程数 &#x2F; SM 上最大 CTA 数<ul>
+<li>V100 的场景是 2048 &#x2F; 32 &#x3D; 64</li>
+</ul>
+</li>
 </ul>
 <p>grid_size</p>
 <ul>
-<li>需要大于 SM 数量</li>
-<li>最好是 SM 数量的整数倍（或者接近向上取整的倍数）</li>
+<li>需要大于 SM 数量，且最好是 SM 数量的整数倍（或者接近向上取整的倍数），目的是使所有的 SM 在 kernel 运行期间都不闲置<ul>
+<li>V100 有 80 个 SM，每个 64 个 CUDA Core，共计 5120 个 CUDA Core</li>
+</ul>
+</li>
 </ul>
 <p>另一个需要考虑的因素是 cache 局部性，之后总结一篇文章</p>
 
