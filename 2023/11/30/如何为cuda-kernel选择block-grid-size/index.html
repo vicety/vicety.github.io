@@ -24,7 +24,7 @@
 <meta property="og:description" content="如题">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-11-30T14:56:00.000Z">
-<meta property="article:modified_time" content="2023-11-30T15:47:22.270Z">
+<meta property="article:modified_time" content="2023-12-10T10:04:00.465Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="CUDA">
 <meta name="twitter:card" content="summary_large_image">
@@ -219,7 +219,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.4k 字
+          7.5k 字
         
       </span>
     
@@ -230,7 +230,7 @@
         
         
         
-          62 分钟
+          63 分钟
         
       </span>
     
@@ -308,7 +308,7 @@
 <p>Threads within a CTA can communicate with each other. To coordinate the communication of the threads within the CTA, one can specify synchronization points where threads wait until all threads in the CTA have arrived.</p>
 <p>The hardware for block is SM (Streaming Multiprocessor). SM provides hardware resources required for communication and synchronization for threads in the same block. Communication is not supported across SMs, thus, all threads in a block are executed on one SM. Also, since there might be synchronization between threads, once the block starts executing on the SM, all the threads in the block execute on the same SM at the same time (concurrency, not parallelism). That means that the process of scheduling the block to the SM is atomic. SM allows more than one block to execute concurrently. If the idle resources of an SM meet the execution of a block, the block can be immediately scheduled on that SM. The specific hardware resources generally include registers, shared memory, and various scheduling-related resources.</p>
 </blockquote>
-<p>grid 是最大的单位，grid 内的每个单元是一个 block，也称为 CTA；block 内可以通信、同步；warp 是最小的调度单位，至多包含 32 个线程，（另外记得看过 block 被划分为 warp 的方式是固定的）；SM 是执行 block 的硬件，为执行提供寄存器、shared mem、调度相关资源等资源，SM 间无法通信，因此 block 内的 warp 一定调度到相同 SM 上，SM 可以并行执行多个 warp，也可以执行来自多个 block 的 warp<br>（笔者：SM 包含多个 CUDA Core）</p>
+<p>grid 是最大的单位，grid 内的每个单元是一个 block，也称为 CTA；block 内可以通信、同步；warp 是最小的调度单位，至多包含 32 个线程，（另 Hardware Impl. 一节指出 block 被划分为 warp 的方式是固定的）；SM 是执行 block 的硬件，为执行提供寄存器、shared mem、调度相关资源等资源，SM 间无法通信，因此 block 内的 warp 一定调度到相同 SM 上，SM 可以并行执行多个 warp，也可以执行来自多个 block 的 warp<br>（笔者：SM 包含多个 CUDA Core）<br>Question: CUDA Core 与 warp 的执行是什么关系？<br>ref: <a target="_blank" rel="noopener" href="https://stackoverflow.com/a/62160925">https://stackoverflow.com/a/62160925</a><br>TODO</p>
 <blockquote>
 <p>The scheduling-related resources has two specific limits: Maximum number of resident blocks per SM and Maximum number of resident threads per SM. That is, the maximum number of blocks and threads that can be executed simultaneously on the SM.<br>…<br>to carry enough people to meet a certain goal, it needs to ensure that there are enough people on the escalator at the same time. For GPUs, this means trying to keep enough instructions on the pipeline at the same time.</p>
 <p><strong>There are many ways to achieve this goal. One simple way is to allow as many threads as possible to execute on the SM at the same time. The ratio of the number of concurrent threads executing on the SM to the maximum number of threads supported on the SM is called “occupancy”. The higher occupancy, the higher potential performance.</strong></p>
@@ -450,6 +450,12 @@
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2023/12/10/Analysis-Driven-Optimization/" title="使用 Nsight Compute 对算子进行优化">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">使用 Nsight Compute 对算子进行优化</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
