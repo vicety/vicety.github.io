@@ -19,7 +19,7 @@
     <meta name="description" content="Just my two cents">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Modern Effective Cpp 阅读笔记">
-<meta property="og:url" content="https://vicety.github.io/2023/08/18/Modern-Effective-Cpp-%E4%B8%AD%E6%96%87%E9%98%85%E8%AF%BB/index.html">
+<meta property="og:url" content="https://vicety.github.io/2023/08/18/Modern-Effective-Cpp-%E4%B8%AD%E6%96%87%E9%98%85%E8%AF%BB.sync-conflict-20240611-222804-NK53M5H/index.html">
 <meta property="og:site_name" content="vicety的博客">
 <meta property="og:description" content="Just my two cents">
 <meta property="og:locale" content="zh_CN">
@@ -220,7 +220,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          9.2k 字
+          6.6k 字
         
       </span>
     
@@ -231,7 +231,7 @@
         
         
         
-          77 分钟
+          55 分钟
         
       </span>
     
@@ -297,22 +297,21 @@
               <div class="markdown-body">
                 
                 <p><a target="_blank" rel="noopener" href="https://github.com/CnTransGroup/EffectiveModernCppChinese">https://github.com/CnTransGroup/EffectiveModernCppChinese</a></p>
-<h3 id="条款一：理解模板类型推导"><a href="#条款一：理解模板类型推导" class="headerlink" title="条款一：理解模板类型推导"></a>条款一：理解模板类型推导</h3><p>TL;DR 总是按照 pass-by-value 得到模板类型的类型，因此值（或指针）本身的 cv 属性不保留（因为 pbv 下也没有意义），同理引用也不会被保留，如果内部类型的声明中有 cv 类型，则再补上。唯一例外是 模板形参为通用引用 + 传左值 的情况，此时模板形参类型推导为左值引用</p>
-<p>举个例子：<code>void f(T* param)</code>，传 <code>const int* const</code>，指针自身的 const 不保留，其余做模式匹配，最终 T 被推导为 const int</p>
+<h3 id="条款一：理解模板类型推导"><a href="#条款一：理解模板类型推导" class="headerlink" title="条款一：理解模板类型推导"></a>条款一：理解模板类型推导</h3><p>TL;DR 总是 pass-by-value，因此值（或指针）本身的 cv 属性不保留，引用也不会被保留，如果内部类型的声明中有 cv 类型，则再补上。通用引用 + 传左值 是例外，此时内部类型是左值引用</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(ParamType param)</span></span>;<br><br><span class="hljs-built_in">f</span>(expr);                        <span class="hljs-comment">//从expr中推导T和ParamType</span><br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>情景一：ParamType是一个指针或引用，但不是通用引用<br>expr 忽略引用部分，然后与 ParamType 模式匹配得到 T</li>
-<li>情景二：ParamType是一个通用引用<br>如果 expr 是左值，T 和 ParamType 都会被推导为左值引用<br>如果 expr 是右值，走情景一的规则（也就是把通用引用 T&amp;&amp; 看做是 T 加上一个 右值引用）</li>
+<li>情景二：ParamType是一个通用引用<br>如果 expr 是左值，T 和 ParamType 都会被推导为左值引用<br>如果 expr 是右值，走情景一的规则</li>
 <li>情景三：ParamType既不是指针也不是引用<br>当ParamType既不是指针也不是引用时，我们通过传值（pass-by-value）的方式处理<br>传值意味着拷贝，意味着 cv 属性失效，当然 ref-to-const、ptr-to-const 不会失效</li>
 </ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> x = <span class="hljs-number">27</span>;      <br><span class="hljs-comment">// 情景一</span><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(T* param)</span></span>;<br><br><span class="hljs-type">const</span> <span class="hljs-type">int</span> *cpx = &amp;x;<br><span class="hljs-type">const</span> <span class="hljs-type">int</span>* <span class="hljs-type">const</span> cpxc = &amp;x;<br><span class="hljs-type">const</span> <span class="hljs-type">int</span>&amp; rx=x;<br><br><span class="hljs-built_in">f</span>(&amp;x);         <span class="hljs-comment">// &amp;x 的类型是 int*，T是int，param 的类型是int*</span><br><span class="hljs-comment">// ref-to-const，希望 target 的不可变性保留，因此 T 保留了 const</span><br><span class="hljs-built_in">f</span>(cpx);        <span class="hljs-comment">// T 是 const int，param的类型是const int*</span><br><span class="hljs-comment">// 指针本身是 pass-by-value 的，因此指针自身的 const 不会保留</span><br><span class="hljs-built_in">f</span>(cpxc);       <span class="hljs-comment">// T是 const int，param 是 const int*；如果改成 f(T* const)，param 会变为 const int* const</span><br><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(T&amp; param)</span></span>;<br><br><span class="hljs-built_in">f</span>(rx);         <span class="hljs-comment">// T是const int，param的类型是const int&amp;</span><br><br><span class="hljs-comment">// 情景二</span><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(T &amp;&amp;ref)</span></span>;<br><br><span class="hljs-built_in">f</span>(&amp;x);         <span class="hljs-comment">// &amp;x 是右值，类型是 int*，param 是 int *&amp;&amp;</span><br><span class="hljs-built_in">f</span>(x);          <span class="hljs-comment">// x 是左值，类型是 int，param 是 int &amp;</span><br><br><span class="hljs-comment">// 情景三</span><br><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(T param)</span></span>;<br><br><span class="hljs-type">const</span> <span class="hljs-type">int</span> cx=x;       <br><span class="hljs-built_in">f</span>(cx);         <span class="hljs-comment">// T 和 param的类型都是int</span><br><span class="hljs-type">const</span> <span class="hljs-type">char</span>* <span class="hljs-type">const</span> ptr =  <span class="hljs-string">&quot;Fun with pointers&quot;</span>; <span class="hljs-comment">// const char* 可变指针指向 const 字符串</span><br></code></pre></td></tr></table></figure>
 
-<h3 id="条款二：理解-auto-类型推导"><a href="#条款二：理解-auto-类型推导" class="headerlink" title="条款二：理解 auto 类型推导"></a>条款二：理解 auto 类型推导</h3><p>auto 类型推导与模板类型推导基本一致，区别在于模板类型推导无法处理 uniform initialization 的情况，需要在参数中手动写上 <code>std::initializer_list&lt;T&gt;</code> 才行</p>
+<h3 id="条款二：理解auto类型推导"><a href="#条款二：理解auto类型推导" class="headerlink" title="条款二：理解auto类型推导"></a>条款二：理解auto类型推导</h3><p>auto 类型推导与模板类型推导基本一致，区别在于模板类型推导无法处理 uniform initialization 的情况，需要在参数中手动写上 <code>std::initializer_list&lt;T&gt;</code> 才行</p>
 <p>此外 C++14 lambda 函数允许形参使用 auto，这里使用的是模板类型推导那一套</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">const</span> <span class="hljs-keyword">auto</span> &amp; rx=cx; <br><span class="hljs-comment">// 类型推导等价于如下代码</span><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;            <span class="hljs-comment">//概念化的模板用来推导rx的类型</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func_for_rx</span><span class="hljs-params">(<span class="hljs-type">const</span> T &amp; param)</span></span>;<br><span class="hljs-built_in">func_for_rx</span>(cx);<br><br><span class="hljs-comment">// 举个例子</span><br><span class="hljs-keyword">auto</span> x = <span class="hljs-number">27</span>;<br><span class="hljs-type">const</span> <span class="hljs-keyword">auto</span> cx = x;<br><span class="hljs-keyword">auto</span>&amp;&amp; uref2 = cx; <span class="hljs-comment">// 对应条款一的情景二，uref2类型为const int&amp;</span><br><br><span class="hljs-comment">// 唯一例外</span><br><span class="hljs-keyword">auto</span> x1 = <span class="hljs-number">27</span>;                   <span class="hljs-comment">//类型是int，值是27</span><br><span class="hljs-function"><span class="hljs-keyword">auto</span> <span class="hljs-title">x2</span><span class="hljs-params">(<span class="hljs-number">27</span>)</span></span>;                    <span class="hljs-comment">//同上</span><br><span class="hljs-keyword">auto</span> x3 = &#123; <span class="hljs-number">27</span> &#125;;               <span class="hljs-comment">//类型是std::initializer_list&lt;int&gt;，</span><br>                                <span class="hljs-comment">//值是&#123; 27 &#125;</span><br><span class="hljs-keyword">auto</span> x4&#123; <span class="hljs-number">27</span> &#125;;                  <span class="hljs-comment">//同上</span><br></code></pre></td></tr></table></figure>
 
-<h3 id="条款三：理解-decltype"><a href="#条款三：理解-decltype" class="headerlink" title="条款三：理解 decltype"></a>条款三：理解 decltype</h3><p>在C++11中，decltype最主要的用途就是用于声明函数模板，而这个函数返回类型依赖于形参类型。</p>
+<h3 id="条款三：理解decltype"><a href="#条款三：理解decltype" class="headerlink" title="条款三：理解decltype"></a>条款三：理解decltype</h3><p>在C++11中，decltype最主要的用途就是用于声明函数模板，而这个函数返回类型依赖于形参类型。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> Container, <span class="hljs-keyword">typename</span> Index&gt;    <span class="hljs-comment">// C++14版本，</span><br><span class="hljs-function"><span class="hljs-keyword">auto</span> <span class="hljs-title">authAndAccess</span><span class="hljs-params">(Container&amp;&amp; c, Index i)</span>      <span class="hljs-comment">// 允许传入左值或右值</span></span><br><span class="hljs-function"><span class="hljs-comment">// 如果是 C++11 需要写成</span></span><br><span class="hljs-function"><span class="hljs-comment">// auto authAndAccess(Container&amp; c, Index i) -&gt;decltype(c[i])</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">// 根据传入的值类型（左值/右值）调用对应的 operator[] 重载</span><br>    <span class="hljs-keyword">return</span> std::forward&lt;Container&gt;(c)[i];       <span class="hljs-comment">// 从c[i]中推导返回类型</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>问题在于通常容器的 <code>[]</code> 操作符返回的是引用，而 auto 走模板推导的话会忽略引用，这使得（假设是一个 int 容器）我们返回的是一个 int（右值），无法修改容器内的值。我们希望能够完全用 <code>authAndAccess(c, i) = 1</code> 替代 <code>c[i] = 1</code> 的效果</p>
@@ -325,7 +324,7 @@
 <h3 id="条款四：学会查看类型推导结果"><a href="#条款四：学会查看类型推导结果" class="headerlink" title="条款四：学会查看类型推导结果"></a>条款四：学会查看类型推导结果</h3><p>观察类型（包括 cv 属性）的方法：IDE、编译器、运行时输出</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 通过编译器</span><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;                <span class="hljs-comment">//只对TD进行声明</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">TD</span>;                           <span class="hljs-comment">//TD == &quot;Type Displayer&quot;</span><br><br>TD&lt;<span class="hljs-keyword">decltype</span>(param)&gt; tType;          <span class="hljs-comment">// 看编译器报错可知类型</span><br><br><span class="hljs-comment">// 运行时，但不靠谱</span><br>std::cout &lt;&lt; <span class="hljs-built_in">typeid</span>(x).<span class="hljs-built_in">name</span>() &lt;&lt; <span class="hljs-string">&#x27;\n&#x27;</span>;<br></code></pre></td></tr></table></figure>
 
-<h3 id="条款五：优先考虑-auto-而非显式类型声明"><a href="#条款五：优先考虑-auto-而非显式类型声明" class="headerlink" title="条款五：优先考虑 auto 而非显式类型声明"></a>条款五：优先考虑 auto 而非显式类型声明</h3><ul>
+<h3 id="条款五：优先考虑auto而非显式类型声明"><a href="#条款五：优先考虑auto而非显式类型声明" class="headerlink" title="条款五：优先考虑auto而非显式类型声明"></a>条款五：优先考虑auto而非显式类型声明</h3><ul>
 <li>auto 变量确保必须被初始化</li>
 <li>只有编译器知道类型的变量，用 auto 表示会更简单</li>
 </ul>
@@ -340,7 +339,7 @@
 </li>
 <li>重构时不用手动改 auto 变量的类型</li>
 </ul>
-<h3 id="条款六：auto-推导若非己愿，使用显式类型初始化惯用法"><a href="#条款六：auto-推导若非己愿，使用显式类型初始化惯用法" class="headerlink" title="条款六：auto 推导若非己愿，使用显式类型初始化惯用法"></a>条款六：auto 推导若非己愿，使用显式类型初始化惯用法</h3><p>不可见的代理类可能会使auto从表达式中推导出“错误的”类型</p>
+<h3 id="条款六：auto推导若非己愿，使用显式类型初始化惯用法"><a href="#条款六：auto推导若非己愿，使用显式类型初始化惯用法" class="headerlink" title="条款六：auto推导若非己愿，使用显式类型初始化惯用法"></a>条款六：auto推导若非己愿，使用显式类型初始化惯用法</h3><p>不可见的代理类可能会使auto从表达式中推导出“错误的”类型</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 根据 features 的第五个 bit 判断优先级</span><br><span class="hljs-function">std::vector&lt;<span class="hljs-type">bool</span>&gt; <span class="hljs-title">features</span><span class="hljs-params">(<span class="hljs-type">const</span> Widget&amp; w)</span></span>;<br>Widget w;<br><span class="hljs-type">bool</span> highPriority = <span class="hljs-built_in">features</span>(w)[<span class="hljs-number">5</span>];<br><span class="hljs-comment">// 错误的用法</span><br><span class="hljs-comment">// auto highPriority = features(w)[5];</span><br><span class="hljs-comment">// 正确的用法</span><br><span class="hljs-comment">// auto highPriority = static_cast&lt;bool&gt;(features(w)[5]);</span><br><span class="hljs-built_in">processWidget</span>(w, highPriority);<br></code></pre></td></tr></table></figure>
 
 <p>这里的问题在于，<code>std::vector&lt;bool&gt;</code> 的 <code>operator[]</code> 返回的是一个<code>std::vector&lt;bool&gt;::reference</code> 的对象。</p>
@@ -348,7 +347,7 @@
 <p><code>std::vector&lt;bool&gt;::reference</code> 是一个代理类（proxy class）的例子：所谓代理类就是以模仿和增强一些类型的行为为目的而存在的类</p>
 <p>当类型声明为 auto 时，一种可能的情况是，这个 bit reference 存的是指向 vector 中某个字节的指针，以及这个指针中我们需要第几位，但由于 features 函数返回的 vector 只是一个临时变量，有可能在使用 highPriority 这个 reference 的时候真正指向的 vector 内存已经被销毁，产生 UB</p>
 <p>另一个使用 <code>auto</code> + <code>static_cast</code> 的场景是需要手动转换类型，并且相对于 <code>int x = func_return_float()</code> 的写法更能表示“我希望做类型转换”的目的，后者无法看出（不考虑函数名）函数的返回值可能不是 int 类型</p>
-<h3 id="条款七：区别使用-和-创建对象"><a href="#条款七：区别使用-和-创建对象" class="headerlink" title="条款七：区别使用 () 和 {} 创建对象"></a>条款七：区别使用 () 和 {} 创建对象</h3><p>C++11 使用花括号来统一初始化方式</p>
+<h3 id="条款七：区别使用-和-创建对象"><a href="#条款七：区别使用-和-创建对象" class="headerlink" title="条款七：区别使用()和{}创建对象"></a>条款七：区别使用()和{}创建对象</h3><p>C++11 使用花括号来统一初始化方式</p>
 <ul>
 <li>与 auto 搭配时需要注意类型推导</li>
 <li>不允许非兼容（变窄）转换</li>
@@ -360,8 +359,8 @@
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(<span class="hljs-type">int</span>)</span></span>;        <span class="hljs-comment">//三个f的重载函数</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(<span class="hljs-type">bool</span>)</span></span>;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(<span class="hljs-type">void</span>*)</span></span>;<br><br><span class="hljs-built_in">f</span>(<span class="hljs-number">0</span>);               <span class="hljs-comment">//调用f(int)而不是f(void*)</span><br><br><span class="hljs-built_in">f</span>(<span class="hljs-literal">NULL</span>);            <span class="hljs-comment">//可能不会被编译，一般来说调用f(int)，</span><br>                    <span class="hljs-comment">//绝对不会调用f(void*)</span><br></code></pre></td></tr></table></figure>
 
 <p><code>nullptr</code> 可以隐式转换为所有类型的指针，同时它也不会匹配到整形的函数重载，也不会被模板类&#x2F;函数推导为整形（which is the case of 0 or NULL）</p>
-<h3 id="条款九：优先考虑别名声明而非-typedefs"><a href="#条款九：优先考虑别名声明而非-typedefs" class="headerlink" title="条款九：优先考虑别名声明而非 typedefs"></a>条款九：优先考虑别名声明而非 typedefs</h3><p>TODO<br>总之优先用 <code>using &lt;typeNameAlias&gt; = xxx</code> 而别用 typedef</p>
-<h3 id="条款十：优先考虑限域-enum-而非未限域-enum"><a href="#条款十：优先考虑限域-enum-而非未限域-enum" class="headerlink" title="条款十：优先考虑限域 enum 而非未限域 enum"></a>条款十：优先考虑限域 enum 而非未限域 enum</h3><ul>
+<h3 id="条款九：优先考虑别名声明而非typedefs"><a href="#条款九：优先考虑别名声明而非typedefs" class="headerlink" title="条款九：优先考虑别名声明而非typedefs"></a>条款九：优先考虑别名声明而非typedefs</h3><p>TODO<br>总之优先用 <code>using &lt;typeNameAlias&gt; = xxx</code> 而别用 typedef</p>
+<h3 id="条款十：优先考虑限域enum而非未限域enum"><a href="#条款十：优先考虑限域enum而非未限域enum" class="headerlink" title="条款十：优先考虑限域enum而非未限域enum"></a>条款十：优先考虑限域enum而非未限域enum</h3><ul>
 <li>C++11 引入了 scoped enum，解决了以前 enum 中的元素实际上会占用 enum 被定义的空间内的名称的问题</li>
 <li>scoped enum 视为强类型（但可以 static_cast 显式转换），而 unscoped enum 会被隐式转换为整形</li>
 <li>C++11 中 scoped enum 可以前置声明，使用时引用此声明（而非引用完整定义）。若 enum 修改，不会导致所有引用到的地方都重新编译、此外也有助于优化头文件的可读性</li>
@@ -373,7 +372,7 @@
 <p>在C++98中防止调用这些函数的方法是将它们声明为私有（private）成员函数并且不定义，而 C++11 起的推荐做法是用 deleted。它不止能应用于成员函数，也可以引用于普通函数、函数模板（举个例子，某个模板函数可以接收 int、char 以外的所有类型，就可以用 deleted 实现）</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 禁用 iostream 的拷贝与赋值</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">basic_ios</span> : <span class="hljs-keyword">public</span> ios_base &#123;<br>  <span class="hljs-keyword">private</span>:<br>    <span class="hljs-built_in">basic_ios</span>(<span class="hljs-type">const</span> basic_ios&amp; );           <span class="hljs-comment">// not defined</span><br>    basic_ios&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-type">const</span> basic_ios&amp;); <span class="hljs-comment">// not defined</span><br>&#125;<br><br><span class="hljs-comment">// 在 C++11 中的做法则是这样的</span><br><span class="hljs-keyword">public</span>:<br>  <span class="hljs-built_in">basic_ios</span>(<span class="hljs-type">const</span> basic_ios&amp; ) = <span class="hljs-keyword">delete</span>;<br>  basic_ios&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-type">const</span> basic_ios&amp;) = <span class="hljs-keyword">delete</span>;<br></code></pre></td></tr></table></figure>
 
-<h3 id="条款十二：使用-override-声明重写函数"><a href="#条款十二：使用-override-声明重写函数" class="headerlink" title="条款十二：使用 override 声明重写函数"></a>条款十二：使用 override 声明重写函数</h3><p>用 override 声明重写函数，可以让编译器帮助我们检查是否真的重写了父类的函数</p>
+<h3 id="条款十二：使用override声明重写函数"><a href="#条款十二：使用override声明重写函数" class="headerlink" title="条款十二：使用override声明重写函数"></a>条款十二：使用override声明重写函数</h3><p>用 override 声明重写函数，可以让编译器帮助我们检查是否真的重写了父类的函数</p>
 <p>这里额外列一下重写函数的规则：</p>
 <ul>
 <li>基类函数必须是virtual</li>
@@ -385,61 +384,7 @@
 </ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">auto</span> vals2 = <span class="hljs-built_in">makeWidget</span>().<span class="hljs-built_in">data</span>(); <span class="hljs-comment">// 此时 this 是右值，如果 data 能够被移动出来，调用移动构造，就会很好</span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Widget</span> &#123;<br>  <span class="hljs-function">DataType&amp; <span class="hljs-title">data</span><span class="hljs-params">()</span> &amp; </span>&#123; <span class="hljs-keyword">return</span> values; &#125;<br>  <span class="hljs-function">DataType <span class="hljs-title">data</span><span class="hljs-params">()</span> &amp;&amp; </span>&#123; <span class="hljs-keyword">return</span> std::<span class="hljs-built_in">move</span>(values); &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<h3 id="条款十三：优先考虑-const-iterator-而非-iterator"><a href="#条款十三：优先考虑-const-iterator-而非-iterator" class="headerlink" title="条款十三：优先考虑 const_iterator 而非 iterator"></a>条款十三：优先考虑 const_iterator 而非 iterator</h3><p>TODO</p>
-<h3 id="条款十四：如果函数不抛出异常请使用-noexcept"><a href="#条款十四：如果函数不抛出异常请使用-noexcept" class="headerlink" title="条款十四：如果函数不抛出异常请使用 noexcept"></a>条款十四：如果函数不抛出异常请使用 noexcept</h3><p>TL;DR 一方面是接口设计上的，对外保证我不会有异常；另一方面是性能上的，try catch 会需要记录调用栈，如果异常发生，按反向顺序析构 try 到 throw 间创建的资源，no except 则不会有这个负担</p>
-<ol>
-<li>解释一下原文中的 unwinding</li>
-</ol>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/cpp/cpp/exceptions-and-stack-unwinding-in-cpp?view=msvc-170">https://learn.microsoft.com/en-us/cpp/cpp/exceptions-and-stack-unwinding-in-cpp?view=msvc-170</a><br>When the catch statement is reached, all of the automatic variables that are in scope between the throw and catch statements are destroyed in a process that is known as stack unwinding.<br>… After the formal parameter is initialized, the process of unwinding the stack begins. This involves the destruction of all automatic objects that were fully constructed—but not yet destructed—between the beginning of the try block that is associated with the catch handler and the throw site of the exception. Destruction occurs in reverse order of construction.</p>
-</blockquote>
-<ol start="2">
-<li><p>一个例子是 vector 扩容时的数据搬运，vector push_back 提供 <a target="_blank" rel="noopener" href="https://en.cppreference.com/w/cpp/language/exceptions#Exception_safety">strong exception guarantee</a>，意味着如果调用期间异常发生，程序状态能够回滚到函数调用前的时刻，如果我们希望使用 C++11 的移动提高拷贝性能，但移动拷贝不保真 noexcept，那么就会破坏这一保证。cppreference 上没写，我的猜测是这种情况就无法用到这一优化。cppreference 上有写的是，如果移动拷贝无 noexcept，且无法拷贝构造（not CopyInsertable），那么还是会使用移动拷贝，但是作为一个例外，不再提供 strong exception guarantee</p>
-</li>
-<li><p>noexcept 可以作为 specifier，也可以作为 operator（return bool），举个例子 <code>noexcept(noexcept(swap(*a, *b)));</code> 外层作为 specifier 使用，代表有条件的 nocexcept 声明，内层作为 operator，具体说明何种情况 noexcept</p>
-</li>
-</ol>
-<h3 id="条款十五：尽可能的使用-constexpr"><a href="#条款十五：尽可能的使用-constexpr" class="headerlink" title="条款十五：尽可能的使用 constexpr"></a>条款十五：尽可能的使用 constexpr</h3><p>函数也可以用 constexpr 声明，当传入编译期常量，则产出的也是编译期常量，但也允许像普通函数那样使用</p>
-<h3 id="条款十七：理解特殊成员函数函数的生成"><a href="#条款十七：理解特殊成员函数函数的生成" class="headerlink" title="条款十七：理解特殊成员函数函数的生成"></a>条款十七：理解特殊成员函数函数的生成</h3><ul>
-<li>C++98:<ul>
-<li>默认构造、析构、拷贝构造、拷贝赋值，仅当用到才生成，默认 public inline，仅当基类析构是 virtual 时，生成的析构才是 virtual 的</li>
-<li>如果声明了构造，不会生成默认构造</li>
-</ul>
-</li>
-<li>C++11:<ul>
-<li>如果移动的实例中的某些成员不支持移动，那么会使用它的拷贝</li>
-<li>拷贝构造和拷贝赋值是独立的，但移动构造和移动赋值不是，声明其中一个会阻止另一个的生成（你可以两个都声明）</li>
-<li>声明拷贝构造&#x2F;赋值会阻止移动构造&#x2F;赋值的生成，反之亦然（这条和上一条的 intutition 是一样的：如果声明了自定义移动&#x2F;构造，默认的做法多半是错的，不如不生成，C++98 的部分需要保持不变，即拷贝构造与拷贝赋值仍然是独立的）</li>
-<li>声明析构会阻止移动构造&#x2F;赋值的生成（intuition 是自定义析构说明涉及了资源管理，那么默认移动多半是错的），但 C++98 允许自定义析构 + 默认生成拷贝构造&#x2F;赋值，保持前向兼容所以不能改（不保证，deprecated）</li>
-<li>析构默认 noexcept</li>
-</ul>
-</li>
-</ul>
-<h3 id="条款十八：对于独占资源使用-std-unique-ptr"><a href="#条款十八：对于独占资源使用-std-unique-ptr" class="headerlink" title="条款十八：对于独占资源使用 std::unique_ptr"></a>条款十八：对于独占资源使用 std::unique_ptr</h3><ul>
-<li>工厂方法是一个用 unique_ptr 的合适场景</li>
-<li>可以用 unique_ptr 初始化 shared_ptr</li>
-<li>unique_ptr 默认与原始指针大小相同，Deleter 使用函数指针会是的 unique_ptr 占用双倍体积，而 lambda 则取决于它是否是有状态的，无状态的 lambda deleter 不占用额外空间</li>
-</ul>
-<h3 id="条款十九：对于共享资源使用-std-shared-ptr"><a href="#条款十九：对于共享资源使用-std-shared-ptr" class="headerlink" title="条款十九：对于共享资源使用 std::shared_ptr"></a>条款十九：对于共享资源使用 std::shared_ptr</h3><ul>
-<li>引用计数的内存必须在堆上分配</li>
-<li><code>shared_ptr</code> 的引用计数是线程安全的</li>
-<li>使用移动构造初始化 <code>shared_ptr</code> 不会导致引用计数的变动</li>
-<li>deleter 不是 <code>shared_ptr</code> 类型的一部分（unique_ptr 中是）</li>
-<li>不要让一个指针被多个 <code>shared_ptr</code> 管理，这等同于 double free</li>
-<li>在类成员函数中使用 <code>shared_ptr(this)</code> 是错误的，因为外部肯定还有一个拥有 this 的 handle，释放这个 <code>shared_ptr</code> 会产生悬挂引用，正确的方案是使用 <code>std::enable_shared_from_this</code></li>
-<li><code>shared_ptr</code> 相对于原始指针的开销：<ul>
-<li>控制块大小（shared_ptr 有指向控制块的指针，引用计数在控制块中维护）</li>
-<li>原子变量更新</li>
-<li>析构时的虚函数调用<br>TODO 虚函数调用为什么有开销？</li>
-</ul>
-</li>
-<li>除非销毁，无法放弃 <code>shared_ptr</code> 对资源的管理，它不像 <code>unique_ptr</code> 有 <code>release</code> 方法，但还是有 get 方法的</li>
-<li>shared_ptr 不支持指向原始数组</li>
-</ul>
-<h3 id="条款二十：当-std-shared-ptr-可能悬空时使用-std-weak-ptr"><a href="#条款二十：当-std-shared-ptr-可能悬空时使用-std-weak-ptr" class="headerlink" title="条款二十：当 std::shared_ptr 可能悬空时使用 std::weak_ptr"></a>条款二十：当 std::shared_ptr 可能悬空时使用 std::weak_ptr</h3><blockquote>
-<p>std::weak_ptr通常从std::shared_ptr上创建。当从std::shared_ptr上创建std::weak_ptr时两者指向相同的对象，但是std::weak_ptr不会影响所指对象的引用计数</p>
-</blockquote>
-
+<h3 id="条款十三：优先考虑const-iterator而非iterator"><a href="#条款十三：优先考虑const-iterator而非iterator" class="headerlink" title="条款十三：优先考虑const_iterator而非iterator"></a>条款十三：优先考虑const_iterator而非iterator</h3>
                 
               </div>
             
@@ -487,7 +432,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>Modern Effective Cpp 阅读笔记</div>
-      <div>https://vicety.github.io/2023/08/18/Modern-Effective-Cpp-中文阅读/</div>
+      <div>https://vicety.github.io/2023/08/18/Modern-Effective-Cpp-中文阅读.sync-conflict-20240611-222804-NK53M5H/</div>
     </div>
     <div class="license-meta">
       
@@ -529,9 +474,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/11/18/undefined-symbol%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/" title="动态库加载时出现 Undefined Symbol 的排查思路">
+                      <a href="/2023/08/18/Modern-Effective-Cpp-%E4%B8%AD%E6%96%87%E9%98%85%E8%AF%BB/" title="Modern Effective Cpp 阅读笔记">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">动态库加载时出现 Undefined Symbol 的排查思路</span>
+                        <span class="hidden-mobile">Modern Effective Cpp 阅读笔记</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -539,8 +484,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/08/18/Modern-Effective-Cpp-%E4%B8%AD%E6%96%87%E9%98%85%E8%AF%BB.sync-conflict-20240611-222804-NK53M5H/" title="Modern Effective Cpp 阅读笔记">
-                        <span class="hidden-mobile">Modern Effective Cpp 阅读笔记</span>
+                      <a href="/2023/03/12/%E5%9C%A8%20Apache%20Calcite%20%E4%B8%AD%E4%BD%BF%E7%94%A8UDF/" title="基于 Apache Calcite 为 Java 容器提供 SQL 接口">
+                        <span class="hidden-mobile">基于 Apache Calcite 为 Java 容器提供 SQL 接口</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

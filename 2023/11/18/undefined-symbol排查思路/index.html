@@ -24,7 +24,7 @@
 <meta property="og:description" content="RT">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-11-17T19:03:03.000Z">
-<meta property="article:modified_time" content="2024-02-18T17:52:10.984Z">
+<meta property="article:modified_time" content="2024-07-10T14:18:14.600Z">
 <meta property="article:author" content="vicety">
 <meta property="article:tag" content="编程语言">
 <meta property="article:tag" content="C++">
@@ -327,6 +327,7 @@
 <li>FT cmake 中大部分的 add_library 都产出静态库，只有暴露给外部使用的是动态库，也有少数 add_library 产出动态库，为什么这么做<br>不知道，有空补充</li>
 <li>A.so 依赖 B.so 中的函数 f，在 C++ 中调用 A 的函数，执行到 f 调用时，会报什么错误<br>应该是类似 <code>shared library not found</code> 的问题，而不是本文的 undefined symbol，换句话说本文得到的两个思路，一个是需要 check 是否相关的 src 文件被加入编译，另一个是需要 check 是否有 ABI 不一致的问题</li>
 </ul>
+<p>Question: nm -D 是看动态库的，静态库符号怎么看<br>nm -gC -S libyourlibrary.a</p>
 
                 
               </div>
